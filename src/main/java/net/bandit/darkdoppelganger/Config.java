@@ -28,7 +28,7 @@ public class Config {
 
         DOPPELGANGER_MOVEMENT_SPEED = builder
                 .comment("Movement Speed of the Dark Doppelganger")
-                .defineInRange("movement_speed", 0.36, 0.1, 1.0);
+                .defineInRange("movement_speed", 0.20, 0.1, 1.0);
 
         DOPPELGANGER_KNOCKBACK_RESISTANCE = builder
                 .comment("Knockback Resistance of the Dark Doppelganger")

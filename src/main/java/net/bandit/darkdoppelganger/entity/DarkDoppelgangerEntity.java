@@ -11,6 +11,7 @@ import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAtt
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
 import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
+import net.bandit.darkdoppelganger.item.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
@@ -40,6 +41,7 @@ import net.minecraft.world.entity.projectile.LargeFireball;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -48,6 +50,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
@@ -58,15 +61,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private boolean thirdPhaseTriggered = false;
     public boolean isClone = false;
     private boolean musicPlaying = false;
-    private int teleportCooldown = 80;
-    private int shockwaveCooldown = 200;
     private int minionSummonCooldown = 300;
     private int lifeDrainCooldown = 150;
     private int roarSoundCooldown = 800;
     private int laughSoundCooldown = 800;
-    private int meteorShowerCooldown = 400;
-    private int levitationCooldown = 500;
-    private int gravityPullCooldown = 300;
     private static final int MAX_MINIONS = 5;
     private static int currentMinionCount = 0;
     private int laughCooldown = 800;
@@ -332,7 +330,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     private void stopAllMusic() {
         if (!level().isClientSide && level().getServer() != null) {
-            level().getServer().getPlayerList().getPlayers().forEach(player -> {
+            Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers().forEach(player -> {
                 player.connection.send(new ClientboundStopSoundPacket(null, SoundSource.MUSIC));
             });
         }
@@ -340,7 +338,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private void stopMinecraftAmbientMusic() {
         if (!level().isClientSide && level().getServer() != null) {
             // Loop through all players on the server
-            for (ServerPlayer player : level().getServer().getPlayerList().getPlayers()) {
+            for (ServerPlayer player : Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers()) {
                 // Stop specific Minecraft ambient music tracks
                 player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.game"), SoundSource.MUSIC));
                 player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.creative"), SoundSource.MUSIC));
@@ -354,7 +352,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     @Override
-    public void startSeenByPlayer(ServerPlayer player) {
+    public void startSeenByPlayer(@NotNull ServerPlayer player) {
         super.startSeenByPlayer(player);
         if (!this.isClone) {
             this.bossEvent.addPlayer(player);
@@ -362,7 +360,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     @Override
-    public void stopSeenByPlayer(ServerPlayer player) {
+    public void stopSeenByPlayer(@NotNull ServerPlayer player) {
         super.stopSeenByPlayer(player);
         if (!this.isClone) {
             this.bossEvent.removePlayer(player);
@@ -383,9 +381,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             laughCooldown--;
         }
 
-        if (this.getHealth() < this.getMaxHealth() * 0.3 && minionSummonCooldown <= 0) {
+        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
             summonIllusionClones();
-            minionSummonCooldown = 400; // Reset cooldown
+            minionSummonCooldown = 500;
         }
 
         // Phase triggers
@@ -465,7 +463,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
             player.sendSystemMessage(Component.literal("The Dark Doppelganger has entered its Second Phase!").withStyle(ChatFormatting.DARK_PURPLE));
-            player.playSound(ModSounds.BOSS_ROAR.get(), 1.0F, 1.0F);
+            level().playSound(null, getX(), getY(), getZ(), ModSounds.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0));
         }
 
@@ -489,118 +487,31 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         bossEvent.setName(Component.literal("Dark Doppelganger - Final Phase"));
 
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
-            player.playSound(ModSounds.BOSS_ROAR.get(), 1.0F, 1.0F);
+            level().playSound(null, getX(), getY(), getZ(), ModSounds.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
             player.displayClientMessage(Component.literal("Final Form! Prepare yourself!").withStyle(ChatFormatting.RED), true);
         }
 
         for (Player player : level().players()) {
             player.getCooldowns().addCooldown(Items.TOTEM_OF_UNDYING, 60);
         }
-        level().addParticle(ParticleTypes.DRAGON_BREATH, getX(), getY(), getZ(), 0, 0, 0);
-//        createDangerZones();
-
-        teleportCooldown = 40;
-        shockwaveCooldown = 80;
-        minionSummonCooldown = 150;
-        lifeDrainCooldown = 200;
-        meteorShowerCooldown = 200;
-    }
-//    private void createDangerZones() {
-//        for (int i = 0; i < 3; i++) {
-//            BlockPos dangerPos = new BlockPos((int) (getX() + random.nextInt(10) - 5), (int) getY(), (int) (getZ() + random.nextInt(10) - 5));
-//            level().setBlock(dangerPos, Blocks.MAGMA_BLOCK.defaultBlockState(), 3);
-//            level().addParticle(ParticleTypes.LAVA, dangerPos.getX(), dangerPos.getY(), dangerPos.getZ(), 0, 0.1, 0);
-//        }
-//    }
-    private void meteorShowerAttack() {
-        // Enhanced meteor shower with explosions, lightning, and fire
-        for (int i = 0; i < 6; i++) {
-            double xOffset = random.nextDouble() * 30 - 15;
-            double zOffset = random.nextDouble() * 30 - 15;
-            double targetX = getX() + xOffset;
-            double targetZ = getZ() + zOffset;
-            double targetY = level().getHeight() - 1;
-
-            // Create a large explosion
-            level().explode(null, targetX, targetY, targetZ, 4.0F, Level.ExplosionInteraction.BLOCK);
-            level().playSound(null, targetX, targetY, targetZ, ModSounds.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 0.8F);
-
-            // Summon a lightning bolt
+        level().explode(null, getX(), getY(), getZ(), 0.0F, Level.ExplosionInteraction.TNT);
+        level().addParticle(ParticleTypes.EXPLOSION_EMITTER, getX(), getY(), getZ(), 0, 0, 0);
+        for (int i = 0; i < 10; i++) {
+            double angle = Math.toRadians(i * 36);
+            double x = getX() + Math.cos(angle) * 10;
+            double z = getZ() + Math.sin(angle) * 10;
             LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level());
             if (lightning != null) {
-                lightning.moveTo(targetX, targetY, targetZ);
+                lightning.moveTo(x, getY(), z);
                 level().addFreshEntity(lightning);
             }
-
-            // Set blocks on fire
-            for (int x = -2; x <= 2; x++) {
-                for (int z = -2; z <= 2; z++) {
-                    if (level().isEmptyBlock(new BlockPos((int) (targetX + x), (int) targetY, (int) (targetZ + z)))) {
-                        level().setBlock(new BlockPos((int) (targetX + x), (int) targetY, (int) (targetZ + z)), Blocks.FIRE.defaultBlockState(), 3);
-                    }
-                }
-            }
-
-            // Add particles
-            level().addParticle(ParticleTypes.EXPLOSION, targetX, targetY, targetZ, 0, 0, 0);
-            level().addParticle(ParticleTypes.SMOKE, targetX, targetY, targetZ, 0, 0.1, 0);
         }
-        meteorShowerCooldown = 600; // Reset cooldown
+
+        minionSummonCooldown = 150;
+        lifeDrainCooldown = 200;
     }
 
-    private void levitationAttack() {
-        if (getTarget() != null && !level().isClientSide) {
-            // Boss levitates into the air
-            teleportTo(getX(), getY() + 10, getZ());
-            level().playSound(null, getX(), getY(), getZ(), ModSounds.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.5F, 1.0F);
 
-            // Apply levitation effect to nearby players
-            level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(15)).forEach(player -> {
-                player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 100, 1));
-                player.hurt(level().damageSources().magic(), 5.0F);
-            });
-
-            // Shoot fireballs at players
-            for (int i = 0; i < 3; i++) {
-                if (getTarget() != null) {
-                    LargeFireball fireball = new LargeFireball(level(), this, getTarget().getX() - getX(), getTarget().getY() - getY(), getTarget().getZ() - getZ(), 2);
-                    fireball.setPos(getX(), getY() + 2, getZ());
-                    level().addFreshEntity(fireball);
-                }
-            }
-            levitationCooldown = 800; // Reset cooldown
-        }
-    }
-
-    private void gravitationalPull() {
-        // Enhanced gravitational pull with stronger force and particles
-        level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(20)).forEach(player -> {
-            double dx = getX() - player.getX();
-            double dz = getZ() - player.getZ();
-            double distance = Math.sqrt(dx * dx + dz * dz);
-            double pullStrength = 1.2 / (distance + 0.1); // Stronger pull
-            player.setDeltaMovement(dx * pullStrength, 0.5, dz * pullStrength);
-            player.hurt(level().damageSources().magic(), 8.0F);
-
-            // Add swirling particles
-            level().addParticle(ParticleTypes.PORTAL, player.getX(), player.getY(), player.getZ(), 0, 1, 0);
-        });
-
-        level().playSound(null, getX(), getY(), getZ(), ModSounds.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 0.5F);
-        gravityPullCooldown = 400; // Reset cooldown
-    }
-    private void shadowTeleport() {
-        if (getTarget() != null && !level().isClientSide) {
-            teleportTo(getTarget().getX(), getTarget().getY(), getTarget().getZ());
-            level().playSound(null, getX(), getY(), getZ(), ModSounds.BOSS_LAUGH.get(), SoundSource.HOSTILE, 0.0F, 1.0F);
-
-            for (int i = 0; i < 10; i++) {
-                level().addParticle(ParticleTypes.SMOKE, getX() + random.nextDouble() - 0.5, getY(), getZ() + random.nextDouble() - 0.5, 0, 0.1, 0);
-            }
-
-            laughSoundCooldown = 400;
-        }
-    }
     private void summonIllusionClones() {
         for (int i = 0; i < 3; i++) {
             DarkDoppelgangerEntity clone = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
@@ -616,33 +527,19 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
-
-    private void shockwaveAttack() {
-        level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(12)).forEach(player -> {
-            double dx = player.getX() - this.getX();
-            double dz = player.getZ() - this.getZ();
-            player.knockback(2.0F, dx, dz);
-            player.hurt(level().damageSources().mobAttack(this), 6.0F);
-        });
-        // Play roar sound only if cooldown is over
-        if (roarSoundCooldown <= 0) {
-            level().playSound(null, getX(), getY(), getZ(), ModSounds.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
-            roarSoundCooldown = 400; // Reset cooldown
-        }
-    }
-
     private void summonMinions() {
         // Check if this is a clone or if the minion count has reached the limit
         if (isClone || currentMinionCount >= MAX_MINIONS) return;
 
         for (int i = 0; i < 2; i++) {
-            if (currentMinionCount >= MAX_MINIONS) break; // Stop if max minions reached
+            if (currentMinionCount >= MAX_MINIONS) break;
 
             DarkDoppelgangerEntity minion = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
             if (minion != null) {
                 minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
                 minion.setHealth(minion.getMaxHealth() * 0.3F);
                 minion.isClone = true;
+                minion.addTag("dark_doppelganger_clone");
                 level().addFreshEntity(minion);
                 currentMinionCount++;
             }
@@ -662,7 +559,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     @Override
-    public void die(DamageSource cause) {
+    public void die(@NotNull DamageSource cause) {
         super.die(cause);
         if (isClone) {
             synchronized (DarkDoppelgangerEntity.class) {
@@ -674,13 +571,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         if (!this.level().isClientSide) {
             if (cause.getEntity() instanceof ServerPlayer serverPlayer) {
-                Advancement advancement = serverPlayer.getServer().getAdvancements()
+                Advancement advancement = Objects.requireNonNull(serverPlayer.getServer()).getAdvancements()
                         .getAdvancement(new ResourceLocation("darkdoppelganger", "kill_dark_doppelganger"));
 
                 if (advancement != null) {
                     serverPlayer.getAdvancements().award(advancement, "kill");
                     serverPlayer.sendSystemMessage(Component.literal("You have slain the Dark Doppelganger!"));
                 }
+                // Drop the ring
+                this.spawnAtLocation(ItemRegistry.DOPPELGANGER_RING.get());
 
                 this.spawnAtLocation(Items.NETHER_STAR);
                 this.spawnAtLocation(Items.ECHO_SHARD, 3);
@@ -689,7 +588,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
 
             // Stop the music for the real boss only
-            this.level().getServer().getPlayerList().getPlayers().forEach(player -> {
+            Objects.requireNonNull(this.level().getServer()).getPlayerList().getPlayers().forEach(player -> {
                 player.connection.send(new ClientboundStopSoundPacket(ModSounds.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC));
             });
             this.bossEvent.removeAllPlayers();
@@ -699,16 +598,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 6000.0) // Default value
                 .add(Attributes.ATTACK_DAMAGE, 20.0) // Default value
-                .add(Attributes.MOVEMENT_SPEED, 0.36) // Default value
+                .add(Attributes.MOVEMENT_SPEED, 0.20) // Default value
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.6) // Default value
                 .add(Attributes.ARMOR, 20.0) // Default value
                 .add(Attributes.FOLLOW_RANGE, 64.0); // Default value
     }
-
-//    @Override
-//    public boolean shouldSheathSword() {
-//        return true;
-//    }
 
     RawAnimation animationToPlay = null;
     private final AnimationController<DarkDoppelgangerEntity> meleeController = new AnimationController<>(this, "keeper_animations", 0, this::predicate);

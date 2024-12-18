@@ -41,7 +41,7 @@ public class ServerEvents {
             }
         }
     }
-
+//This logic essentially protects the "original" DarkDoppelganger from taking damage as long as there are clones of itself nearby.
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event){
         if(event.getEntity().getType() == EntityRegistry.DARK_DOPPELGANGER.get()){

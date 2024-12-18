@@ -97,14 +97,6 @@ public class SummonScrollItem extends Item {
         serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
                 ModSounds.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
 
-        for (int i = 0; i < 50; i++) {
-            double xOffset = (serverWorld.random.nextDouble() - 0.5) * 2.0;
-            double yOffset = serverWorld.random.nextDouble() * 2.0;
-            double zOffset = (serverWorld.random.nextDouble() - 0.5) * 2.0;
-
-            serverWorld.addParticle(ParticleTypes.SMOKE, summonX + xOffset, summonY + yOffset, summonZ + zOffset, 0, 0, 0);
-            serverWorld.addParticle(ParticleTypes.PORTAL, summonX + xOffset, summonY + yOffset, summonZ + zOffset, 0, 0, 0);
-        }
         serverWorld.addFreshEntity(entity);
         serverWorld.getServer().execute(() -> {
             double teleportX = player.getX() + (serverWorld.random.nextDouble() - 0.5) * 5.0;
@@ -115,14 +107,6 @@ public class SummonScrollItem extends Item {
             serverWorld.playSound(null, teleportX, teleportY, teleportZ,
                     ModSounds.BOSS_LAUGH.get(), SoundSource.HOSTILE, 1.5F, 0.8F);
 
-            // Add teleportation particles
-            for (int i = 0; i < 20; i++) {
-                double xOffset = (serverWorld.random.nextDouble() - 0.5) * 2.0;
-                double yOffset = serverWorld.random.nextDouble();
-                double zOffset = (serverWorld.random.nextDouble() - 0.5) * 2.0;
-
-                serverWorld.addParticle(ParticleTypes.END_ROD, teleportX + xOffset, teleportY + yOffset, teleportZ + zOffset, 0, 0, 0);
-            }
         });
     }
     @Override
