@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class PortalJoinRenderer extends GeoEntityRenderer<PortalJoinEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "textures/entity/portal.png");
@@ -20,6 +21,7 @@ public class PortalJoinRenderer extends GeoEntityRenderer<PortalJoinEntity> {
     public PortalJoinRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new PortalJoinModel());
         this.shadowRadius = 0;
+        addRenderLayer(new AutoGlowingGeoLayer<>(this));
     }
 
     @Override
