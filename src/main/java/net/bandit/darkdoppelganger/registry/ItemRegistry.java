@@ -6,6 +6,7 @@ import net.bandit.darkdoppelganger.items.SummonScrollItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -17,4 +18,9 @@ public class ItemRegistry {
 
     public static final  DeferredHolder<Item, Item> DOPPELGANGER_RING = ITEMS.register("doppelganger_ring",
             () -> new DoppelgangerRingItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
+
+    // Method to register sound events
+    public static void register(IEventBus eventBus) {
+        ITEMS.register(eventBus);
+    }
 }

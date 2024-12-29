@@ -1,11 +1,11 @@
 package net.bandit.darkdoppelganger.items;
 
+
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -13,11 +13,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-import java.util.UUID;
+
 import java.util.function.Function;
 
 public class DoppelgangerRingItem extends Item implements ICurioItem {
@@ -36,7 +38,7 @@ public class DoppelgangerRingItem extends Item implements ICurioItem {
                     new AttributeModifier(MAX_MANA_ID, 100.0, AttributeModifier.Operation.ADD_VALUE));
             builder.put(Holder.direct(AttributeRegistry.SUMMON_DAMAGE.get()),
                     new AttributeModifier(HEALTH_BOOST_ID, 20.0, AttributeModifier.Operation.ADD_VALUE));
-            return builder.build();
+            return (Multimap<Holder<Attribute>, AttributeModifier>) builder.build();
         };
     }
 

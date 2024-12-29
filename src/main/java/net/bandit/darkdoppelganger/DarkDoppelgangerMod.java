@@ -1,9 +1,16 @@
 package net.bandit.darkdoppelganger;
 
 import com.mojang.logging.LogUtils;
+import net.bandit.darkdoppelganger.command.ModCommands;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
+import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerRenderer;
+import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
+import net.bandit.darkdoppelganger.entity.renderer.PortalLeaveRenderer;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
+import net.bandit.darkdoppelganger.registry.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.bandit.darkdoppelganger.registry.SpellRegistry;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,7 +21,8 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.slf4j.Logger;
 
 @Mod(DarkDoppelgangerMod.MOD_ID)
@@ -23,28 +31,43 @@ public class DarkDoppelgangerMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public DarkDoppelgangerMod(IEventBus modEventBus, ModContainer modContainer) {
+        // Register setup methods to the mod event bus
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::onEntityAttributeCreation);
+
+        // Register registries to the mod event bus
         SoundRegistry.register(modEventBus);
         EntityRegistry.register(modEventBus);
         SpellRegistry.register(modEventBus);
+        ItemRegistry.register(modEventBus);
 
-        NeoForge.EVENT_BUS.register(this);
+        // Register the mod's config
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-
+        LOGGER.info("Common setup for Dark Doppelganger Mod");
     }
 
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
+    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
+        event.put(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.createAttributes().build());
     }
 
     @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-
+            EntityRenderers.register(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerRenderer::new);
+            EntityRenderers.register(EntityRegistry.PORTAL_JOIN_ENTITY.get(), PortalJoinRenderer::new);
+            EntityRenderers.register(EntityRegistry.PORTAL_LEAVE_ENTITY.get(), PortalLeaveRenderer::new);
+            LOGGER.info("Client setup for Dark Doppelganger Mod");
+        }
+    }
+    @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.GAME)
+    public static class CommandRegistration {
+        @SubscribeEvent
+        public static void onRegisterCommands(RegisterCommandsEvent event){
+            ModCommands.registerCommands(event.getDispatcher());
         }
     }
 }

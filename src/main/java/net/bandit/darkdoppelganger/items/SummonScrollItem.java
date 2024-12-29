@@ -23,8 +23,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class SummonScrollItem extends Item {
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public SummonScrollItem(Properties properties) {
         super(properties);
@@ -40,17 +45,10 @@ public class SummonScrollItem extends Item {
             player.sendSystemMessage(Component.literal("Dark Doppelganger will spawn in 5 seconds!"));
 
             ServerLevel serverWorld = (ServerLevel) world;
-            serverWorld.getServer().submitAsync(() -> {
-                // Delay for 5 seconds
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                serverWorld.getServer().execute(() -> {
-                    summonDoppelganger(serverWorld, player);
-                });
-            });
+
+            // Schedule the summoning task after 5 seconds
+            scheduler.schedule(() -> serverWorld.getServer().execute(() -> summonDoppelganger(serverWorld, player)), 5, TimeUnit.SECONDS);
+
             if (!player.isCreative()) {
                 itemStack.shrink(1);
             }
@@ -67,37 +65,31 @@ public class SummonScrollItem extends Item {
 
     private void triggerTotemAnimation(Player player, ItemStack itemStack) {
         if (player.level().isClientSide()) {
-
             player.playSound(SoundEvents.TOTEM_USE, 1.0F, 1.0F);
-
-
             Minecraft.getInstance().gameRenderer.displayItemActivation(itemStack);
-
-
             player.swing(InteractionHand.MAIN_HAND, true);
         }
     }
 
     private void summonDoppelganger(ServerLevel serverWorld, Player player) {
         Vec3 lookVector = player.getLookAngle();
-
         Vec3 spawnPosition = player.position().add(lookVector.scale(4));
 
-        // Create the entity
+        // Create and configure the entity
         DarkDoppelgangerEntity entity = new DarkDoppelgangerEntity(EntityRegistry.DARK_DOPPELGANGER.get(), serverWorld);
         entity.setPos(spawnPosition.x, player.getY(), spawnPosition.z);
         entity.setYRot(-player.getYRot());
-
         entity.setSummonerPlayer(player);
         entity.addTag("dark_doppelganger_boss");
         entity.setCustomName(Component.literal(player.getName().getString()));
         entity.setCustomNameVisible(true);
 
+        // Apply effects and play sounds
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
-
         serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
-               SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
+                SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
 
+        // Spawn the entity
         serverWorld.addFreshEntity(entity);
     }
     @Override

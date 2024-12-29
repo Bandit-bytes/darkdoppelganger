@@ -1,0 +1,34 @@
+{
+  "boss_fight": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:music/boss_fight",
+        "stream": true
+      }
+    ]
+  },
+  "boss_laugh": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:music/boss_laugh",
+        "stream": false
+      }
+    ]
+  },
+  "boss_roar": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:music/boss_roar",
+        "stream": false
+      }
+    ]
+  },
+  "boss_stun": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:music/boss_stun",
+        "stream": false
+      }
+    ]
+  }
+}
