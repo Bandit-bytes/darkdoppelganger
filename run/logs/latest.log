@@ -1,13 +1,13 @@
-[29Dec2024 15:48:56.463] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeclientuserdev, --version, 21.1.92, --assetIndex, 17, --assetsDir, C:\\Users\\noide\\.gradle\\caches\\neoformruntime\\assets, --gameDir, ., --fml.neoForgeVersion, 21.1.92, --fml.fmlVersion, 4.0.34, --fml.mcVersion, 1.21.1, --fml.neoFormVersion, 20240808.144430]
-[29Dec2024 15:48:56.466] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.4+7-LTS
-[29Dec2024 15:48:56.467] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.4 by Eclipse Adoptium; OS Windows 10 arch amd64 version 10.0
-[29Dec2024 15:48:56.539] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
-[29Dec2024 15:48:56.620] [main/INFO] [EARLYDISPLAY/]: Trying GL version 4.6
-[29Dec2024 15:48:56.760] [main/INFO] [EARLYDISPLAY/]: Requested GL version 4.6 got version 4.6
-[29Dec2024 15:48:56.829] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/noide/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23131!/ Service=ModLauncher Env=CLIENT
-[29Dec2024 15:48:57.036] [pool-2-thread-1/INFO] [EARLYDISPLAY/]: GL info: NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2 GL version 4.6.0 NVIDIA 560.94, NVIDIA Corporation
-[29Dec2024 15:48:57.180] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
-[29Dec2024 15:48:57.181] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+[29Dec2024 17:03:00.710] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeclientuserdev, --version, 21.1.92, --assetIndex, 17, --assetsDir, C:\\Users\\noide\\.gradle\\caches\\neoformruntime\\assets, --gameDir, ., --fml.neoForgeVersion, 21.1.92, --fml.fmlVersion, 4.0.34, --fml.mcVersion, 1.21.1, --fml.neoFormVersion, 20240808.144430]
+[29Dec2024 17:03:00.712] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.4+7-LTS
+[29Dec2024 17:03:00.713] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.4 by Eclipse Adoptium; OS Windows 10 arch amd64 version 10.0
+[29Dec2024 17:03:00.795] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
+[29Dec2024 17:03:00.881] [main/INFO] [EARLYDISPLAY/]: Trying GL version 4.6
+[29Dec2024 17:03:01.027] [main/INFO] [EARLYDISPLAY/]: Requested GL version 4.6 got version 4.6
+[29Dec2024 17:03:01.098] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/noide/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23131!/ Service=ModLauncher Env=CLIENT
+[29Dec2024 17:03:01.279] [pool-2-thread-1/INFO] [EARLYDISPLAY/]: GL info: NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2 GL version 4.6.0 NVIDIA 560.94, NVIDIA Corporation
+[29Dec2024 17:03:01.410] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[29Dec2024 17:03:01.412] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
      Mod List:
 		Name Version (Mod Id)
 
@@ -20,67 +20,67 @@
 		Minecraft 1.21.1 (minecraft)
 		NeoForge 21.1.92 (neoforge)
 		Player Animator 2.0.0-alpha1+1.21 (playeranimator)
-[29Dec2024 15:48:57.866] [main/INFO] [mixin/]: Compatibility level set to JAVA_17
-[29Dec2024 15:48:57.868] [main/INFO] [mixin/]: Compatibility level set to JAVA_21
-[29Dec2024 15:48:57.879] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeclientuserdev' with arguments [--version, 21.1.92, --gameDir, ., --assetsDir, C:\Users\noide\.gradle\caches\neoformruntime\assets, --assetIndex, 17]
-[29Dec2024 15:48:57.922] [main/WARN] [mixin/]: Reference map 'irons_spellbooks.refmap.json' for irons_spellbooks.mixins.json could not be read. If this is a development environment you can ignore this message
-[29Dec2024 15:48:57.923] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.neoforge.mixins.json could not be read. If this is a development environment you can ignore this message
-[29Dec2024 15:48:57.923] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.mixins.json could not be read. If this is a development environment you can ignore this message
-[29Dec2024 15:48:57.923] [main/WARN] [mixin/]: Reference map 'geckolib.refmap.json' for geckolib.mixins.json could not be read. If this is a development environment you can ignore this message
-[29Dec2024 15:48:58.180] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
-[29Dec2024 15:48:59.415] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 229 Datafixer optimizations took 300 milliseconds
-[29Dec2024 15:49:02.728] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[29Dec2024 15:49:02.729] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
-[29Dec2024 15:49:02.731] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
-[29Dec2024 15:49:02.731] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
-[29Dec2024 15:49:02.732] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[29Dec2024 15:49:02.814] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/assets/.mcassetsroot' uses unexpected schema
-[29Dec2024 15:49:02.814] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/data/.mcassetsroot' uses unexpected schema
-[29Dec2024 15:49:02.831] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
-[29Dec2024 15:49:02.837] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
-[29Dec2024 15:49:02.888] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.3+5
-[29Dec2024 15:49:03.064] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.92, for MC 1.21.1
-[29Dec2024 15:49:03.161] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager...
-[29Dec2024 15:49:03.165] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager took 2.420 ms
-[29Dec2024 15:49:03.916] [Render thread/INFO] [net.neoforged.neoforge.gametest.GameTestHooks/]: Enabled Gametest Namespaces: [darkdoppelganger]
-[29Dec2024 15:49:04.130] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources, mod/irons_spellbooks, mod/darkdoppelganger, mod/caelus, mod/curios, mod/geckolib, mod/playeranimator, mod/neoforge, mod/jei
-[29Dec2024 15:49:04.140] [Worker-Main-4/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Common setup for Dark Doppelganger Mod
-[29Dec2024 15:49:04.149] [Worker-Main-10/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/ice_block_animations.json'
-[29Dec2024 15:49:04.149] [Worker-Main-4/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/wizard_armor_animation.json'
-[29Dec2024 15:49:04.149] [Worker-Main-17/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/spectral_hammer.json'
-[29Dec2024 15:49:04.149] [Worker-Main-1/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'darkdoppelganger:animations/doppel_casting_animations.json'
-[29Dec2024 15:49:04.149] [Worker-Main-7/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/casting_animations.json'
-[29Dec2024 15:49:04.149] [Worker-Main-14/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/root_animations.json'
-[29Dec2024 15:49:04.149] [Worker-Main-18/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/void_tentacle_animations.json'
-[29Dec2024 15:49:04.243] [Worker-Main-13/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Client setup for Dark Doppelganger Mod
-[29Dec2024 15:49:04.289] [Worker-Main-20/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-15.1.05.hex, loading
-[29Dec2024 15:49:04.300] [Worker-Main-9/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_jp_patch-15.1.05.hex, loading
-[29Dec2024 15:49:04.327] [Worker-Main-23/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/drums.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.drum_loop
-[29Dec2024 15:49:04.327] [Worker-Main-23/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/finale.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.finale
-[29Dec2024 15:49:04.421] [Worker-Main-8/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/upgrade_orb_ender: [1, 5, 6, 7]
-[29Dec2024 15:49:04.424] [Worker-Main-17/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/energized_core_energy: [11]
-[29Dec2024 15:49:05.098] [Worker-Main-14/INFO] [io.redspace.ironsspellbooks.IronsSpellbooks/]: Got IMC []
-[29Dec2024 15:49:05.241] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:item.goat_horn.play
-[29Dec2024 15:49:05.242] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
-[29Dec2024 15:49:05.321] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Speakers (HyperX Quadcast)
-[29Dec2024 15:49:05.322] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
-[29Dec2024 15:49:05.384] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/blocks.png-atlas
-[29Dec2024 15:49:05.391] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
-[29Dec2024 15:49:05.392] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
-[29Dec2024 15:49:05.392] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
-[29Dec2024 15:49:05.393] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
-[29Dec2024 15:49:05.395] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
-[29Dec2024 15:49:05.395] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
-[29Dec2024 15:49:05.395] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
-[29Dec2024 15:49:05.395] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
-[29Dec2024 15:49:05.468] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
-[29Dec2024 15:49:05.469] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
-[29Dec2024 15:49:05.469] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/mob_effects.png-atlas
-[29Dec2024 15:49:05.469] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
-[29Dec2024 15:49:05.469] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
-[29Dec2024 15:49:05.483] [Render thread/WARN] [net.minecraft.client.renderer.ShaderInstance/]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
-[29Dec2024 15:49:05.537] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/casting_animations.json is in wrong directory: "player_animation", please place it in "player_animations".
-[29Dec2024 15:49:05.541] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
+[29Dec2024 17:03:02.093] [main/INFO] [mixin/]: Compatibility level set to JAVA_17
+[29Dec2024 17:03:02.095] [main/INFO] [mixin/]: Compatibility level set to JAVA_21
+[29Dec2024 17:03:02.110] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeclientuserdev' with arguments [--version, 21.1.92, --gameDir, ., --assetsDir, C:\Users\noide\.gradle\caches\neoformruntime\assets, --assetIndex, 17]
+[29Dec2024 17:03:02.158] [main/WARN] [mixin/]: Reference map 'irons_spellbooks.refmap.json' for irons_spellbooks.mixins.json could not be read. If this is a development environment you can ignore this message
+[29Dec2024 17:03:02.159] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.neoforge.mixins.json could not be read. If this is a development environment you can ignore this message
+[29Dec2024 17:03:02.160] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.mixins.json could not be read. If this is a development environment you can ignore this message
+[29Dec2024 17:03:02.164] [main/WARN] [mixin/]: Reference map 'geckolib.refmap.json' for geckolib.mixins.json could not be read. If this is a development environment you can ignore this message
+[29Dec2024 17:03:02.436] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+[29Dec2024 17:03:03.856] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 229 Datafixer optimizations took 301 milliseconds
+[29Dec2024 17:03:07.331] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[29Dec2024 17:03:07.332] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[29Dec2024 17:03:07.335] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[29Dec2024 17:03:07.335] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[29Dec2024 17:03:07.336] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[29Dec2024 17:03:07.438] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/assets/.mcassetsroot' uses unexpected schema
+[29Dec2024 17:03:07.438] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/data/.mcassetsroot' uses unexpected schema
+[29Dec2024 17:03:07.454] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[29Dec2024 17:03:07.459] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
+[29Dec2024 17:03:07.517] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.3+5
+[29Dec2024 17:03:07.718] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.92, for MC 1.21.1
+[29Dec2024 17:03:07.819] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager...
+[29Dec2024 17:03:07.823] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager took 2.140 ms
+[29Dec2024 17:03:08.558] [Render thread/INFO] [net.neoforged.neoforge.gametest.GameTestHooks/]: Enabled Gametest Namespaces: [darkdoppelganger]
+[29Dec2024 17:03:08.795] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources, mod/irons_spellbooks, mod/darkdoppelganger, mod/caelus, mod/curios, mod/geckolib, mod/playeranimator, mod/neoforge, mod/jei
+[29Dec2024 17:03:08.804] [Worker-Main-4/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Common setup for Dark Doppelganger Mod
+[29Dec2024 17:03:08.814] [Worker-Main-17/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/void_tentacle_animations.json'
+[29Dec2024 17:03:08.814] [Worker-Main-13/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/root_animations.json'
+[29Dec2024 17:03:08.814] [Worker-Main-16/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/spectral_hammer.json'
+[29Dec2024 17:03:08.814] [Worker-Main-19/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/wizard_armor_animation.json'
+[29Dec2024 17:03:08.814] [Worker-Main-1/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/casting_animations.json'
+[29Dec2024 17:03:08.814] [Worker-Main-10/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/ice_block_animations.json'
+[29Dec2024 17:03:08.814] [Worker-Main-7/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'darkdoppelganger:animations/doppel_casting_animations.json'
+[29Dec2024 17:03:08.888] [Worker-Main-22/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Client setup for Dark Doppelganger Mod
+[29Dec2024 17:03:08.966] [Worker-Main-2/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-15.1.05.hex, loading
+[29Dec2024 17:03:08.968] [Worker-Main-3/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_jp_patch-15.1.05.hex, loading
+[29Dec2024 17:03:09.022] [Worker-Main-19/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/drums.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.drum_loop
+[29Dec2024 17:03:09.022] [Worker-Main-19/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/finale.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.finale
+[29Dec2024 17:03:09.131] [Worker-Main-23/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/upgrade_orb_ender: [1, 5, 6, 7]
+[29Dec2024 17:03:09.136] [Worker-Main-13/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/energized_core_energy: [11]
+[29Dec2024 17:03:09.841] [Worker-Main-11/INFO] [io.redspace.ironsspellbooks.IronsSpellbooks/]: Got IMC []
+[29Dec2024 17:03:10.002] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:item.goat_horn.play
+[29Dec2024 17:03:10.002] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+[29Dec2024 17:03:10.034] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Speakers (HyperX Quadcast)
+[29Dec2024 17:03:10.034] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
+[29Dec2024 17:03:10.131] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/blocks.png-atlas
+[29Dec2024 17:03:10.138] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[29Dec2024 17:03:10.138] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[29Dec2024 17:03:10.139] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[29Dec2024 17:03:10.139] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[29Dec2024 17:03:10.141] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[29Dec2024 17:03:10.142] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[29Dec2024 17:03:10.142] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[29Dec2024 17:03:10.142] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[29Dec2024 17:03:10.232] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[29Dec2024 17:03:10.233] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[29Dec2024 17:03:10.233] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/mob_effects.png-atlas
+[29Dec2024 17:03:10.233] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[29Dec2024 17:03:10.233] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
+[29Dec2024 17:03:10.247] [Render thread/WARN] [net.minecraft.client.renderer.ShaderInstance/]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
+[29Dec2024 17:03:10.281] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/casting_animations.json is in wrong directory: "player_animation", please place it in "player_animations".
+[29Dec2024 17:03:10.285] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
 java.io.IOException: com.google.gson.JsonParseException: not an emotecraft animation
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
@@ -123,8 +123,8 @@ Caused by: com.google.gson.JsonParseException: not an emotecraft animation
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1107) ~[gson-2.10.1.jar%23103!/:?]
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
 	... 31 more
-[29Dec2024 15:49:05.575] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_join.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
-[29Dec2024 15:49:05.576] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
+[29Dec2024 17:03:10.303] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_join.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
+[29Dec2024 17:03:10.304] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
 java.io.IOException: com.google.gson.JsonParseException: not an emotecraft animation
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
@@ -167,8 +167,8 @@ Caused by: com.google.gson.JsonParseException: not an emotecraft animation
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1107) ~[gson-2.10.1.jar%23103!/:?]
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
 	... 31 more
-[29Dec2024 15:49:05.578] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_leave.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
-[29Dec2024 15:49:05.578] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
+[29Dec2024 17:03:10.307] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_leave.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
+[29Dec2024 17:03:10.307] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
 java.io.IOException: com.google.gson.JsonParseException: not an emotecraft animation
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
@@ -211,12 +211,12 @@ Caused by: com.google.gson.JsonParseException: not an emotecraft animation
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1107) ~[gson-2.10.1.jar%23103!/:?]
 	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
 	... 31 more
-[29Dec2024 15:49:05.580] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/waving.json is in wrong directory: "player_animation", please place it in "player_animations".
-[29Dec2024 15:49:05.582] [Render thread/INFO] [net.neoforged.neoforge.client.entity.animation.json.AnimationLoader/]: Loaded 0 entity animations
-[29Dec2024 15:49:05.582] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 jei:textures/atlas/gui.png-atlas
-[29Dec2024 15:49:08.920] [Worker-Main-12/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:irons_spellbooks:blocks/arcane_debris - Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: irons_spellbooks:arcane_debris
-[29Dec2024 15:49:08.945] [Worker-Main-12/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:irons_spellbooks:patchouli_book - Failed to parse either. First: Unknown registry key in ResourceKey[minecraft:root / minecraft:loot_function_type]: minecraft:set_nbt; Second: Not a json array: {"function":"set_nbt","tag":"{\"patchouli:book\": \"irons_spellbooks:iss_guide_book\"}"}
-[29Dec2024 15:49:09.125] [Render thread/ERROR] [net.minecraft.world.item.crafting.RecipeManager/]: Parsing error loading recipe irons_spellbooks:patchouli_book
+[29Dec2024 17:03:10.309] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/waving.json is in wrong directory: "player_animation", please place it in "player_animations".
+[29Dec2024 17:03:10.312] [Render thread/INFO] [net.neoforged.neoforge.client.entity.animation.json.AnimationLoader/]: Loaded 0 entity animations
+[29Dec2024 17:03:10.312] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 jei:textures/atlas/gui.png-atlas
+[29Dec2024 17:03:19.122] [Worker-Main-11/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:irons_spellbooks:blocks/arcane_debris - Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: irons_spellbooks:arcane_debris
+[29Dec2024 17:03:19.147] [Worker-Main-11/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:irons_spellbooks:patchouli_book - Failed to parse either. First: Unknown registry key in ResourceKey[minecraft:root / minecraft:loot_function_type]: minecraft:set_nbt; Second: Not a json array: {"function":"set_nbt","tag":"{\"patchouli:book\": \"irons_spellbooks:iss_guide_book\"}"}
+[29Dec2024 17:03:19.323] [Render thread/ERROR] [net.minecraft.world.item.crafting.RecipeManager/]: Parsing error loading recipe irons_spellbooks:patchouli_book
 com.google.gson.JsonParseException: Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: patchouli:guide_book
 	at MC-BOOTSTRAP/datafixerupper@8.0.16/com.mojang.serialization.DataResult$Error.getOrThrow(DataResult.java:287) ~[datafixerupper-8.0.16.jar%23114!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.item.crafting.RecipeManager.apply(RecipeManager.java:60) ~[neoforge-21.1.92.jar%23183!/:?]
@@ -270,114 +270,148 @@ com.google.gson.JsonParseException: Unknown registry key in ResourceKey[minecraf
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
 	at net.neoforged.devlaunch.Main.main(Main.java:55) [DevLaunch-1.0.1.jar:?]
-[29Dec2024 15:49:09.140] [Render thread/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 1395 recipes
-[29Dec2024 15:49:09.264] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 1426 advancements
-[29Dec2024 15:49:09.268] [Render thread/INFO] [Curios API/]: Loaded 11 curio slots
-[29Dec2024 15:49:09.270] [Render thread/INFO] [Curios API/]: Loaded 1 curio entities
-[29Dec2024 15:49:09.566] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent too early, ignoring
-[29Dec2024 15:49:09.627] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Starting integrated minecraft server version 1.21.1
-[29Dec2024 15:49:09.627] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
-[29Dec2024 15:49:10.157] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
-[29Dec2024 15:49:10.317] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
-[29Dec2024 15:49:10.381] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
-[29Dec2024 15:49:10.394] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 221 ms
-[29Dec2024 15:49:10.431] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing view distance to 12, from 10
-[29Dec2024 15:49:10.431] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing simulation distance to 12, from 0
-[29Dec2024 15:49:10.839] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent
-[29Dec2024 15:49:10.960] [Server thread/INFO] [net.minecraft.server.players.PlayerList/]: Dev[local:E:6e9d2802] logged in with entity id 56 at (-10.573485226324996, 63.0, 39.540487260539855)
-[29Dec2024 15:49:11.032] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev joined the game
-[29Dec2024 15:49:11.298] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.RecipesUpdatedEvent
-[29Dec2024 15:49:11.298] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from LISTENING to JEI_STARTED
-[29Dec2024 15:49:11.299] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI...
-[29Dec2024 15:49:11.308] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes...
-[29Dec2024 15:49:11.311] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes took 3.404 ms
-[29Dec2024 15:49:11.312] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes...
-[29Dec2024 15:49:11.314] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes took 2.081 ms
-[29Dec2024 15:49:11.316] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients...
-[29Dec2024 15:49:11.429] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering ingredients: jei:minecraft took 112.6 milliseconds
-[29Dec2024 15:49:11.430] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients took 113.5 ms
-[29Dec2024 15:49:11.438] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info...
-[29Dec2024 15:49:11.439] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info took 628.3 μs
-[29Dec2024 15:49:11.476] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories...
-[29Dec2024 15:49:11.504] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering categories: jei:minecraft took 27.14 milliseconds
-[29Dec2024 15:49:11.508] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories took 31.57 ms
-[29Dec2024 15:49:11.509] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions...
-[29Dec2024 15:49:11.511] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions took 1.676 ms
-[29Dec2024 15:49:11.512] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts...
-[29Dec2024 15:49:11.513] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts took 1.040 ms
-[29Dec2024 15:49:11.514] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins...
-[29Dec2024 15:49:11.515] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins took 718.8 μs
-[29Dec2024 15:49:11.515] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry...
-[29Dec2024 15:49:11.524] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry took 8.612 ms
-[29Dec2024 15:49:11.527] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes...
-[29Dec2024 15:49:11.683] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: jei:minecraft took 155.8 milliseconds
-[29Dec2024 15:49:11.846] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: irons_spellbooks:jei_plugin took 162.9 milliseconds
-[29Dec2024 15:49:11.847] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes took 319.7 ms
-[29Dec2024 15:49:11.850] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers...
-[29Dec2024 15:49:11.852] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers took 2.516 ms
-[29Dec2024 15:49:11.859] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime...
-[29Dec2024 15:49:11.861] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers...
-[29Dec2024 15:49:11.870] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers took 8.637 ms
-[29Dec2024 15:49:11.875] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime...
-[29Dec2024 15:49:11.877] [Render thread/INFO] [mezz.jei.gui.startup.JeiGuiStarter/]: Starting JEI GUI
-[29Dec2024 15:49:11.877] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list...
-[29Dec2024 15:49:11.881] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list took 3.684 ms
-[29Dec2024 15:49:11.881] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter...
-[29Dec2024 15:49:11.915] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Adding 2504 ingredients
-[29Dec2024 15:49:12.212] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Added 2504 ingredients
-[29Dec2024 15:49:12.214] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter took 332.2 ms
-[29Dec2024 15:49:12.329] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering Runtime: jei:neoforge_gui took 452.8 milliseconds
-[29Dec2024 15:49:12.329] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime took 453.9 ms
-[29Dec2024 15:49:12.331] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime took 471.8 ms
-[29Dec2024 15:49:12.331] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime...
-[29Dec2024 15:49:12.332] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime took 549.6 μs
-[29Dec2024 15:49:12.332] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI took 1.032 s
-[29Dec2024 15:49:12.352] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 51 advancements
-[29Dec2024 15:49:20.140] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Unable to play empty soundEvent: minecraft:entity.salmon.ambient
-[29Dec2024 15:49:36.944] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] The Dark Doppelganger has entered its Second Phase!
-[29Dec2024 15:49:42.943] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 71 advancements
-[29Dec2024 15:50:31.057] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/981, l='ServerLevel[New World]', x=25.24, y=64.16, z=39.50] died: Doppelganger Minion was slain by Dev
-[29Dec2024 15:50:43.417] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/1215, l='ServerLevel[New World]', x=16.54, y=63.00, z=28.62] died: Doppelganger Minion was slain by Dev
-[29Dec2024 15:50:58.963] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: [Dev: Set own game mode to Creative Mode]
-[29Dec2024 15:50:58.964] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Set own game mode to Creative Mode
-[29Dec2024 15:51:07.112] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1459, l='ServerLevel[New World]', x=16.53, y=63.00, z=10.40] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:51:10.460] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/983, l='ServerLevel[New World]', x=9.95, y=63.00, z=14.63] died: Doppelganger Minion was slain by Dev
-[29Dec2024 15:51:15.660] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1461, l='ServerLevel[New World]', x=-0.37, y=63.00, z=13.54] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:51:26.208] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1683, l='ServerLevel[New World]', x=-9.36, y=63.00, z=4.62] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:51:35.368] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1681, l='ServerLevel[New World]', x=21.15, y=63.00, z=3.82] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:51:35.734] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
-[29Dec2024 15:51:35.769] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
-[29Dec2024 15:51:35.880] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
-[29Dec2024 15:51:36.011] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
-[29Dec2024 15:51:45.476] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Dark Doppelganger'/46, l='ServerLevel[New World]', x=15.84, y=64.25, z=19.44] died: Dark Doppelganger was slain by Dev
-[29Dec2024 15:51:45.489] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] You have slain the Dark Doppelganger!
-[29Dec2024 15:51:47.649] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 72 advancements
-[29Dec2024 15:51:52.386] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1457, l='ServerLevel[New World]', x=18.70, y=63.00, z=31.40] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:52:04.824] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1869, l='ServerLevel[New World]', x=27.25, y=65.00, z=20.05] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:52:06.878] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1679, l='ServerLevel[New World]', x=17.13, y=64.00, z=18.22] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:52:12.826] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1871, l='ServerLevel[New World]', x=5.80, y=63.00, z=11.07] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:52:18.426] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/1873, l='ServerLevel[New World]', x=19.62, y=64.00, z=16.41] died: Doppelganger Clone was slain by Dev
-[29Dec2024 15:52:20.383] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
-[29Dec2024 15:52:20.445] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
-[29Dec2024 15:52:20.495] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
-[29Dec2024 15:52:20.716] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
-[29Dec2024 15:52:21.402] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Stopping!
-[29Dec2024 15:52:21.405] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent$LoggingOut
-[29Dec2024 15:52:21.405] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from JEI_STARTED to LISTENING
-[29Dec2024 15:52:21.405] [Render thread/INFO] [mezz.jei.library.startup.JeiStarter/]: Stopping JEI
-[29Dec2024 15:52:21.405] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable...
-[29Dec2024 15:52:21.405] [Render thread/INFO] [mezz.jei.neoforge.plugins.neoforge.NeoForgeGuiPlugin/]: Stopping JEI GUI
-[29Dec2024 15:52:21.408] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable took 2.355 ms
-[29Dec2024 15:52:21.437] [Server thread/INFO] [net.minecraft.server.network.ServerGamePacketListenerImpl/]: Dev lost connection: Disconnected
-[29Dec2024 15:52:21.437] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev left the game
-[29Dec2024 15:52:21.461] [Server thread/INFO] [net.minecraft.server.network.ServerCommonPacketListenerImpl/]: Stopping singleplayer server as player logged out
-[29Dec2024 15:52:21.489] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Stopping server
-[29Dec2024 15:52:21.489] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving players
-[29Dec2024 15:52:21.489] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving worlds
-[29Dec2024 15:52:25.212] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
-[29Dec2024 15:52:25.574] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
-[29Dec2024 15:52:25.591] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
-[29Dec2024 15:52:25.676] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (New World (1)): All chunks are saved
-[29Dec2024 15:52:25.677] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
-[29Dec2024 15:52:25.677] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
-[29Dec2024 15:52:25.677] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved
+[29Dec2024 17:03:19.334] [Render thread/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 1395 recipes
+[29Dec2024 17:03:19.445] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 1426 advancements
+[29Dec2024 17:03:19.449] [Render thread/INFO] [Curios API/]: Loaded 11 curio slots
+[29Dec2024 17:03:19.451] [Render thread/INFO] [Curios API/]: Loaded 1 curio entities
+[29Dec2024 17:03:19.730] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent too early, ignoring
+[29Dec2024 17:03:19.803] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Starting integrated minecraft server version 1.21.1
+[29Dec2024 17:03:19.804] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[29Dec2024 17:03:20.334] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
+[29Dec2024 17:03:20.496] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[29Dec2024 17:03:20.591] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[29Dec2024 17:03:20.594] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 248 ms
+[29Dec2024 17:03:20.648] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing view distance to 12, from 10
+[29Dec2024 17:03:20.648] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing simulation distance to 12, from 0
+[29Dec2024 17:03:21.095] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent
+[29Dec2024 17:03:21.218] [Server thread/INFO] [net.minecraft.server.players.PlayerList/]: Dev[local:E:2a117cac] logged in with entity id 27 at (40.36551605009234, 64.0, -49.530458088377735)
+[29Dec2024 17:03:21.282] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev joined the game
+[29Dec2024 17:03:21.565] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.RecipesUpdatedEvent
+[29Dec2024 17:03:21.565] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from LISTENING to JEI_STARTED
+[29Dec2024 17:03:21.566] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI...
+[29Dec2024 17:03:21.572] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes...
+[29Dec2024 17:03:21.574] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes took 1.891 ms
+[29Dec2024 17:03:21.575] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes...
+[29Dec2024 17:03:21.576] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes took 1.547 ms
+[29Dec2024 17:03:21.578] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients...
+[29Dec2024 17:03:21.725] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering ingredients: jei:minecraft took 147.0 milliseconds
+[29Dec2024 17:03:21.726] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients took 147.9 ms
+[29Dec2024 17:03:21.738] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info...
+[29Dec2024 17:03:21.738] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info took 501.4 μs
+[29Dec2024 17:03:21.764] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories...
+[29Dec2024 17:03:21.801] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering categories: jei:minecraft took 36.56 milliseconds
+[29Dec2024 17:03:21.807] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories took 42.88 ms
+[29Dec2024 17:03:21.809] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions...
+[29Dec2024 17:03:21.811] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions took 2.465 ms
+[29Dec2024 17:03:21.813] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts...
+[29Dec2024 17:03:21.816] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts took 2.119 ms
+[29Dec2024 17:03:21.818] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins...
+[29Dec2024 17:03:21.819] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins took 603.4 μs
+[29Dec2024 17:03:21.819] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry...
+[29Dec2024 17:03:21.828] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry took 9.524 ms
+[29Dec2024 17:03:21.830] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes...
+[29Dec2024 17:03:21.970] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: jei:minecraft took 139.4 milliseconds
+[29Dec2024 17:03:22.167] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: irons_spellbooks:jei_plugin took 197.0 milliseconds
+[29Dec2024 17:03:22.167] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes took 337.2 ms
+[29Dec2024 17:03:22.171] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers...
+[29Dec2024 17:03:22.174] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers took 2.305 ms
+[29Dec2024 17:03:22.182] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime...
+[29Dec2024 17:03:22.184] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers...
+[29Dec2024 17:03:22.191] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers took 6.439 ms
+[29Dec2024 17:03:22.193] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime...
+[29Dec2024 17:03:22.195] [Render thread/INFO] [mezz.jei.gui.startup.JeiGuiStarter/]: Starting JEI GUI
+[29Dec2024 17:03:22.195] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list...
+[29Dec2024 17:03:22.198] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list took 2.884 ms
+[29Dec2024 17:03:22.199] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter...
+[29Dec2024 17:03:22.224] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Adding 2504 ingredients
+[29Dec2024 17:03:22.561] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Added 2504 ingredients
+[29Dec2024 17:03:22.564] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter took 364.8 ms
+[29Dec2024 17:03:22.663] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering Runtime: jei:neoforge_gui took 469.2 milliseconds
+[29Dec2024 17:03:22.663] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime took 469.9 ms
+[29Dec2024 17:03:22.664] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime took 482.0 ms
+[29Dec2024 17:03:22.664] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime...
+[29Dec2024 17:03:22.665] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime took 436.7 μs
+[29Dec2024 17:03:22.665] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI took 1.099 s
+[29Dec2024 17:03:22.682] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 72 advancements
+[29Dec2024 17:03:23.407] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:03:23.488] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:03:23.571] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:03:23.796] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:03:29.118] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Expected float
+[29Dec2024 17:03:29.121] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] time set dat<--[HERE]
+[29Dec2024 17:03:30.855] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: [Dev: Set the time to 1000]
+[29Dec2024 17:03:30.863] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Set the time to 1000
+[29Dec2024 17:03:38.664] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Dark Doppelganger will spawn in 5 seconds!
+[29Dec2024 17:03:39.305] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Unable to play empty soundEvent: minecraft:entity.salmon.ambient
+[29Dec2024 17:03:45.993] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:03:46.023] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:03:46.083] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:03:46.235] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:03:50.694] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:03:50.722] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:03:50.765] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:03:50.840] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:03:52.994] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:03:53.021] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:03:53.055] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:03:53.126] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:05:07.226] [Render thread/INFO] [com.mojang.blaze3d.platform.GlDebug/]: OpenGL debug message: id=1280, source=API, type=ERROR, severity=HIGH, message='GL_INVALID_ENUM error generated.'
+[29Dec2024 17:05:22.426] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: [Dev: Set own game mode to Survival Mode]
+[29Dec2024 17:05:22.435] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Set own game mode to Survival Mode
+[29Dec2024 17:06:38.403] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] The Dark Doppelganger has entered its Second Phase!
+[29Dec2024 17:07:03.893] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:07:03.926] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:07:04.034] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:07:04.171] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:07:47.843] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:07:47.871] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:07:47.938] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:07:48.059] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:10:26.750] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/2656, l='ServerLevel[New World]', x=-28.25, y=63.00, z=2.87] died: Doppelganger Minion was struck down by Dev's lance of lightning
+[29Dec2024 17:10:29.057] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: [Dev: Set own game mode to Creative Mode]
+[29Dec2024 17:10:29.067] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Set own game mode to Creative Mode
+[29Dec2024 17:10:35.575] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/2654, l='ServerLevel[New World]', x=-26.84, y=63.00, z=3.70] died: Doppelganger Minion was slain by Dev
+[29Dec2024 17:10:38.482] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/2963, l='ServerLevel[New World]', x=-32.47, y=63.00, z=-3.28] died: Doppelganger Minion was slain by Dev
+[29Dec2024 17:11:04.084] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/3227, l='ServerLevel[New World]', x=-34.17, y=63.00, z=1.98] died: Doppelganger Minion was slain by Dev
+[29Dec2024 17:11:11.632] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/3229, l='ServerLevel[New World]', x=-32.99, y=63.00, z=-0.58] died: Doppelganger Minion was slain by Dev
+[29Dec2024 17:11:32.127] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/3404, l='ServerLevel[New World]', x=-30.44, y=63.00, z=-18.78] died: Doppelganger Minion was slain by Dev
+[29Dec2024 17:11:39.928] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Minion'/3558, l='ServerLevel[New World]', x=-17.40, y=63.00, z=5.57] died: Doppelganger Minion was slain by Dev
+[29Dec2024 17:12:12.185] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/3727, l='ServerLevel[New World]', x=-21.56, y=63.00, z=-5.55] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:12:17.532] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/3725, l='ServerLevel[New World]', x=-33.60, y=63.00, z=6.55] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:12:18.679] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/3723, l='ServerLevel[New World]', x=-30.28, y=63.00, z=13.31] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:12:25.786] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/3918, l='ServerLevel[New World]', x=-30.26, y=63.00, z=-2.40] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:12:41.844] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:12:41.865] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:12:41.933] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:12:42.061] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:14:02.330] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Dev'/410, l='ServerLevel[New World]', x=-25.43, y=63.00, z=4.45] died: Dev was slain by Dev
+[29Dec2024 17:14:02.342] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] You have slain the Dark Doppelganger!
+[29Dec2024 17:14:07.530] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/4078, l='ServerLevel[New World]', x=-26.66, y=63.00, z=-0.81] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:14:12.784] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/4074, l='ServerLevel[New World]', x=-34.22, y=63.00, z=2.71] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:14:13.730] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/3920, l='ServerLevel[New World]', x=-36.03, y=62.00, z=2.69] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:14:16.277] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/3916, l='ServerLevel[New World]', x=-25.74, y=63.00, z=8.42] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:14:22.025] [Server thread/INFO] [net.minecraft.world.entity.LivingEntity/]: Named entity DarkDoppelgangerEntity['Doppelganger Clone'/4076, l='ServerLevel[New World]', x=-22.57, y=63.00, z=-1.05] died: Doppelganger Clone was slain by Dev
+[29Dec2024 17:14:45.793] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[29Dec2024 17:14:45.814] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:14:45.864] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:14:46.011] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:14:46.350] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent$LoggingOut
+[29Dec2024 17:14:46.350] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from JEI_STARTED to LISTENING
+[29Dec2024 17:14:46.350] [Render thread/INFO] [mezz.jei.library.startup.JeiStarter/]: Stopping JEI
+[29Dec2024 17:14:46.350] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable...
+[29Dec2024 17:14:46.351] [Render thread/INFO] [mezz.jei.neoforge.plugins.neoforge.NeoForgeGuiPlugin/]: Stopping JEI GUI
+[29Dec2024 17:14:46.353] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable took 2.716 ms
+[29Dec2024 17:14:46.398] [Server thread/INFO] [net.minecraft.server.network.ServerGamePacketListenerImpl/]: Dev lost connection: Disconnected
+[29Dec2024 17:14:46.398] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev left the game
+[29Dec2024 17:14:46.423] [Server thread/INFO] [net.minecraft.server.network.ServerCommonPacketListenerImpl/]: Stopping singleplayer server as player logged out
+[29Dec2024 17:14:46.451] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Stopping server
+[29Dec2024 17:14:46.452] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving players
+[29Dec2024 17:14:46.452] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving worlds
+[29Dec2024 17:14:48.525] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[29Dec2024 17:14:48.993] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[29Dec2024 17:14:49.010] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[29Dec2024 17:14:49.046] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (New World (1)): All chunks are saved
+[29Dec2024 17:14:49.046] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[29Dec2024 17:14:49.046] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[29Dec2024 17:14:49.046] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved
+[29Dec2024 17:15:01.042] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Stopping!

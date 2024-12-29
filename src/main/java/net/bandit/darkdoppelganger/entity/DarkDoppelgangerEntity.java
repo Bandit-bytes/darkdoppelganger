@@ -22,7 +22,6 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -64,7 +63,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private static int currentMinionCount = 0;
     private int laughCooldown = 800;
     private int age;
-    private boolean isAddedToLevel;
 
 
     public DarkDoppelgangerEntity(EntityType<? extends AbstractSpellCastingMob> type, Level world) {
@@ -111,22 +109,17 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.summonerPlayer = summoner;
 
         if (summoner != null) {
-            // Iterate over all equipment slots
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack itemStack = summoner.getItemBySlot(slot);
-
-                // Ensure the slot is not empty before assigning
                 if (!itemStack.isEmpty()) {
-                    this.setItemSlot(slot, itemStack.copy()); // Use copy to avoid modifying the original stack
+                    this.setItemSlot(slot, itemStack.copy());
                 }
             }
-
-            // Synchronize armor and visuals
-            this.setPersistenceRequired(); // Ensures the entity persists with its new equipment
+            this.setPersistenceRequired();
         }
 
 
-    copyAttribute(AttributeRegistry.HOLY_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.HOLY_SPELL_POWER.get());
             copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER.get());
             copyAttribute(AttributeRegistry.NATURE_SPELL_POWER.get());
             copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER.get());
@@ -138,16 +131,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             copyAttribute(AttributeRegistry.SPELL_POWER.get());
 
             if (Config.DOPPELGANGER_HARD_MODE.get()) {
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.HOLY_MAGIC_RESIST.get()).setBaseValue(1.3f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.FIRE_MAGIC_RESIST.get()).setBaseValue(1.5f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.BLOOD_MAGIC_RESIST.get()).setBaseValue(1.5f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.NATURE_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.ELDRITCH_MAGIC_RESIST.get()).setBaseValue(1.6f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.ICE_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.LIGHTNING_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.EVOCATION_MAGIC_RESIST.get()).setBaseValue(1.3f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.ENDER_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute((Holder<Attribute>) AttributeRegistry.SPELL_RESIST.get()).setBaseValue(1.5f);
+                this.getAttribute(AttributeRegistry.HOLY_SPELL_POWER.getDelegate()).setBaseValue(1.3);
+                this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST.getDelegate()).setBaseValue(1.5f);
+                this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST.getDelegate()).setBaseValue(1.5f);
+                this.getAttribute(AttributeRegistry.ELDRITCH_MAGIC_RESIST.getDelegate()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.ICE_MAGIC_RESIST.getDelegate()).setBaseValue(1.6f);
+                this.getAttribute(AttributeRegistry.LIGHTNING_MAGIC_RESIST.getDelegate()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.EVOCATION_MAGIC_RESIST.getDelegate()).setBaseValue(1.3f);
+                this.getAttribute(AttributeRegistry.ENDER_MAGIC_RESIST.getDelegate()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.SPELL_RESIST.getDelegate()).setBaseValue(1.5f);
             }
         }
 
@@ -264,7 +256,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     @Override
     public void onAddedToLevel() {
-        this.isAddedToLevel = true;
+        super.onAddedToLevel();
         this.setPersistenceRequired();
         if (this.isClone) {
             this.addTag("dark_doppelganger_clone");
@@ -290,20 +282,20 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     private void copyAttribute(net.minecraft.world.entity.ai.attributes.Attribute attribute) {
-        AttributeInstance sourceAttribute = this.summonerPlayer.getAttribute((Holder<Attribute>) attribute);
-        AttributeInstance targetAttribute = this.getAttribute((Holder<Attribute>) attribute);
-
-        if (sourceAttribute != null && targetAttribute != null) {
-            targetAttribute.setBaseValue(sourceAttribute.getBaseValue());
-
-            for (AttributeModifier modifier : targetAttribute.getModifiers()) {
-                targetAttribute.removeModifier(modifier);
-            }
-
-            for (AttributeModifier modifier : sourceAttribute.getModifiers()) {
-                targetAttribute.addPermanentModifier(modifier);
-            }
-        }
+//        AttributeInstance sourceAttribute = this.summonerPlayer.getAttribute((Holder<Attribute>) attribute);
+//        AttributeInstance targetAttribute = this.getAttribute((Holder<Attribute>) attribute);
+//
+//        if (sourceAttribute != null && targetAttribute != null) {
+//            targetAttribute.setBaseValue(sourceAttribute.getBaseValue());
+//
+//            for (AttributeModifier modifier : targetAttribute.getModifiers()) {
+//                targetAttribute.removeModifier(modifier);
+//            }
+//
+//            for (AttributeModifier modifier : sourceAttribute.getModifiers()) {
+//                targetAttribute.addPermanentModifier(modifier);
+//            }
+//        }
     }
 
     private void adjustAttributesFromConfig() {
@@ -445,8 +437,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
 
         if (Config.DOPPELGANGER_HARD_MODE.get()) {
-            this.addEffect(new MobEffectInstance((Holder<MobEffect>) MobEffectRegistry.OAKSKIN.get(), 10, 8, false, false, true));
-            this.addEffect(new MobEffectInstance((Holder<MobEffect>) MobEffectRegistry.CHARGED.get(), 10, 2, false, false, true));
+            this.addEffect(new MobEffectInstance(MobEffectRegistry.OAKSKIN.getDelegate(), 10, 8, false, false, true));
+            this.addEffect(new MobEffectInstance( MobEffectRegistry.CHARGED.getDelegate(), 10, 2, false, false, true));
             this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 10, 0, false, false));
         }
 
@@ -457,17 +449,17 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         if (target.hasEffect(MobEffects.DIG_SPEED)) {
                             target.removeEffect(MobEffects.DIG_SPEED);
                         }
-                        if (target.hasEffect((Holder<MobEffect>) MobEffectRegistry.ABYSSAL_SHROUD.get())) {
-                            target.removeEffect((Holder<MobEffect>) MobEffectRegistry.ABYSSAL_SHROUD.get());
+                        if (target.hasEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate())) {
+                            target.removeEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate());
                         }
-                        if (target.hasEffect((Holder<MobEffect>) MobEffectRegistry.EVASION.get())) {
-                            target.removeEffect((Holder<MobEffect>) MobEffectRegistry.EVASION.get());
+                        if (target.hasEffect( MobEffectRegistry.EVASION.getDelegate())) {
+                            target.removeEffect(MobEffectRegistry.EVASION.getDelegate());
                         }
-                        if (target.hasEffect((Holder<MobEffect>) MobEffectRegistry.HASTENED.get())) {
-                            target.removeEffect((Holder<MobEffect>) MobEffectRegistry.HASTENED.get());
+                        if (target.hasEffect(MobEffectRegistry.HASTENED.getDelegate())) {
+                            target.removeEffect( MobEffectRegistry.HASTENED.getDelegate());
                         }
-                        if (target.hasEffect((Holder<MobEffect>) MobEffectRegistry.ECHOING_STRIKES.get())) {
-                            target.removeEffect((Holder<MobEffect>) MobEffectRegistry.ECHOING_STRIKES.get());
+                        if (target.hasEffect(MobEffectRegistry.ECHOING_STRIKES.getDelegate())) {
+                            target.removeEffect( MobEffectRegistry.ECHOING_STRIKES.getDelegate());
                         }
                     }
                 });

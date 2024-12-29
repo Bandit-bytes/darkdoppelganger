@@ -20,7 +20,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -65,7 +64,7 @@ public class SummonScrollItem extends Item {
 
     private void triggerTotemAnimation(Player player, ItemStack itemStack) {
         if (player.level().isClientSide()) {
-            player.playSound(SoundEvents.TOTEM_USE, 1.0F, 1.0F);
+            player.playSound(SoundEvents.PORTAL_TRIGGER, 1.0F, 1.0F);
             Minecraft.getInstance().gameRenderer.displayItemActivation(itemStack);
             player.swing(InteractionHand.MAIN_HAND, true);
         }
@@ -75,7 +74,6 @@ public class SummonScrollItem extends Item {
         Vec3 lookVector = player.getLookAngle();
         Vec3 spawnPosition = player.position().add(lookVector.scale(4));
 
-        // Create and configure the entity
         DarkDoppelgangerEntity entity = new DarkDoppelgangerEntity(EntityRegistry.DARK_DOPPELGANGER.get(), serverWorld);
         entity.setPos(spawnPosition.x, player.getY(), spawnPosition.z);
         entity.setYRot(-player.getYRot());
@@ -84,12 +82,10 @@ public class SummonScrollItem extends Item {
         entity.setCustomName(Component.literal(player.getName().getString()));
         entity.setCustomNameVisible(true);
 
-        // Apply effects and play sounds
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
         serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
 
-        // Spawn the entity
         serverWorld.addFreshEntity(entity);
     }
     @Override
