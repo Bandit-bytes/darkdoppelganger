@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "darkdoppelganger:summon_scroll"
+    },
+    "title": {
+      "translate": "Behold the Creator..."
+    },
+    "description": {
+      "translate": "Use to summon the DoppelGanger"
+    },
+    "background": "minecraft:textures/block/end_stone.png",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "get_scroll": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "darkdoppelganger:summon_scroll"
+          }
+        ]
+      }
+    }
+  }
+}

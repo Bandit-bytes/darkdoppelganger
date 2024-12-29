@@ -1,0 +1,101 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 4,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "bone",
+					"pivot": [0, -15, 0]
+				},
+				{
+					"name": "portal",
+					"pivot": [0, 19, 20]
+				},
+				{
+					"name": "portal1",
+					"parent": "portal",
+					"pivot": [0, 19, 20],
+					"cubes": [
+						{
+							"origin": [-20, -1, 20],
+							"size": [40, 40, 0],
+							"uv": {
+								"north": {"uv": [0, 0], "uv_size": [40, 40]},
+								"east": {"uv": [0, 0], "uv_size": [0, 40]},
+								"south": {"uv": [0, 0], "uv_size": [40, 40]},
+								"west": {"uv": [0, 0], "uv_size": [0, 40]},
+								"up": {"uv": [0, 0], "uv_size": [40, 0]},
+								"down": {"uv": [0, 0], "uv_size": [40, 0]}
+							}
+						}
+					]
+				},
+				{
+					"name": "portal2",
+					"parent": "portal1",
+					"pivot": [0, 19, 19],
+					"cubes": [
+						{
+							"origin": [-16, 3, 19],
+							"size": [32, 32, 0],
+							"uv": {
+								"north": {"uv": [0, 40], "uv_size": [32, 32]},
+								"east": {"uv": [0, 0], "uv_size": [0, 32]},
+								"south": {"uv": [0, 40], "uv_size": [32, 32]},
+								"west": {"uv": [0, 0], "uv_size": [0, 32]},
+								"up": {"uv": [0, 0], "uv_size": [32, 0]},
+								"down": {"uv": [0, 0], "uv_size": [32, 0]}
+							}
+						}
+					]
+				},
+				{
+					"name": "portal3",
+					"parent": "portal2",
+					"pivot": [0, 19, 18],
+					"cubes": [
+						{
+							"origin": [-12, 7, 18],
+							"size": [24, 24, 0],
+							"uv": {
+								"north": {"uv": [40, 0], "uv_size": [24, 24]},
+								"east": {"uv": [0, 0], "uv_size": [0, 24]},
+								"south": {"uv": [40, 0], "uv_size": [24, 24]},
+								"west": {"uv": [0, 0], "uv_size": [0, 24]},
+								"up": {"uv": [0, 0], "uv_size": [24, 0]},
+								"down": {"uv": [0, 0], "uv_size": [24, 0]}
+							}
+						}
+					]
+				},
+				{
+					"name": "portal4",
+					"parent": "portal3",
+					"pivot": [0, 19, 17],
+					"cubes": [
+						{
+							"origin": [-9, 11, 17],
+							"size": [18, 16, 0],
+							"uv": {
+								"north": {"uv": [40, 24], "uv_size": [18, 16]},
+								"east": {"uv": [0, 0], "uv_size": [0, 16]},
+								"south": {"uv": [40, 24], "uv_size": [18, 16]},
+								"west": {"uv": [0, 0], "uv_size": [0, 16]},
+								"up": {"uv": [0, 0], "uv_size": [18, 0]},
+								"down": {"uv": [0, 0], "uv_size": [18, 0]}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
