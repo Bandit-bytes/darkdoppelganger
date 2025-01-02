@@ -25,4 +25,4 @@
 	# Range: 1.0 ~ 128.0
 	follow_range = 64.0
 	#Hard mode of the Dark Doppelganger
-	hard_mode = false
+	hard_mode = true

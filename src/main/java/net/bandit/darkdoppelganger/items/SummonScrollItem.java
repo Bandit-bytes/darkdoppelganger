@@ -64,7 +64,7 @@ public class SummonScrollItem extends Item {
 
     private void triggerTotemAnimation(Player player, ItemStack itemStack) {
         if (player.level().isClientSide()) {
-            player.playSound(SoundEvents.PORTAL_TRIGGER, 1.0F, 1.0F);
+            player.playSound(SoundEvents.PORTAL_TRIGGER, 0.5F, 1.5F);
             Minecraft.getInstance().gameRenderer.displayItemActivation(itemStack);
             player.swing(InteractionHand.MAIN_HAND, true);
         }

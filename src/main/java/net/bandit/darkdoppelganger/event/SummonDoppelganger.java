@@ -4,6 +4,7 @@ import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -61,10 +62,16 @@ public class SummonDoppelganger {
             }
 
             Vec3 lookVector = player.getLookAngle();
-            Vec3 spawnPosition = player.position().add(lookVector.scale(4));
+            Vec3 initialSpawnPosition = player.position().add(lookVector.scale(4));
+
+            BlockPos groundPos = new BlockPos((int) initialSpawnPosition.x, (int) initialSpawnPosition.y, (int) initialSpawnPosition.z);
+            while (serverWorld.isEmptyBlock(groundPos.below()) && groundPos.getY() > serverWorld.getMinBuildHeight()) {
+                groundPos = groundPos.below();
+            }
+            BlockPos spawnPosition = groundPos.above();
 
             DarkDoppelgangerEntity entity = new DarkDoppelgangerEntity(EntityRegistry.DARK_DOPPELGANGER.get(), serverWorld);
-            entity.setPos(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            entity.setPos(spawnPosition.getX() + 0.5, spawnPosition.getY(), spawnPosition.getZ() + 0.5);
             entity.setYRot(-player.getYRot());
             entity.setSummonerPlayer(player);
             entity.addTag("dark_doppelganger_boss");
@@ -80,4 +87,5 @@ public class SummonDoppelganger {
             e.printStackTrace();
         }
     }
+
 }
