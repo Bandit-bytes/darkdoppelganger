@@ -561,7 +561,7 @@ public void setSummonerPlayer(Player summoner) {
             }
         }
 
-        minionSummonCooldown = 150;
+        minionSummonCooldown = 1050;
         lifeDrainCooldown = 200;
     }
     @Override
@@ -569,20 +569,19 @@ public void setSummonerPlayer(Player summoner) {
         if (this.isDeadOrDying() || source == this.level().damageSources().fellOutOfWorld()) {
             return false;
         }
-
+        if (isClone) {
+            return super.hurt(source, amount);
+        }
         if (!thirdPhaseTriggered) {
             float newHealth = this.getHealth() - amount;
-
             if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2) {
                 triggerSecondPhase();
                 return false;
             }
-
             if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2) {
                 triggerThirdPhase();
                 return false;
             }
-            return super.hurt(source, amount);
         }
         return super.hurt(source, amount);
     }
