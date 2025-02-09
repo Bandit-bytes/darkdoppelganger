@@ -6,10 +6,7 @@ import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalLeaveRenderer;
-import net.bandit.darkdoppelganger.registry.EntityRegistry;
-import net.bandit.darkdoppelganger.registry.ItemRegistry;
-import net.bandit.darkdoppelganger.registry.SoundRegistry;
-import net.bandit.darkdoppelganger.registry.SpellRegistry;
+import net.bandit.darkdoppelganger.registry.*;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -40,6 +37,7 @@ public class DarkDoppelgangerMod {
         EntityRegistry.register(modEventBus);
         SpellRegistry.register(modEventBus);
         ItemRegistry.register(modEventBus);
+        TabRegistry.register(modEventBus);
 
         // Register the mod's config
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

@@ -15,5 +15,8 @@
   "tooltip.doppelganger.health_bonus": "Grants +%s Max Health",
   "tooltip.doppelganger.cooldown_reduction": "Reduces Cooldown by %s",
 
+  "itemGroup.items.darkdoppelganger": "Dark DoppelGanger",
+  "itemGroup.item.darkdoppelganger": "Dark Doppelganger",
+
   "spell.irons_spellbooks.doppel_portal.guide": "Enter through a portal summoned in front of you to exit through another portal some blocks away."
 }
