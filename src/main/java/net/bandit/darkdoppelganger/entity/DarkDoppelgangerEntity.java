@@ -4,9 +4,9 @@ import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
-import io.redspace.ironsspellbooks.entity.mobs.goals.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.SpellBarrageGoal;
+import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
 import net.bandit.darkdoppelganger.Config;
@@ -14,7 +14,6 @@ import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
@@ -168,7 +167,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.DEVOUR_SPELL.get(), 3, 6, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -194,7 +193,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.FIREBALL_SPELL.get(), 3, 5, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -220,7 +219,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.RAY_OF_FROST_SPELL.get(), 3, 5, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -246,7 +245,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.SCULK_TENTACLES_SPELL.get(), 3, 4, 100, 160, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.4f, 30, 50, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.4f, 30, 50)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),

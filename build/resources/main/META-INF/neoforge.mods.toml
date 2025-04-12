@@ -17,7 +17,7 @@ license = "MIT"
 # The modid of the mod
 modId = "darkdoppelganger" #mandatory
 # The version number of the mod
-version = "2.0.1-1.21.1" #mandatory
+version = "3.0.0-1.21.1" #mandatory
 # A display name for the mod
 displayName = "DarkDoppelganger" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification https://docs.neoforge.net/docs/misc/updatechecker/
@@ -32,7 +32,7 @@ displayName = "DarkDoppelganger" #mandatory
 authors = "Bandit-Bytes" #optional
 
 # The description text for the mod (multi line!) (#mandatory)
-description = ''''''
+description = '''A final boss that you can summon to look and act like you!'''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 #[[mixins]]
@@ -68,7 +68,7 @@ side = "BOTH"
 modId = "minecraft"
 type = "required"
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-versionRange = "[1.21.1,1.22)"
+versionRange = "[1.21.1,1.21.2)"
 ordering = "NONE"
 side = "BOTH"
 

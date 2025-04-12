@@ -7,7 +7,7 @@
       "text": "You have conquered the Dark Doppelganger and proven your dominance."
     },
     "icon": {
-      "item": "minecraft:nether_star"
+      "id": "minecraft:nether_star"
     },
     "frame": "challenge",
     "show_toast": true,
@@ -25,5 +25,8 @@
         }
       }
     }
-  }
+  },
+  "rewards": {
+  "experience": 1000
+}
 }

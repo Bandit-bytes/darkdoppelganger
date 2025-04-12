@@ -1,90 +1,326 @@
-[09Feb2025 12:17:40.363] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeclientuserdev, --version, 21.1.92, --assetIndex, 17, --assetsDir, C:\\Users\\noide\\.gradle\\caches\\neoformruntime\\assets, --gameDir, ., --fml.neoForgeVersion, 21.1.92, --fml.fmlVersion, 4.0.34, --fml.mcVersion, 1.21.1, --fml.neoFormVersion, 20240808.144430]
-[09Feb2025 12:17:40.368] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.4+7-LTS
-[09Feb2025 12:17:40.369] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.4 by Eclipse Adoptium; OS Windows 10 arch amd64 version 10.0
-[09Feb2025 12:17:40.461] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
-[09Feb2025 12:17:40.571] [main/INFO] [EARLYDISPLAY/]: Trying GL version 4.6
-[09Feb2025 12:17:40.731] [main/INFO] [EARLYDISPLAY/]: Requested GL version 4.6 got version 4.6
-[09Feb2025 12:17:40.814] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/noide/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23131!/ Service=ModLauncher Env=CLIENT
-[09Feb2025 12:17:40.995] [pool-2-thread-1/INFO] [EARLYDISPLAY/]: GL info: NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2 GL version 4.6.0 NVIDIA 560.94, NVIDIA Corporation
-[09Feb2025 12:17:41.140] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
-[09Feb2025 12:17:41.142] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+[12Apr2025 13:01:49.696] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeclientuserdev, --version, 21.1.92, --assetIndex, 17, --assetsDir, C:\\Users\\noide\\.gradle\\caches\\neoformruntime\\assets, --gameDir, ., --fml.neoForgeVersion, 21.1.92, --fml.fmlVersion, 4.0.34, --fml.mcVersion, 1.21.1, --fml.neoFormVersion, 20240808.144430]
+[12Apr2025 13:01:49.699] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.4+7-LTS
+[12Apr2025 13:01:49.700] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.4 by Eclipse Adoptium; OS Windows 10 arch amd64 version 10.0
+[12Apr2025 13:01:49.794] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
+[12Apr2025 13:01:49.886] [main/INFO] [EARLYDISPLAY/]: Trying GL version 4.6
+[12Apr2025 13:01:50.061] [main/INFO] [EARLYDISPLAY/]: Requested GL version 4.6 got version 4.6
+[12Apr2025 13:01:50.144] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/noide/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23131!/ Service=ModLauncher Env=CLIENT
+[12Apr2025 13:01:50.338] [pool-2-thread-1/INFO] [EARLYDISPLAY/]: GL info: NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2 GL version 4.6.0 NVIDIA 572.83, NVIDIA Corporation
+[12Apr2025 13:01:50.498] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[12Apr2025 13:01:50.500] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
      Mod List:
 		Name Version (Mod Id)
 
-		Adorned API 9.0.5+1.21.0 (curios)
 		Caelus API 7.0.0+1.21 (caelus)
-		DarkDoppelganger 2.0.1-1.21.1 (darkdoppelganger)
-		GeckoLib 4 4.7 (geckolib)
-		Iron's Spells 'n Spellbooks 1.21-3.6.0 (irons_spellbooks)
-		Just Enough Items 19.5.0.44 (jei)
+		Curios API 9.2.2+1.21.1 (curios)
+		DarkDoppelganger 2.1.0-1.21.1 (darkdoppelganger)
+		GeckoLib 4 4.7.3 (geckolib)
+		Iron's Spells 'n Spellbooks 1.21.1-3.11.0 (irons_spellbooks)
+		Just Enough Items 19.21.0.247 (jei)
 		Minecraft 1.21.1 (minecraft)
 		NeoForge 21.1.92 (neoforge)
 		Player Animator 2.0.0-alpha1+1.21 (playeranimator)
-[09Feb2025 12:17:41.849] [main/INFO] [mixin/]: Compatibility level set to JAVA_17
-[09Feb2025 12:17:41.851] [main/INFO] [mixin/]: Compatibility level set to JAVA_21
-[09Feb2025 12:17:41.861] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeclientuserdev' with arguments [--version, 21.1.92, --gameDir, ., --assetsDir, C:\Users\noide\.gradle\caches\neoformruntime\assets, --assetIndex, 17]
-[09Feb2025 12:17:41.896] [main/WARN] [mixin/]: Reference map 'irons_spellbooks.refmap.json' for irons_spellbooks.mixins.json could not be read. If this is a development environment you can ignore this message
-[09Feb2025 12:17:41.897] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.neoforge.mixins.json could not be read. If this is a development environment you can ignore this message
-[09Feb2025 12:17:41.897] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.mixins.json could not be read. If this is a development environment you can ignore this message
-[09Feb2025 12:17:41.897] [main/WARN] [mixin/]: Reference map 'geckolib.refmap.json' for geckolib.mixins.json could not be read. If this is a development environment you can ignore this message
-[09Feb2025 12:17:42.152] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
-[09Feb2025 12:17:43.246] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 229 Datafixer optimizations took 156 milliseconds
-[09Feb2025 12:17:46.663] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[09Feb2025 12:17:46.663] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
-[09Feb2025 12:17:46.665] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
-[09Feb2025 12:17:46.666] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
-[09Feb2025 12:17:46.666] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
-[09Feb2025 12:17:46.756] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/assets/.mcassetsroot' uses unexpected schema
-[09Feb2025 12:17:46.756] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/data/.mcassetsroot' uses unexpected schema
-[09Feb2025 12:17:46.773] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
-[09Feb2025 12:17:46.778] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
-[09Feb2025 12:17:46.830] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.3+5
-[09Feb2025 12:17:47.108] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.92, for MC 1.21.1
-[09Feb2025 12:17:47.221] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager...
-[09Feb2025 12:17:47.223] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager took 1.074 ms
-[09Feb2025 12:17:47.986] [Render thread/INFO] [net.neoforged.neoforge.gametest.GameTestHooks/]: Enabled Gametest Namespaces: [darkdoppelganger]
-[09Feb2025 12:17:48.216] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources, mod/irons_spellbooks, mod/darkdoppelganger, mod/caelus, mod/curios, mod/geckolib, mod/playeranimator, mod/neoforge, mod/jei
-[09Feb2025 12:17:48.225] [Worker-Main-4/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Common setup for Dark Doppelganger Mod
-[09Feb2025 12:17:48.234] [Worker-Main-14/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/root_animations.json'
-[09Feb2025 12:17:48.234] [Worker-Main-1/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'darkdoppelganger:animations/doppel_casting_animations.json'
-[09Feb2025 12:17:48.234] [Worker-Main-7/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/casting_animations.json'
-[09Feb2025 12:17:48.234] [Worker-Main-5/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/spectral_hammer.json'
-[09Feb2025 12:17:48.234] [Worker-Main-10/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/ice_block_animations.json'
-[09Feb2025 12:17:48.234] [Worker-Main-19/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/wizard_armor_animation.json'
-[09Feb2025 12:17:48.234] [Worker-Main-17/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/void_tentacle_animations.json'
-[09Feb2025 12:17:48.284] [Worker-Main-13/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Client setup for Dark Doppelganger Mod
-[09Feb2025 12:17:48.373] [Worker-Main-14/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-15.1.05.hex, loading
-[09Feb2025 12:17:48.377] [Worker-Main-20/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_jp_patch-15.1.05.hex, loading
-[09Feb2025 12:17:48.432] [Worker-Main-5/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/drums.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.drum_loop
-[09Feb2025 12:17:48.433] [Worker-Main-5/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/finale.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.finale
-[09Feb2025 12:17:48.564] [Worker-Main-11/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/upgrade_orb_ender: [1, 5, 6, 7]
-[09Feb2025 12:17:48.566] [Worker-Main-4/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/energized_core_energy: [11]
-[09Feb2025 12:17:49.208] [Worker-Main-23/INFO] [io.redspace.ironsspellbooks.IronsSpellbooks/]: Got IMC []
-[09Feb2025 12:17:49.394] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:item.goat_horn.play
-[09Feb2025 12:17:49.394] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
-[09Feb2025 12:17:49.498] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Speakers (HyperX Quadcast)
-[09Feb2025 12:17:49.500] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
-[09Feb2025 12:17:49.562] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/blocks.png-atlas
-[09Feb2025 12:17:49.568] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
-[09Feb2025 12:17:49.568] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
-[09Feb2025 12:17:49.569] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
-[09Feb2025 12:17:49.569] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
-[09Feb2025 12:17:49.571] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
-[09Feb2025 12:17:49.571] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
-[09Feb2025 12:17:49.571] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
-[09Feb2025 12:17:49.571] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
-[09Feb2025 12:17:49.636] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
-[09Feb2025 12:17:49.637] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
-[09Feb2025 12:17:49.638] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/mob_effects.png-atlas
-[09Feb2025 12:17:49.638] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
-[09Feb2025 12:17:49.638] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
-[09Feb2025 12:17:49.653] [Render thread/WARN] [net.minecraft.client.renderer.ShaderInstance/]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
-[09Feb2025 12:17:49.690] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/casting_animations.json is in wrong directory: "player_animation", please place it in "player_animations".
-[09Feb2025 12:17:49.694] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
+[12Apr2025 13:01:51.278] [main/INFO] [mixin/]: Compatibility level set to JAVA_17
+[12Apr2025 13:01:51.281] [main/INFO] [mixin/]: Compatibility level set to JAVA_21
+[12Apr2025 13:01:51.294] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeclientuserdev' with arguments [--version, 21.1.92, --gameDir, ., --assetsDir, C:\Users\noide\.gradle\caches\neoformruntime\assets, --assetIndex, 17]
+[12Apr2025 13:01:51.339] [main/WARN] [mixin/]: Reference map 'irons_spellbooks.refmap.json' for irons_spellbooks.mixins.json could not be read. If this is a development environment you can ignore this message
+[12Apr2025 13:01:51.340] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.neoforge.mixins.json could not be read. If this is a development environment you can ignore this message
+[12Apr2025 13:01:51.341] [main/WARN] [mixin/]: Reference map 'curios.refmap.json' for curios.mixins.json could not be read. If this is a development environment you can ignore this message
+[12Apr2025 13:01:51.341] [main/WARN] [mixin/]: Reference map 'geckolib.refmap.json' for geckolib.mixins.json could not be read. If this is a development environment you can ignore this message
+[12Apr2025 13:01:51.664] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+[12Apr2025 13:01:52.926] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 229 Datafixer optimizations took 262 milliseconds
+[12Apr2025 13:01:56.480] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12Apr2025 13:01:56.481] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12Apr2025 13:01:56.483] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[12Apr2025 13:01:56.484] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[12Apr2025 13:01:56.485] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[12Apr2025 13:01:56.582] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/SolidState%20Driver/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/assets/.mcassetsroot' uses unexpected schema
+[12Apr2025 13:01:56.582] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/D:/SolidState%20Driver/bandits%20mod%20development/1.21darkdoppel/build/moddev/artifacts/neoforge-21.1.92.jar%23183!/data/.mcassetsroot' uses unexpected schema
+[12Apr2025 13:01:56.601] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[12Apr2025 13:01:56.607] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
+[12Apr2025 13:01:56.667] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.3+5
+[12Apr2025 13:01:56.867] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.92, for MC 1.21.1
+[12Apr2025 13:01:56.919] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'DebugMode' is not a valid config key for config category 'debug'.
+Valid keys: [debugMode, debugGuis, debugInputs, debugInfoTooltipsEnabled, crashingTestItemsEnabled, logSuffixTreeStats]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-debug.ini
+Line #5: "	DebugMode = false"
+[12Apr2025 13:01:56.919] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'DebugGuis' is not a valid config key for config category 'debug'.
+Valid keys: [debugMode, debugGuis, debugInputs, debugInfoTooltipsEnabled, crashingTestItemsEnabled, logSuffixTreeStats]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-debug.ini
+Line #10: "	DebugGuis = false"
+[12Apr2025 13:01:56.919] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'DebugInputs' is not a valid config key for config category 'debug'.
+Valid keys: [debugMode, debugGuis, debugInputs, debugInfoTooltipsEnabled, crashingTestItemsEnabled, logSuffixTreeStats]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-debug.ini
+Line #15: "	DebugInputs = false"
+[12Apr2025 13:01:56.920] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'CrashingTestItemsEnabled' is not a valid config key for config category 'debug'.
+Valid keys: [debugMode, debugGuis, debugInputs, debugInfoTooltipsEnabled, crashingTestItemsEnabled, logSuffixTreeStats]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-debug.ini
+Line #20: "	CrashingTestItemsEnabled = false"
+[12Apr2025 13:01:56.922] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: '[modname]' is not a valid category name.
+Valid names are: [modName]
+Skipping all values until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-mod-id-format.ini
+Line #1: "[modname]"
+[12Apr2025 13:01:56.922] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-mod-id-format.ini
+Line #9: "	ModNameFormat = blue italic"
+[12Apr2025 13:01:56.924] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'SearchColors' is not a valid config key for config category 'colors'.
+Valid keys: [searchColors]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-colors.ini
+Line #6: "	SearchColors = White:EEEEEE, LightBlue:7492CC, Cyan:00EEEE, Blue:2222DD, LapisBlue:25418B, Teal:008080, Yellow:CACB58, GoldenYellow:EED700, Orange:D97634, Pink:D1899D, HotPink:FC0FC0, Magenta:B24BBB, Purple:813EB9, EvilPurple:2E1649, Lavender:B57EDC, Indigo:480082, Sand:DBD3A0, Tan:BB9B63, LightBrown:A0522D, Brown:634B33, DarkBrown:3A2D13, LimeGreen:43B239, SlimeGreen:83CB73, Green:008000, DarkGreen:224D22, GrassGreen:548049, Red:963430, BrickRed:B0604B, NetherBrick:2A1516, Redstone:CE3E36, Black:181515, CharcoalGray:464646, IronGray:646464, Gray:808080, Silver:C0C0C0"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'CenterSearch' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #5: "	CenterSearch = false"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'LowMemorySlowSearchEnabled' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #10: "	LowMemorySlowSearchEnabled = false"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'CatchRenderErrorsEnabled' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #15: "	CatchRenderErrorsEnabled = false"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'CheatToHotbarUsingHotkeysEnabled' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #20: "	CheatToHotbarUsingHotkeysEnabled = false"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'AddBookmarksToFrontEnabled' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #25: "	AddBookmarksToFrontEnabled = false"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'lookupFluidContentsEnabled' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #30: "	lookupFluidContentsEnabled = false"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'lookupBlockTagsEnabled' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #35: "	lookupBlockTagsEnabled = true"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'GiveMode' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #40: "	GiveMode = MOUSE_PICKUP"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'RecipeGuiHeight' is not a valid config key for config category 'advanced'.
+Valid keys: [catchRenderErrorsEnabled]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #45: "	RecipeGuiHeight = 350"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: '[bookmark_tooltips]' is not a valid category name.
+Valid names are: [appearance, cheating, bookmarks, tooltips, performance, lookups, advanced, input, sorting, search, ingredientList, bookmarkList]
+Skipping all values until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #48: "[bookmark_tooltips]"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #53: "	BookmarkTooltipFeatures = PREVIEW"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #58: "	HoldShiftToShowBookmarkTooltipFeatures = true"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'IngredientSortStages' is not a valid config key for config category 'sorting'.
+Valid keys: [ingredientSortStages, recipeSorterStages]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #66: "	IngredientSortStages = MOD_NAME, INGREDIENT_TYPE, CREATIVE_MENU"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'RecipeSorterStages' is not a valid config key for config category 'sorting'.
+Valid keys: [ingredientSortStages, recipeSorterStages]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #72: "	RecipeSorterStages = BOOKMARKED, CRAFTABLE"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: '[tags]' is not a valid category name.
+Valid names are: [appearance, cheating, bookmarks, tooltips, performance, lookups, advanced, input, sorting, search, ingredientList, bookmarkList]
+Skipping all values until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #75: "[tags]"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #79: "	TagContentTooltipEnabled = true"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #84: "	HideSingleIngredientTagsEnabled = true"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'ModNameSearchMode' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #91: "	ModNameSearchMode = REQUIRE_PREFIX"
+[12Apr2025 13:01:56.933] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'TooltipSearchMode' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #96: "	TooltipSearchMode = ENABLED"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'TagSearchMode' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #101: "	TagSearchMode = REQUIRE_PREFIX"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'ColorSearchMode' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #106: "	ColorSearchMode = DISABLED"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'ResourceLocationSearchMode' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #111: "	ResourceLocationSearchMode = DISABLED"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'SearchAdvancedTooltips' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #116: "	SearchAdvancedTooltips = false"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'SearchModIds' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #121: "	SearchModIds = true"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'SearchModAliases' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #126: "	SearchModAliases = true"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: 'SearchShortModNames' is not a valid config key for config category 'search'.
+Valid keys: [modNameSearchMode, tagSearchMode, tooltipSearchMode, colorSearchMode, resourceLocationSearchMode, creativeTabSearchMode, searchAdvancedTooltips, searchModIds, searchModAliases, searchShortModNames, searchIngredientAliases]
+Skipping this key.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #131: "	SearchShortModNames = true"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: '[IngredientList]' is not a valid category name.
+Valid names are: [appearance, cheating, bookmarks, tooltips, performance, lookups, advanced, input, sorting, search, ingredientList, bookmarkList]
+Skipping all values until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #134: "[IngredientList]"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #138: "	MaxRows = 16"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #143: "	MaxColumns = 9"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #148: "	HorizontalAlignment = RIGHT"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #153: "	VerticalAlignment = TOP"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #158: "	ButtonNavigationVisibility = ENABLED"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #163: "	DrawBackground = false"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: '[BookmarkList]' is not a valid category name.
+Valid names are: [appearance, cheating, bookmarks, tooltips, performance, lookups, advanced, input, sorting, search, ingredientList, bookmarkList]
+Skipping all values until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #166: "[BookmarkList]"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #170: "	MaxRows = 16"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #175: "	MaxColumns = 9"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #180: "	HorizontalAlignment = LEFT"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #185: "	VerticalAlignment = TOP"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #190: "	ButtonNavigationVisibility = ENABLED"
+[12Apr2025 13:01:56.934] [modloading-worker-0/ERROR] [mezz.jei.common.config.file.ConfigSerializer/]: Expected a '[category]' here.
+Configs must start with a category before defining values.
+Skipping all lines until the first valid category is declared.
+Config file: D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei\jei-client.ini
+Line #195: "	DrawBackground = false"
+[12Apr2025 13:01:56.940] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager...
+[12Apr2025 13:01:56.945] [modloading-worker-0/INFO] [mezz.jei.library.load.PluginCaller/]: Sending ConfigManager took 2.312 ms
+[12Apr2025 13:01:57.677] [Render thread/INFO] [net.neoforged.neoforge.gametest.GameTestHooks/]: Enabled Gametest Namespaces: [darkdoppelganger]
+[12Apr2025 13:01:57.913] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources, mod/irons_spellbooks, mod/darkdoppelganger, mod/caelus, mod/curios, mod/geckolib, mod/playeranimator, mod/neoforge, mod/jei
+[12Apr2025 13:01:57.923] [Worker-Main-4/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Common setup for Dark Doppelganger Mod
+[12Apr2025 13:01:57.925] [Worker-Main-4/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'darkdoppelganger:animations/doppel_casting_animations.json'
+[12Apr2025 13:01:57.925] [Worker-Main-9/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/root_animations.json'
+[12Apr2025 13:01:57.925] [Worker-Main-2/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/casting_animations.json'
+[12Apr2025 13:01:57.925] [Worker-Main-1/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/ice_block_animations.json'
+[12Apr2025 13:01:57.925] [Worker-Main-11/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/spectral_hammer.json'
+[12Apr2025 13:01:57.926] [Worker-Main-15/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/summoned_weapon_animations.json'
+[12Apr2025 13:01:57.926] [Worker-Main-16/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/void_tentacle_animations.json'
+[12Apr2025 13:01:57.927] [Worker-Main-20/WARN] [GeckoLib/]: Found animation file with improper file name format; animation files should end in .animation.json: 'irons_spellbooks:animations/wizard_armor_animation.json'
+[12Apr2025 13:01:58.017] [Worker-Main-18/INFO] [net.bandit.darkdoppelganger.DarkDoppelgangerMod/]: Client setup for Dark Doppelganger Mod
+[12Apr2025 13:01:58.069] [Worker-Main-20/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_jp_patch-15.1.05.hex, loading
+[12Apr2025 13:01:58.069] [Worker-Main-14/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-15.1.05.hex, loading
+[12Apr2025 13:01:58.099] [Worker-Main-17/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/drums.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.drum_loop
+[12Apr2025 13:01:58.100] [Worker-Main-17/WARN] [net.minecraft.client.sounds.SoundManager/]: File irons_spellbooks:sounds/dead_king/music/finale.ogg does not exist, cannot add it to event irons_spellbooks:entity.dead_king.music.finale
+[12Apr2025 13:01:58.205] [Worker-Main-12/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/upgrade_orb_ender: [1, 5, 6, 7]
+[12Apr2025 13:01:58.207] [Worker-Main-8/WARN] [net.minecraft.client.renderer.texture.SpriteContents/]: Unused frames in sprite irons_spellbooks:item/energized_core_energy: [11]
+[12Apr2025 13:01:58.582] [Worker-Main-13/WARN] [net.minecraft.client.resources.model.ModelBakery/]: Unable to load model: 'irons_spellbooks:item/template_open_spell_book_model' referenced from: irons_spellbooks:item/template_open_spell_book_model: java.io.FileNotFoundException: irons_spellbooks:models/item/template_open_spell_book_model.json
+[12Apr2025 13:01:58.977] [Worker-Main-15/INFO] [io.redspace.ironsspellbooks.IronsSpellbooks/]: Got IMC []
+[12Apr2025 13:01:59.157] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:item.goat_horn.play
+[12Apr2025 13:01:59.157] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+[12Apr2025 13:01:59.208] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on HyperX Cloud Earbuds II (High Definition Audio Device)
+[12Apr2025 13:01:59.208] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
+[12Apr2025 13:01:59.287] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/blocks.png-atlas
+[12Apr2025 13:01:59.293] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[12Apr2025 13:01:59.293] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[12Apr2025 13:01:59.294] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[12Apr2025 13:01:59.294] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[12Apr2025 13:01:59.296] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[12Apr2025 13:01:59.296] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[12Apr2025 13:01:59.296] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[12Apr2025 13:01:59.296] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[12Apr2025 13:01:59.358] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x0 minecraft:textures/atlas/particles.png-atlas
+[12Apr2025 13:01:59.359] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[12Apr2025 13:01:59.360] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/mob_effects.png-atlas
+[12Apr2025 13:01:59.360] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[12Apr2025 13:01:59.360] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
+[12Apr2025 13:01:59.374] [Render thread/WARN] [net.minecraft.client.renderer.ShaderInstance/]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
+[12Apr2025 13:01:59.413] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
 java.io.IOException: com.google.gson.JsonParseException: not an emotecraft animation
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry.resourceLoaderCallback(PlayerAnimationRegistry.java:123) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry.resourceLoaderCallback(PlayerAnimationRegistry.java:108) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.packs.resources.ResourceManagerReloadListener.lambda$reload$0(ResourceManagerReloadListener.java:21) ~[neoforge-21.1.92.jar%23183!/:?]
 	at java.base/java.util.concurrent.CompletableFuture$UniRun.tryFire(CompletableFuture.java:787) ~[?:?]
 	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
@@ -115,20 +351,19 @@ java.io.IOException: com.google.gson.JsonParseException: not an emotecraft anima
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
 	at net.neoforged.devlaunch.Main.main(Main.java:55) [DevLaunch-1.0.1.jar:?]
 Caused by: com.google.gson.JsonParseException: not an emotecraft animation
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:54) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:17) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:54) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:17) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.internal.bind.TreeTypeAdapter.read(TreeTypeAdapter.java:76) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1227) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1137) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1107) ~[gson-2.10.1.jar%23103!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	... 31 more
-[09Feb2025 12:17:49.715] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_join.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
-[09Feb2025 12:17:49.716] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
+[12Apr2025 13:01:59.440] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
 java.io.IOException: com.google.gson.JsonParseException: not an emotecraft animation
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry.resourceLoaderCallback(PlayerAnimationRegistry.java:123) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry.resourceLoaderCallback(PlayerAnimationRegistry.java:108) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.packs.resources.ResourceManagerReloadListener.lambda$reload$0(ResourceManagerReloadListener.java:21) ~[neoforge-21.1.92.jar%23183!/:?]
 	at java.base/java.util.concurrent.CompletableFuture$UniRun.tryFire(CompletableFuture.java:787) ~[?:?]
 	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
@@ -159,20 +394,20 @@ java.io.IOException: com.google.gson.JsonParseException: not an emotecraft anima
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
 	at net.neoforged.devlaunch.Main.main(Main.java:55) [DevLaunch-1.0.1.jar:?]
 Caused by: com.google.gson.JsonParseException: not an emotecraft animation
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:54) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:17) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:54) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:17) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.internal.bind.TreeTypeAdapter.read(TreeTypeAdapter.java:76) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1227) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1137) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1107) ~[gson-2.10.1.jar%23103!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	... 31 more
-[09Feb2025 12:17:49.731] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_leave.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
-[09Feb2025 12:17:49.732] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
+[12Apr2025 13:01:59.444] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_join.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
+[12Apr2025 13:01:59.445] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
 java.io.IOException: com.google.gson.JsonParseException: not an emotecraft animation
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry.resourceLoaderCallback(PlayerAnimationRegistry.java:123) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry.resourceLoaderCallback(PlayerAnimationRegistry.java:123) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.packs.resources.ResourceManagerReloadListener.lambda$reload$0(ResourceManagerReloadListener.java:21) ~[neoforge-21.1.92.jar%23183!/:?]
 	at java.base/java.util.concurrent.CompletableFuture$UniRun.tryFire(CompletableFuture.java:787) ~[?:?]
 	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
@@ -203,21 +438,63 @@ java.io.IOException: com.google.gson.JsonParseException: not an emotecraft anima
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
 	at net.neoforged.devlaunch.Main.main(Main.java:55) [DevLaunch-1.0.1.jar:?]
 Caused by: com.google.gson.JsonParseException: not an emotecraft animation
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:54) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:17) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:54) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:17) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.internal.bind.TreeTypeAdapter.read(TreeTypeAdapter.java:76) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1227) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1137) ~[gson-2.10.1.jar%23103!/:?]
 	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1107) ~[gson-2.10.1.jar%23103!/:?]
-	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23188!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
 	... 31 more
-[09Feb2025 12:17:49.733] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/waving.json is in wrong directory: "player_animation", please place it in "player_animations".
-[09Feb2025 12:17:49.737] [Render thread/INFO] [net.neoforged.neoforge.client.entity.animation.json.AnimationLoader/]: Loaded 0 entity animations
-[09Feb2025 12:17:49.737] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 jei:textures/atlas/gui.png-atlas
-[09Feb2025 12:17:53.783] [Worker-Main-16/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:irons_spellbooks:blocks/arcane_debris - Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: irons_spellbooks:arcane_debris
-[09Feb2025 12:17:53.809] [Worker-Main-16/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:irons_spellbooks:patchouli_book - Failed to parse either. First: Unknown registry key in ResourceKey[minecraft:root / minecraft:loot_function_type]: minecraft:set_nbt; Second: Not a json array: {"function":"set_nbt","tag":"{\"patchouli:book\": \"irons_spellbooks:iss_guide_book\"}"}
-[09Feb2025 12:17:53.995] [Render thread/ERROR] [net.minecraft.world.item.crafting.RecipeManager/]: Parsing error loading recipe irons_spellbooks:patchouli_book
-com.google.gson.JsonParseException: Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: patchouli:guide_book
+[12Apr2025 13:01:59.447] [Render thread/WARN] [dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry/]: Animation player_animation/model_player_leave.animation.json is in wrong directory: "player_animation", please place it in "player_animations".
+[12Apr2025 13:01:59.447] [Render thread/INFO] [dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs/]: Failed to apply emotecraft
+java.io.IOException: com.google.gson.JsonParseException: not an emotecraft animation
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:25) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AnimationCodecs.deserialize(AnimationCodecs.java:77) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry.resourceLoaderCallback(PlayerAnimationRegistry.java:123) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.packs.resources.ResourceManagerReloadListener.lambda$reload$0(ResourceManagerReloadListener.java:21) ~[neoforge-21.1.92.jar%23183!/:?]
+	at java.base/java.util.concurrent.CompletableFuture$UniRun.tryFire(CompletableFuture.java:787) ~[?:?]
+	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$new$3(SimpleReloadInstance.java:86) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:151) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:24) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:122) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:111) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.Minecraft.runTick(Minecraft.java:1161) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.Minecraft.run(Minecraft.java:813) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.main.Main.main(Main.java:230) ~[neoforge-21.1.92.jar%23183!/:?]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
+	at MC-BOOTSTRAP/fml_loader@4.0.34/net.neoforged.fml.loading.targets.CommonLaunchHandler.runTarget(CommonLaunchHandler.java:136) ~[loader-4.0.34.jar%23139!/:4.0]
+	at MC-BOOTSTRAP/fml_loader@4.0.34/net.neoforged.fml.loading.targets.CommonLaunchHandler.clientService(CommonLaunchHandler.java:124) ~[loader-4.0.34.jar%23139!/:4.0]
+	at MC-BOOTSTRAP/fml_loader@4.0.34/net.neoforged.fml.loading.targets.NeoForgeClientUserdevLaunchHandler.runService(NeoForgeClientUserdevLaunchHandler.java:23) ~[loader-4.0.34.jar%23139!/:4.0]
+	at MC-BOOTSTRAP/fml_loader@4.0.34/net.neoforged.fml.loading.targets.CommonLaunchHandler.lambda$launchService$4(CommonLaunchHandler.java:118) ~[loader-4.0.34.jar%23139!/:4.0]
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.4/cpw.mods.modlauncher.LaunchServiceHandlerDecorator.launch(LaunchServiceHandlerDecorator.java:30) [modlauncher-11.0.4.jar%23121!/:?]
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.4/cpw.mods.modlauncher.LaunchServiceHandler.launch(LaunchServiceHandler.java:53) [modlauncher-11.0.4.jar%23121!/:?]
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.4/cpw.mods.modlauncher.LaunchServiceHandler.launch(LaunchServiceHandler.java:71) [modlauncher-11.0.4.jar%23121!/:?]
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.4/cpw.mods.modlauncher.Launcher.run(Launcher.java:103) [modlauncher-11.0.4.jar%23121!/:?]
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.4/cpw.mods.modlauncher.Launcher.main(Launcher.java:74) [modlauncher-11.0.4.jar%23121!/:?]
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.4/cpw.mods.modlauncher.BootstrapLaunchConsumer.accept(BootstrapLaunchConsumer.java:26) [modlauncher-11.0.4.jar%23121!/:?]
+	at MC-BOOTSTRAP/cpw.mods.modlauncher@11.0.4/cpw.mods.modlauncher.BootstrapLaunchConsumer.accept(BootstrapLaunchConsumer.java:23) [modlauncher-11.0.4.jar%23121!/:?]
+	at cpw.mods.bootstraplauncher@2.0.2/cpw.mods.bootstraplauncher.BootstrapLauncher.run(BootstrapLauncher.java:210) [bootstraplauncher-2.0.2.jar:?]
+	at cpw.mods.bootstraplauncher@2.0.2/cpw.mods.bootstraplauncher.BootstrapLauncher.main(BootstrapLauncher.java:69) [bootstraplauncher-2.0.2.jar:?]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
+	at net.neoforged.devlaunch.Main.main(Main.java:55) [DevLaunch-1.0.1.jar:?]
+Caused by: com.google.gson.JsonParseException: not an emotecraft animation
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:54) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.core.data.gson.AnimationJson.deserialize(AnimationJson.java:17) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.internal.bind.TreeTypeAdapter.read(TreeTypeAdapter.java:76) ~[gson-2.10.1.jar%23103!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1227) ~[gson-2.10.1.jar%23103!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1137) ~[gson-2.10.1.jar%23103!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1107) ~[gson-2.10.1.jar%23103!/:?]
+	at TRANSFORMER/playeranimator@2.0.0-alpha1+1.21/dev.kosmx.playerAnim.minecraftApi.codec.AbstractGsonCodec.decode(AbstractGsonCodec.java:23) ~[player-animation-lib-forge-2.0.0-alpha1+1.21.jar%23189!/:?]
+	... 31 more
+[12Apr2025 13:01:59.449] [Render thread/INFO] [net.neoforged.neoforge.client.entity.animation.json.AnimationLoader/]: Loaded 0 entity animations
+[12Apr2025 13:01:59.449] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x0 jei:textures/atlas/gui.png-atlas
+[12Apr2025 13:02:20.947] [Worker-Main-2/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:irons_spellbooks:test/ring_gen_break_me - Unknown registry key in ResourceKey[minecraft:root / irons_spellbooks:spells]: minecraft:none
+[12Apr2025 13:02:21.100] [Render thread/ERROR] [net.minecraft.world.item.crafting.RecipeManager/]: Parsing error loading recipe irons_spellbooks:patchouli_book
+com.google.gson.JsonParseException: No component with type: 'patchouli:book'; No component with type: 'patchouli:book' missed input: {"patchouli:book":"irons_spellbooks:iss_guide_book"}; Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: patchouli:guide_book
 	at MC-BOOTSTRAP/datafixerupper@8.0.16/com.mojang.serialization.DataResult$Error.getOrThrow(DataResult.java:287) ~[datafixerupper-8.0.16.jar%23114!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.item.crafting.RecipeManager.apply(RecipeManager.java:60) ~[neoforge-21.1.92.jar%23183!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.world.item.crafting.RecipeManager.apply(RecipeManager.java:36) ~[neoforge-21.1.92.jar%23183!/:?]
@@ -247,11 +524,9 @@ com.google.gson.JsonParseException: Unknown registry key in ResourceKey[minecraf
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.MouseHandler.lambda$setup$5(MouseHandler.java:212) ~[neoforge-21.1.92.jar%23183!/:?]
 	at MC-BOOTSTRAP/org.lwjgl.glfw@3.3.3+5/org.lwjgl.glfw.GLFWMouseButtonCallbackI.callback(GLFWMouseButtonCallbackI.java:43) ~[lwjgl-glfw-3.3.3.jar%23166!/:build 5]
 	at MC-BOOTSTRAP/org.lwjgl@3.3.3+5/org.lwjgl.system.JNI.invokeV(Native Method) ~[lwjgl-3.3.3.jar%23177!/:build 5]
-	at MC-BOOTSTRAP/org.lwjgl.glfw@3.3.3+5/org.lwjgl.glfw.GLFW.glfwPollEvents(GLFW.java:3438) ~[lwjgl-glfw-3.3.3.jar%23166!/:build 5]
-	at TRANSFORMER/minecraft@1.21.1/com.mojang.blaze3d.systems.RenderSystem.pollEvents(RenderSystem.java:134) ~[neoforge-21.1.92.jar%23183!/:?]
-	at TRANSFORMER/minecraft@1.21.1/com.mojang.blaze3d.systems.RenderSystem.flipFrame(RenderSystem.java:143) ~[neoforge-21.1.92.jar%23183!/:?]
-	at TRANSFORMER/minecraft@1.21.1/com.mojang.blaze3d.platform.Window.updateDisplay(Window.java:294) ~[neoforge-21.1.92.jar%23183!/:?]
-	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.Minecraft.runTick(Minecraft.java:1223) ~[neoforge-21.1.92.jar%23183!/:?]
+	at MC-BOOTSTRAP/org.lwjgl.glfw@3.3.3+5/org.lwjgl.glfw.GLFW.glfwWaitEventsTimeout(GLFW.java:3509) ~[lwjgl-glfw-3.3.3.jar%23166!/:build 5]
+	at TRANSFORMER/minecraft@1.21.1/com.mojang.blaze3d.systems.RenderSystem.limitDisplayFPS(RenderSystem.java:162) ~[neoforge-21.1.92.jar%23183!/:?]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.Minecraft.runTick(Minecraft.java:1226) ~[neoforge-21.1.92.jar%23183!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.Minecraft.run(Minecraft.java:813) ~[neoforge-21.1.92.jar%23183!/:?]
 	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.main.Main.main(Main.java:230) ~[neoforge-21.1.92.jar%23183!/:?]
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
@@ -272,92 +547,105 @@ com.google.gson.JsonParseException: Unknown registry key in ResourceKey[minecraf
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
 	at net.neoforged.devlaunch.Main.main(Main.java:55) [DevLaunch-1.0.1.jar:?]
-[09Feb2025 12:17:54.009] [Render thread/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 1395 recipes
-[09Feb2025 12:17:54.148] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 1426 advancements
-[09Feb2025 12:17:54.153] [Render thread/INFO] [Curios API/]: Loaded 11 curio slots
-[09Feb2025 12:17:54.155] [Render thread/INFO] [Curios API/]: Loaded 1 curio entities
-[09Feb2025 12:17:54.465] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent too early, ignoring
-[09Feb2025 12:17:54.529] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Starting integrated minecraft server version 1.21.1
-[09Feb2025 12:17:54.529] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
-[09Feb2025 12:17:55.069] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
-[09Feb2025 12:17:55.222] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
-[09Feb2025 12:17:55.467] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
-[09Feb2025 12:17:55.477] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 397 ms
-[09Feb2025 12:17:55.529] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing view distance to 12, from 10
-[09Feb2025 12:17:55.530] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing simulation distance to 12, from 0
-[09Feb2025 12:17:55.892] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent
-[09Feb2025 12:17:56.048] [Server thread/INFO] [net.minecraft.server.players.PlayerList/]: Dev[local:E:c30a03c9] logged in with entity id 31 at (-285.53881179212607, 65.0, 456.5643947543814)
-[09Feb2025 12:17:56.124] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev joined the game
-[09Feb2025 12:17:56.442] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.RecipesUpdatedEvent
-[09Feb2025 12:17:56.442] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from LISTENING to JEI_STARTED
-[09Feb2025 12:17:56.442] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI...
-[09Feb2025 12:17:56.450] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes...
-[09Feb2025 12:17:56.454] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes took 3.082 ms
-[09Feb2025 12:17:56.454] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes...
-[09Feb2025 12:17:56.456] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes took 1.651 ms
-[09Feb2025 12:17:56.458] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients...
-[09Feb2025 12:17:56.572] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering ingredients: jei:minecraft took 113.3 milliseconds
-[09Feb2025 12:17:56.572] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients took 114.1 ms
-[09Feb2025 12:17:56.580] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info...
-[09Feb2025 12:17:56.580] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info took 416.8 μs
-[09Feb2025 12:17:56.606] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories...
-[09Feb2025 12:17:56.621] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering categories: jei:minecraft took 15.15 milliseconds
-[09Feb2025 12:17:56.628] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories took 21.70 ms
-[09Feb2025 12:17:56.629] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions...
-[09Feb2025 12:17:56.631] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions took 2.674 ms
-[09Feb2025 12:17:56.633] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts...
-[09Feb2025 12:17:56.634] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts took 1.372 ms
-[09Feb2025 12:17:56.636] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins...
-[09Feb2025 12:17:56.637] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins took 601.5 μs
-[09Feb2025 12:17:56.637] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry...
-[09Feb2025 12:17:56.669] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry took 31.49 ms
-[09Feb2025 12:17:56.671] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes...
-[09Feb2025 12:17:56.822] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: jei:minecraft took 149.7 milliseconds
-[09Feb2025 12:17:56.977] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: irons_spellbooks:jei_plugin took 155.3 milliseconds
-[09Feb2025 12:17:56.977] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes took 305.8 ms
-[09Feb2025 12:17:56.983] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers...
-[09Feb2025 12:17:56.985] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers took 2.771 ms
-[09Feb2025 12:17:56.992] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime...
-[09Feb2025 12:17:56.994] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers...
-[09Feb2025 12:17:57.001] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers took 6.079 ms
-[09Feb2025 12:17:57.003] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime...
-[09Feb2025 12:17:57.005] [Render thread/INFO] [mezz.jei.gui.startup.JeiGuiStarter/]: Starting JEI GUI
-[09Feb2025 12:17:57.005] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list...
-[09Feb2025 12:17:57.009] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list took 3.754 ms
-[09Feb2025 12:17:57.009] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter...
-[09Feb2025 12:17:57.038] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Adding 2506 ingredients
-[09Feb2025 12:17:57.324] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Added 2506 ingredients
-[09Feb2025 12:17:57.326] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter took 316.8 ms
-[09Feb2025 12:17:57.437] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering Runtime: jei:neoforge_gui took 433.7 milliseconds
-[09Feb2025 12:17:57.437] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime took 434.5 ms
-[09Feb2025 12:17:57.438] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime took 446.3 ms
-[09Feb2025 12:17:57.438] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime...
-[09Feb2025 12:17:57.439] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime took 465.2 μs
-[09Feb2025 12:17:57.439] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI took 997.1 ms
-[09Feb2025 12:17:57.454] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 87 advancements
-[09Feb2025 12:18:01.281] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: [Dev: Set own game mode to Creative Mode]
-[09Feb2025 12:18:01.285] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Set own game mode to Creative Mode
-[09Feb2025 12:18:11.418] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
-[09Feb2025 12:18:11.500] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
-[09Feb2025 12:18:11.581] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
-[09Feb2025 12:18:11.691] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
-[09Feb2025 12:18:12.310] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Stopping!
-[09Feb2025 12:18:12.313] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent$LoggingOut
-[09Feb2025 12:18:12.314] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from JEI_STARTED to LISTENING
-[09Feb2025 12:18:12.314] [Render thread/INFO] [mezz.jei.library.startup.JeiStarter/]: Stopping JEI
-[09Feb2025 12:18:12.314] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable...
-[09Feb2025 12:18:12.314] [Render thread/INFO] [mezz.jei.neoforge.plugins.neoforge.NeoForgeGuiPlugin/]: Stopping JEI GUI
-[09Feb2025 12:18:12.316] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable took 2.065 ms
-[09Feb2025 12:18:12.375] [Server thread/INFO] [net.minecraft.server.network.ServerGamePacketListenerImpl/]: Dev lost connection: Disconnected
-[09Feb2025 12:18:12.375] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev left the game
-[09Feb2025 12:18:12.397] [Server thread/INFO] [net.minecraft.server.network.ServerCommonPacketListenerImpl/]: Stopping singleplayer server as player logged out
-[09Feb2025 12:18:12.419] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Stopping server
-[09Feb2025 12:18:12.419] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving players
-[09Feb2025 12:18:12.419] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving worlds
-[09Feb2025 12:18:12.485] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
-[09Feb2025 12:18:12.750] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
-[09Feb2025 12:18:12.766] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
-[09Feb2025 12:18:12.801] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (New World (1)): All chunks are saved
-[09Feb2025 12:18:12.801] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
-[09Feb2025 12:18:12.801] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
-[09Feb2025 12:18:12.801] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved
+[12Apr2025 13:02:21.113] [Render thread/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 1469 recipes
+[12Apr2025 13:02:21.219] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 1441 advancements
+[12Apr2025 13:02:21.223] [Render thread/INFO] [Curios API/]: Loaded 11 curio slots
+[12Apr2025 13:02:21.225] [Render thread/INFO] [Curios API/]: Loaded 1 curio entities
+[12Apr2025 13:02:21.521] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent too early, ignoring
+[12Apr2025 13:02:21.571] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Starting integrated minecraft server version 1.21.1
+[12Apr2025 13:02:21.571] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[12Apr2025 13:02:21.624] [Server thread/WARN] [net.neoforged.fml.config.ConfigTracker/CONFIG]: Configuration file D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\jei-server.toml is not correct. Correcting
+[12Apr2025 13:02:21.632] [Server thread/WARN] [net.neoforged.fml.config.ConfigTracker/CONFIG]: Configuration file D:\SolidState Driver\bandits mod development\1.21darkdoppel\run\config\irons_spellbooks-server.toml is not correct. Correcting
+[12Apr2025 13:02:22.077] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
+[12Apr2025 13:02:22.213] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[12Apr2025 13:02:22.293] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[12Apr2025 13:02:22.306] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 219 ms
+[12Apr2025 13:02:22.351] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing view distance to 12, from 10
+[12Apr2025 13:02:22.351] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing simulation distance to 12, from 0
+[12Apr2025 13:02:22.716] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.event.TagsUpdatedEvent
+[12Apr2025 13:02:22.814] [Server thread/WARN] [net.minecraft.server.PlayerAdvancements/]: Ignored advancement 'irons_spellbooks:grant_patchouli' in progress file .\saves\New World (1)\advancements\380df991-f603-344c-a090-369bad2a924a.json - it doesn't exist anymore?
+[12Apr2025 13:02:22.840] [Server thread/INFO] [net.minecraft.server.players.PlayerList/]: Dev[local:E:50130d1f] logged in with entity id 31 at (130.55708640545652, 50.0, 8.95215970491635)
+[12Apr2025 13:02:22.902] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev joined the game
+[12Apr2025 13:02:23.145] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.RecipesUpdatedEvent
+[12Apr2025 13:02:23.146] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from LISTENING to JEI_STARTED
+[12Apr2025 13:02:23.147] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI...
+[12Apr2025 13:02:23.158] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes...
+[12Apr2025 13:02:23.167] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering item subtypes took 8.796 ms
+[12Apr2025 13:02:23.168] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes...
+[12Apr2025 13:02:23.170] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering fluid subtypes took 1.959 ms
+[12Apr2025 13:02:23.173] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients...
+[12Apr2025 13:02:23.245] [Render thread/WARN] [mezz.jei.library.plugins.vanilla.ingredients.ItemStackListFactory/]: Item Group has no display items and no search tab display items. Items from this group will be missing from the JEI ingredient list. Operator Utilities
+[12Apr2025 13:02:23.284] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering ingredients: jei:minecraft took 110.4 milliseconds
+[12Apr2025 13:02:23.284] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering ingredients took 111.1 ms
+[12Apr2025 13:02:23.284] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering extra ingredients...
+[12Apr2025 13:02:23.285] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering extra ingredients took 498.0 μs
+[12Apr2025 13:02:23.286] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering search ingredient aliases...
+[12Apr2025 13:02:23.287] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering search ingredient aliases took 832.1 μs
+[12Apr2025 13:02:23.322] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info...
+[12Apr2025 13:02:23.323] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Mod Info took 957.5 μs
+[12Apr2025 13:02:23.341] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories...
+[12Apr2025 13:02:23.362] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering categories: jei:minecraft took 19.76 milliseconds
+[12Apr2025 13:02:23.376] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering categories took 34.52 ms
+[12Apr2025 13:02:23.378] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions...
+[12Apr2025 13:02:23.382] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering vanilla category extensions took 3.607 ms
+[12Apr2025 13:02:23.383] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts...
+[12Apr2025 13:02:23.384] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipe catalysts took 768.9 μs
+[12Apr2025 13:02:23.384] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry...
+[12Apr2025 13:02:23.397] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building recipe registry took 12.05 ms
+[12Apr2025 13:02:23.398] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins...
+[12Apr2025 13:02:23.400] [Render thread/INFO] [mezz.jei.library.load.registration.AdvancedRegistration/]: Added typed recipe manager plugin: class io.redspace.ironsspellbooks.jei.AlchemistCauldronAdvancedHandler
+[12Apr2025 13:02:23.400] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering advanced plugins took 1.978 ms
+[12Apr2025 13:02:23.401] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes...
+[12Apr2025 13:02:23.545] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: jei:minecraft took 144.3 milliseconds
+[12Apr2025 13:02:23.769] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: irons_spellbooks:jei_plugin took 223.6 milliseconds
+[12Apr2025 13:02:23.790] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering recipes: jei:internal took 20.63 milliseconds
+[12Apr2025 13:02:23.790] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes took 389.4 ms
+[12Apr2025 13:02:23.796] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers...
+[12Apr2025 13:02:23.799] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering recipes transfer handlers took 3.022 ms
+[12Apr2025 13:02:23.807] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime...
+[12Apr2025 13:02:23.809] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers...
+[12Apr2025 13:02:23.818] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering gui handlers took 8.280 ms
+[12Apr2025 13:02:23.821] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime...
+[12Apr2025 13:02:23.823] [Render thread/INFO] [mezz.jei.gui.startup.JeiGuiStarter/]: Starting JEI GUI
+[12Apr2025 13:02:23.823] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list...
+[12Apr2025 13:02:23.844] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient list took 20.80 ms
+[12Apr2025 13:02:23.844] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter...
+[12Apr2025 13:02:23.880] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Adding 2638 ingredients
+[12Apr2025 13:02:24.165] [Render thread/INFO] [mezz.jei.gui.ingredients.IngredientFilter/]: Added 2638 ingredients
+[12Apr2025 13:02:24.166] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building ingredient filter took 321.7 ms
+[12Apr2025 13:02:24.232] [Render thread/INFO] [mezz.jei.library.load.PluginCallerTimerRunnable/]: Registering Runtime: jei:neoforge_gui took 410.1 milliseconds
+[12Apr2025 13:02:24.232] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Registering Runtime took 410.8 ms
+[12Apr2025 13:02:24.232] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Building runtime took 425.0 ms
+[12Apr2025 13:02:24.233] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime...
+[12Apr2025 13:02:24.233] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime took 642.0 μs
+[12Apr2025 13:02:24.234] [Render thread/INFO] [mezz.jei.core.util.LoggedTimer/]: Starting JEI took 1.087 s
+[12Apr2025 13:02:24.245] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 70 advancements
+[12Apr2025 13:02:47.759] [Server thread/WARN] [net.minecraft.server.MinecraftServer/]: Can't keep up! Is the server overloaded? Running 3965ms or 79 ticks behind
+[12Apr2025 13:02:54.267] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] The Dark Doppelganger has entered its Second Phase!
+[12Apr2025 13:03:24.447] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev fell out of the world
+[12Apr2025 13:03:24.456] [Render thread/INFO] [net.minecraft.client.gui.components.ChatComponent/]: [System] [CHAT] Dev fell out of the world
+[12Apr2025 13:03:26.735] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 70 advancements
+[12Apr2025 13:03:27.505] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[12Apr2025 13:03:27.520] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[12Apr2025 13:03:27.554] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[12Apr2025 13:03:27.560] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[12Apr2025 13:03:28.070] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver received class net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent$LoggingOut
+[12Apr2025 13:03:28.070] [Render thread/INFO] [mezz.jei.neoforge.startup.StartEventObserver/]: JEI StartEventObserver transitioning state from JEI_STARTED to LISTENING
+[12Apr2025 13:03:28.070] [Render thread/INFO] [mezz.jei.library.startup.JeiStarter/]: Stopping JEI
+[12Apr2025 13:03:28.070] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable...
+[12Apr2025 13:03:28.071] [Render thread/INFO] [mezz.jei.neoforge.plugins.neoforge.NeoForgeGuiPlugin/]: Stopping JEI GUI
+[12Apr2025 13:03:28.074] [Render thread/INFO] [mezz.jei.library.load.PluginCaller/]: Sending Runtime Unavailable took 2.897 ms
+[12Apr2025 13:03:28.116] [Server thread/INFO] [net.minecraft.server.network.ServerGamePacketListenerImpl/]: Dev lost connection: Disconnected
+[12Apr2025 13:03:28.116] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev left the game
+[12Apr2025 13:03:28.124] [Server thread/INFO] [net.minecraft.server.network.ServerCommonPacketListenerImpl/]: Stopping singleplayer server as player logged out
+[12Apr2025 13:03:28.152] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Stopping server
+[12Apr2025 13:03:28.153] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving players
+[12Apr2025 13:03:28.153] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving worlds
+[12Apr2025 13:03:28.482] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[12Apr2025 13:03:28.937] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[12Apr2025 13:03:28.940] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[12Apr2025 13:03:28.951] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (New World (1)): All chunks are saved
+[12Apr2025 13:03:28.951] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[12Apr2025 13:03:28.951] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[12Apr2025 13:03:28.951] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: ThreadedAnvilChunkStorage: All dimensions are saved
+[12Apr2025 13:03:30.328] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Stopping!
