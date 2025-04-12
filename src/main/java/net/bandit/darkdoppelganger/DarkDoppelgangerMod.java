@@ -2,19 +2,15 @@ package net.bandit.darkdoppelganger;
 
 import com.mojang.logging.LogUtils;
 import net.bandit.darkdoppelganger.command.ModCommands;
-import net.bandit.darkdoppelganger.entity.EntityRegistry;
 import net.bandit.darkdoppelganger.entity.PortalJoinEntity;
 import net.bandit.darkdoppelganger.entity.PortalLeaveEntity;
 import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalLeaveRenderer;
-import net.bandit.darkdoppelganger.item.ItemRegistry;
+import net.bandit.darkdoppelganger.registry.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.ModSounds;
 import net.bandit.darkdoppelganger.registry.SpellRegistry;
-import net.minecraft.core.registries.Registries;
+import net.bandit.darkdoppelganger.registry.TabRegistry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -73,6 +69,7 @@ public class DarkDoppelgangerMod {
 
 
         ItemRegistry.ITEMS.register(modEventBus);
+        TabRegistry.register(modEventBus);
         ENTITY_TYPES.register(modEventBus);
         SpellRegistry.register(modEventBus);
         ModSounds.register(modEventBus);

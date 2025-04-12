@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    "NDG",
+    " B "
+  ],
+  "key": {
+    "E": { "item": "minecraft:echo_shard" },
+    "N": { "item": "minecraft:nether_star" },
+    "D": { "item": "minecraft:dragon_breath" },
+    "G": { "item": "minecraft:ghast_tear" },
+    "B": { "item": "minecraft:blackstone" }
+  },
+  "result": {
+    "item": "darkdoppelganger:shadow_orb"
+  }
+}

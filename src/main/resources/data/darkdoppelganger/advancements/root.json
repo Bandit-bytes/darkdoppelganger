@@ -7,7 +7,7 @@
       "translate": "Behold the Creator..."
     },
     "description": {
-      "translate": "Use to summon the DoppelGanger"
+      "translate": "Entered a world where a Doppelganger may lurk..."
     },
     "background": "minecraft:textures/block/end_stone.png",
     "show_toast": true,

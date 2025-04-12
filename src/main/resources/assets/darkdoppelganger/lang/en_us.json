@@ -1,5 +1,6 @@
 {
   "item.darkdoppelganger.summon_scroll": "Summon Scroll",
+  "item.darkdoppelganger.shadow_orb": "Shadow Orb",
   "item.darkdoppelganger.doppelganger_ring": "Doppelganger Ring",
   "itemGroup.darkdoppelganger.example_tab": "Dark Doppelganger Tab",
   "item.darkdoppelganger.summon_scroll.tooltip": "Use this to summon the Dark Doppelganger!",
@@ -12,5 +13,7 @@
   "spell.irons_spellbooks.doppel_portal": "Portal Jump",
   "spell.darkdoppelganger.doppel_portal": "Portal Jump",
 
-  "spell.irons_spellbooks.doppel_portal.guide": "Enter through a portal summoned in front of you to exit through another portal some blocks away."
+  "spell.irons_spellbooks.doppel_portal.guide": "Enter through a portal summoned in front of you to exit through another portal some blocks away.",
+
+  "itemGroup.darkdoppelganger.doppelganger_tab": "Dark Doppelganger"
 }
