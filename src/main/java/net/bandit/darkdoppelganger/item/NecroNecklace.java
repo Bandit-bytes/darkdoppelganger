@@ -6,7 +6,6 @@ import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,50 +16,37 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 import java.util.UUID;
 
-public class DoppelgangerRingItem extends Item implements ICurioItem {
+public class NecroNecklace extends Item implements ICurioItem {
 
-    private static final UUID HEALTH_BOOST_UUID = UUID.fromString("1d1a82d8-c9d2-11ed-afa1-0242ac120002");
-    private static final UUID MAX_MANA_UUID = UUID.fromString("2d2a92d8-c9d2-11ed-afa1-0242ac120003");
-
-    public DoppelgangerRingItem(Properties properties) {
+    public NecroNecklace(Properties properties) {
         super(properties);
     }
-
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(SlotContext slotContext, UUID uuid, ItemStack stack) {
         Multimap<Attribute, AttributeModifier> modifiers = HashMultimap.create();
-        modifiers.put(Attributes.MAX_HEALTH,
-                new AttributeModifier(HEALTH_BOOST_UUID, "Ring health boost", 30.0, AttributeModifier.Operation.ADDITION));
-        //Irons addon
+
         modifiers.put(AttributeRegistry.MAX_MANA.get(),
-            new AttributeModifier(MAX_MANA_UUID, "Ring mana boost", 150.0, AttributeModifier.Operation.ADDITION));
+                new AttributeModifier(uuid, "necro_mana_bonus", 200.0, AttributeModifier.Operation.ADDITION));
+
+        modifiers.put(AttributeRegistry.ELDRITCH_SPELL_POWER.get(),
+                new AttributeModifier(uuid, "necro_eldritch_power", 0.25, AttributeModifier.Operation.MULTIPLY_TOTAL));
+
         return modifiers;
     }
 
     @Override
     public boolean canEquip(SlotContext slotContext, ItemStack stack) {
-        return "ring".equals(slotContext.identifier());
-    }
-
-    @Override
-    public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
-        return true;
+        return "necklace".equals(slotContext.identifier());
     }
 
     @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         Level level = slotContext.entity().level();
-        if (!level.isClientSide) {
-//            System.out.println("Doppelganger Ring equipped!");
-        }
     }
 
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         Level level = slotContext.entity().level();
-        if (!level.isClientSide) {
-//            System.out.println("Doppelganger Ring unequipped!");
-        }
     }
 
     @NotNull

@@ -1,6 +1,8 @@
 {
   "item.darkdoppelganger.summon_scroll": "Summon Scroll",
   "item.darkdoppelganger.shadow_orb": "Shadow Orb",
+  "item.darkdoppelganger.elder_necklace": "Elder's Necklace",
+  "item.darkdoppelganger.summons_necklace": "Summoner Necklace",
   "item.darkdoppelganger.doppelganger_ring": "Doppelganger Ring",
   "itemGroup.darkdoppelganger.example_tab": "Dark Doppelganger Tab",
   "item.darkdoppelganger.summon_scroll.tooltip": "Use this to summon the Dark Doppelganger!",

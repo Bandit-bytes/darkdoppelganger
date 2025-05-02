@@ -1,5 +1,6 @@
 package net.bandit.darkdoppelganger.item;
 
+import io.redspace.ironsspellbooks.registries.ItemRegistry;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.entity.EntityRegistry;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -110,11 +112,41 @@ public class ShadowOrbItem extends Item {
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                boss.setItemSlot(slot, player.getItemBySlot(slot).copy());
+                ItemStack playerItem = player.getItemBySlot(slot);
+                ItemStack itemToEquip;
+
+                if (!playerItem.isEmpty()) {
+                    itemToEquip = playerItem.copy();
+                } else {
+                    itemToEquip = switch (slot) {
+                        case HEAD -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET.get());
+                        case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE.get());
+                        case LEGS -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS.get());
+                        case FEET -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS.get());
+                        default -> ItemStack.EMPTY;
+                    };
+                }
+
+                boss.setItemSlot(slot, itemToEquip);
             }
         }
 
+// Example for weapons:
+        if (player.getMainHandItem().isEmpty()) {
+            boss.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ItemRegistry.ARTIFICER_STAFF.get()));
+        } else {
+            boss.setItemInHand(InteractionHand.MAIN_HAND, player.getMainHandItem().copy());
+        }
+
+        if (player.getOffhandItem().isEmpty()) {
+            boss.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.SHIELD));
+        } else {
+            boss.setItemInHand(InteractionHand.OFF_HAND, player.getOffhandItem().copy());
+        }
+
+// Now finally spawn the boss
         level.addFreshEntity(boss);
+
 
         // Particle swirl
         level.sendParticles(ParticleTypes.SMOKE, boss.getX(), boss.getY(), boss.getZ(), 30, 0.5, 1.0, 0.5, 0.05);

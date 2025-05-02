@@ -23,6 +23,8 @@ public class TabRegistry {
                         output.accept(ItemRegistry.DOPPELGANGER_RING.get());
                         output.accept(ItemRegistry.SUMMON_SCROLL.get());
                         output.accept(ItemRegistry.SHADOW_ORB.get());
+                        output.accept(ItemRegistry.ELDER_NECKLACE.get());
+                        output.accept(ItemRegistry.SUMMONS_NECKLACE.get());
                     })
                     .build()
     );

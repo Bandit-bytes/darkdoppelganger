@@ -14,6 +14,7 @@ import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.registry.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.ModSounds;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -685,7 +687,14 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 }
             }
 
-            this.spawnAtLocation(ItemRegistry.DOPPELGANGER_RING.get());
+            List<Item> lootPool = List.of(
+                    ItemRegistry.DOPPELGANGER_RING.get(),
+                    ItemRegistry.ELDER_NECKLACE.get(),
+                    ItemRegistry.SUMMONS_NECKLACE.get()
+            );
+
+            Item selectedDrop = Util.getRandom(lootPool, this.getRandom());
+            this.spawnAtLocation(selectedDrop);
             this.spawnAtLocation(Items.NETHER_STAR);
             this.spawnAtLocation(Items.ECHO_SHARD, 3);
             this.spawnAtLocation(Items.DIAMOND_BLOCK, 3);
