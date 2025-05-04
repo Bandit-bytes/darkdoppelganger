@@ -417,6 +417,31 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     @Override
     public void tick() {
         super.tick();
+        if (!level().isClientSide && isClone && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
+            Player target = null;
+
+            // Clones look for summoner; minions just look for nearest player
+            if (this.getTags().contains("dark_doppelganger_clone")) {
+                target = getSummonerPlayer(); // Might be null
+            }
+            if (target == null) {
+                target = level().getNearestPlayer(this, 64);
+            }
+
+            if (target != null && !target.isDeadOrDying()) {
+                this.teleportTo(target.getX(), target.getY() + 1.5, target.getZ());
+                this.setYRot(target.getYRot());
+                hasFallenIntoVoid = true;
+                teleportCooldown = 100;
+            }
+        }
+        if (teleportCooldown > 0) {
+            teleportCooldown--;
+            if (teleportCooldown == 0) {
+                hasFallenIntoVoid = false;
+            }
+        }
+
         if (isClone || this.isDeadOrDying()) return;
 
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
@@ -429,9 +454,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             playBossMusic();
         }
     }
-    if (!musicPlaying) {
-        playBossMusic();
-    }
+        if (!musicPlaying) {
+            stopMinecraftAmbientMusic();
+            playBossMusic();
+        }
+
         if (!isClone && laughCooldown > 0) {
             laughCooldown--;
         }
@@ -440,20 +467,24 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             summonIllusionClones();
             minionSummonCooldown = 1000;
         }
-        if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
+        if (!level().isClientSide && !isClone && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
             Player summoner = this.getSummonerPlayer();
             if (summoner != null && !summoner.isDeadOrDying()) {
-                PortalJoinEntity exitPortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
-                exitPortal.setPos(this.position());
-                this.level().addFreshEntity(exitPortal);
                 double targetX = summoner.getX();
                 double targetY = summoner.getY() + 1.5;
                 double targetZ = summoner.getZ();
 
+                // Exit portal at original position
+                PortalJoinEntity exitPortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+                exitPortal.setPos(this.position());
+                this.level().addFreshEntity(exitPortal);
+
                 this.teleportTo(targetX, targetY, targetZ);
                 this.setYRot(summoner.getYRot());
+
                 this.level().playSound(null, summoner.blockPosition(), SoundEvents.PORTAL_TRAVEL, SoundSource.HOSTILE, 1.0F, 1.0F);
 
+                // Entrance portal at new location
                 PortalJoinEntity entrancePortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
                 entrancePortal.setPos(targetX, targetY - 1.5, targetZ);
                 this.level().addFreshEntity(entrancePortal);
@@ -462,12 +493,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
                 hasFallenIntoVoid = true;
                 teleportCooldown = 100;
-            }
-        }
-        if (teleportCooldown > 0) {
-            teleportCooldown--;
-            if (teleportCooldown == 0) {
-                hasFallenIntoVoid = false;
             }
         }
 
@@ -621,12 +646,18 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (this.isDeadOrDying() || source == this.level().damageSources().fellOutOfWorld()) {
+        if (source == this.level().damageSources().fellOutOfWorld()) {
             return false;
         }
-        if (isClone) {
+
+        if (this.isDeadOrDying()) {
+            return false;
+        }
+
+        if (isClone || this.getTags().contains("dark_doppelganger_clone")) {
             return super.hurt(source, amount);
         }
+
         if (!thirdPhaseTriggered) {
             float newHealth = this.getHealth() - amount;
             if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4) {
@@ -637,10 +668,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 triggerThirdPhase();
                 return false;
             }
-
         }
+
         return super.hurt(source, amount);
     }
+
 
     private void summonIllusionClones() {
         if (minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
