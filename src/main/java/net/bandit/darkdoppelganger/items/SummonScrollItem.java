@@ -44,8 +44,6 @@ public class SummonScrollItem extends Item {
             player.sendSystemMessage(Component.literal("Dark Doppelganger will spawn in 5 seconds!"));
 
             ServerLevel serverWorld = (ServerLevel) world;
-
-            // Schedule the summoning task after 5 seconds
             scheduler.schedule(() -> serverWorld.getServer().execute(() -> summonDoppelganger(serverWorld, player)), 5, TimeUnit.SECONDS);
 
             if (!player.isCreative()) {

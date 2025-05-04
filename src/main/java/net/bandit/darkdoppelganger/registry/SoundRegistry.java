@@ -10,10 +10,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class SoundRegistry {
 
-    // Create the Deferred Register for sound events
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, DarkDoppelgangerMod.MOD_ID);
 
-    // Register your custom boss music
     public static final DeferredHolder<SoundEvent, SoundEvent> BOSS_FIGHT_MUSIC = SOUND_EVENTS.register("boss_fight",
             () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "boss_fight")));
 
@@ -26,7 +24,6 @@ public class SoundRegistry {
     public static final DeferredHolder<SoundEvent, SoundEvent> BOSS_ROAR = SOUND_EVENTS.register("boss_roar",
             () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "boss_roar")));
 
-    // Method to register sound events
     public static void register(IEventBus eventBus) {
         SOUND_EVENTS.register(eventBus);
     }

@@ -17,8 +17,8 @@ import java.util.List;
 import static io.redspace.ironsspellbooks.api.registry.AttributeRegistry.COOLDOWN_REDUCTION;
 
 public class DoppelgangerRingItem extends CurioBaseItem {
-    private static final int BASE_COOLDOWN = 100; // 5 seconds in ticks
-    private static final double HEALTH_BONUS = 20.0; // 20 health points (10 hearts)
+    private static final int BASE_COOLDOWN = 100;
+    private static final double HEALTH_BONUS = 20.0;
     private static final double COOLDOWN_REDUCTION_PERCENT = 0.2;
 
     public DoppelgangerRingItem(Properties properties) {
@@ -50,7 +50,6 @@ public class DoppelgangerRingItem extends CurioBaseItem {
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
         if (entity instanceof Player player) {
-            // Example passive effect: health regeneration while the ring is equipped
             if (player.getHealth() < player.getMaxHealth() && player.tickCount % 20 == 0) { // Heal once per second
                 player.heal(0.5F); // Heal 0.5 health (quarter heart)
             }

@@ -1,6 +1,7 @@
 package net.bandit.darkdoppelganger.items;
 
 import com.mojang.serialization.Codec;
+import io.redspace.ironsspellbooks.registries.ItemRegistry;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -95,15 +97,49 @@ public class ShadowOrbItem extends Item {
         boss.setSummonerPlayer(player);
         boss.addTag("dark_doppelganger_boss");
 
-        boss.setItemInHand(InteractionHand.MAIN_HAND, player.getMainHandItem().copy());
-//        boss.setItemInHand(InteractionHand.OFF_HAND, player.getOffhandItem().copy());
+        // Copy or assign default main hand weapon
+        ItemStack mainHand = player.getMainHandItem();
+        boss.setItemInHand(InteractionHand.MAIN_HAND,
+                mainHand.isEmpty() ? new ItemStack(ItemRegistry.ARTIFICER_STAFF) : mainHand.copy());
+        // boss.setItemInHand(InteractionHand.OFF_HAND, ...)
 
+//        for (EquipmentSlot slot : EquipmentSlot.values()) {
+//            if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+//                ItemStack playerItem = player.getItemBySlot(slot);
+//                ItemStack armorToEquip;
+//
+//                if (!playerItem.isEmpty()) {
+//                    armorToEquip = playerItem.copyWithCount(playerItem.getCount());
+//                } else {
+//                    armorToEquip = switch (slot) {
+//                        case HEAD -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET);
+//                        case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE);
+//                        case LEGS -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS);
+//                        case FEET -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS);
+//                        default -> ItemStack.EMPTY;
+//                    };
+//                }
+//
+//                boss.setItemSlot(slot, armorToEquip);
+        boss.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ItemRegistry.ARTIFICER_STAFF));
+
+// Always equip with fixed armor set
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-                boss.setItemSlot(slot, player.getItemBySlot(slot).copy());
-            }
-        }
+                ItemStack armorToEquip = switch (slot) {
+                    case HEAD -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET);
+                    case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE);
+                    case LEGS -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS);
+                    case FEET -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS);
+                    default -> ItemStack.EMPTY;
+                };
 
+                boss.setItemSlot(slot, armorToEquip);
+    }
+
+
+
+        }
         level.addFreshEntity(boss);
         level.sendParticles(ParticleTypes.SMOKE, boss.getX(), boss.getY(), boss.getZ(), 30, 0.5, 1.0, 0.5, 0.05);
         level.playSound(null, boss.blockPosition(), SoundEvents.ENDERMAN_STARE, SoundSource.HOSTILE, 1.0F, 0.5F);

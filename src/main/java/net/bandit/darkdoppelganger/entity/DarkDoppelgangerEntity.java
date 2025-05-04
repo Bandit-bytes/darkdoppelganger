@@ -10,16 +10,19 @@ import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
 import net.bandit.darkdoppelganger.Config;
+import net.bandit.darkdoppelganger.entity.ai.PatchedWarlockAttackGoal;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -37,20 +40,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
 
 import java.util.List;
 import java.util.Objects;
 
 public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
 
+    @Nullable
     private Player summonerPlayer;
+
     private final ServerBossEvent bossEvent;
     private boolean secondPhaseTriggered = false;
     private boolean thirdPhaseTriggered = false;
@@ -66,6 +72,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private int age;
     private int musicTimer = 0;
     private static final int MUSIC_DURATION = 6160;
+    private boolean hasFallenIntoVoid = false;
+    private int teleportCooldown = 0;
 
 
     public DarkDoppelgangerEntity(EntityType<? extends AbstractSpellCastingMob> type, Level world) {
@@ -121,7 +129,7 @@ public void setSummonerPlayer(Player summoner) {
     if (summoner != null) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot == EquipmentSlot.OFFHAND) {
-                continue; // Skip the off-hand slot until its fixed
+                continue;
             }
             ItemStack itemStack = summoner.getItemBySlot(slot);
             if (!itemStack.isEmpty()) {
@@ -167,7 +175,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.DEVOUR_SPELL.get(), 3, 6, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -193,7 +201,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.FIREBALL_SPELL.get(), 3, 5, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -219,7 +227,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.RAY_OF_FROST_SPELL.get(), 3, 5, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -245,7 +253,7 @@ public void setSummonerPlayer(Player summoner) {
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.SCULK_TENTACLES_SPELL.get(), 3, 4, 100, 160, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.4f, 30, 50)
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.4f, 30, 50)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -277,17 +285,13 @@ public void setSummonerPlayer(Player summoner) {
         }
 
         if (!this.level().isClientSide) {
-            // Play boss music only for the main boss, and ensure it's not duplicated
             if (!this.isClone && !musicPlaying) {
                 playBossMusic();
             }
-
-            // Adjust attributes only for the main boss, not clones or minions
             if (!this.isClone) {
                 adjustAttributesFromConfig();
             }
         } else {
-            // Spawn particles for visual effect on the client
             spawnSummoningParticles();
         }
         PortalJoinEntity portal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
@@ -379,9 +383,7 @@ public void setSummonerPlayer(Player summoner) {
 
     private void stopMinecraftAmbientMusic() {
         if (!level().isClientSide && level().getServer() != null) {
-            // Loop through all players on the server
             for (ServerPlayer player : Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers()) {
-                // Stop specific Minecraft ambient music tracks
                 player.connection.send(new ClientboundStopSoundPacket(ResourceLocation.fromNamespaceAndPath("minecraft", "music.game"), SoundSource.MUSIC));
                 player.connection.send(new ClientboundStopSoundPacket(ResourceLocation.fromNamespaceAndPath("minecraft", "music.creative"), SoundSource.MUSIC));
                 player.connection.send(new ClientboundStopSoundPacket(ResourceLocation.fromNamespaceAndPath("minecraft", "music.menu"), SoundSource.MUSIC));
@@ -430,6 +432,40 @@ public void setSummonerPlayer(Player summoner) {
         }
         if (!isClone && laughCooldown > 0) {
             laughCooldown--;
+        }
+        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
+            summonIllusionClones();
+            minionSummonCooldown = 1000;
+        }
+        if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
+            Player summoner = this.getSummonerPlayer();
+            if (summoner != null && !summoner.isDeadOrDying()) {
+                PortalJoinEntity exitPortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+                exitPortal.setPos(this.position());
+                this.level().addFreshEntity(exitPortal);
+                double targetX = summoner.getX();
+                double targetY = summoner.getY() + 1.5;
+                double targetZ = summoner.getZ();
+
+                this.teleportTo(targetX, targetY, targetZ);
+                this.setYRot(summoner.getYRot());
+                this.level().playSound(null, summoner.blockPosition(), SoundEvents.PORTAL_TRAVEL, SoundSource.HOSTILE, 1.0F, 1.0F);
+
+                PortalJoinEntity entrancePortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+                entrancePortal.setPos(targetX, targetY - 1.5, targetZ);
+                this.level().addFreshEntity(entrancePortal);
+
+                summoner.sendSystemMessage(Component.literal("The Dark Doppelganger has returned from the void...").withStyle(ChatFormatting.DARK_PURPLE));
+
+                hasFallenIntoVoid = true;
+                teleportCooldown = 100;
+            }
+        }
+        if (teleportCooldown > 0) {
+            teleportCooldown--;
+            if (teleportCooldown == 0) {
+                hasFallenIntoVoid = false;
+            }
         }
 
         if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
@@ -501,7 +537,13 @@ public void setSummonerPlayer(Player summoner) {
 
         age++;
     }
-
+    @Nullable
+    public Player getSummonerPlayer() {
+        return summonerPlayer;
+    }
+    @Override
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
+    }
 //    @Override
 //    public boolean addEffect(MobEffectInstance p_147208_, @Nullable Entity p_147209_) {
 //        if (!p_147208_.getEffect().isBeneficial()) {
