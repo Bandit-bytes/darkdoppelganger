@@ -16,12 +16,14 @@ import net.bandit.darkdoppelganger.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -37,6 +39,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -51,7 +54,9 @@ import java.util.Objects;
 
 public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
 
+    @Nullable
     private Player summonerPlayer;
+
     private final ServerBossEvent bossEvent;
     private boolean secondPhaseTriggered = false;
     private boolean thirdPhaseTriggered = false;
@@ -67,6 +72,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private int age;
     private int musicTimer = 0;
     private static final int MUSIC_DURATION = 6160;
+    private boolean hasFallenIntoVoid = false;
+    private int teleportCooldown = 0;
+
 
 
 
@@ -432,6 +440,36 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             summonIllusionClones();
             minionSummonCooldown = 1000;
         }
+        if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
+            Player summoner = this.getSummonerPlayer();
+            if (summoner != null && !summoner.isDeadOrDying()) {
+                PortalJoinEntity exitPortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+                exitPortal.setPos(this.position());
+                this.level().addFreshEntity(exitPortal);
+                double targetX = summoner.getX();
+                double targetY = summoner.getY() + 1.5;
+                double targetZ = summoner.getZ();
+
+                this.teleportTo(targetX, targetY, targetZ);
+                this.setYRot(summoner.getYRot());
+                this.level().playSound(null, summoner.blockPosition(), SoundEvents.PORTAL_TRAVEL, SoundSource.HOSTILE, 1.0F, 1.0F);
+
+                PortalJoinEntity entrancePortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+                entrancePortal.setPos(targetX, targetY - 1.5, targetZ);
+                this.level().addFreshEntity(entrancePortal);
+
+                summoner.sendSystemMessage(Component.literal("The Dark Doppelganger has returned from the void...").withStyle(ChatFormatting.DARK_PURPLE));
+
+                hasFallenIntoVoid = true;
+                teleportCooldown = 100;
+            }
+        }
+        if (teleportCooldown > 0) {
+            teleportCooldown--;
+            if (teleportCooldown == 0) {
+                hasFallenIntoVoid = false;
+            }
+        }
 
         // Phase triggers
         if (!secondPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
@@ -514,6 +552,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             });
         }
     }
+    @Nullable
+    public Player getSummonerPlayer() {
+        return summonerPlayer;
+    }
+
 
     @Override
     public boolean addEffect(MobEffectInstance p_147208_, @Nullable Entity p_147209_) {
@@ -594,6 +637,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 triggerThirdPhase();
                 return false;
             }
+
         }
         return super.hurt(source, amount);
     }
@@ -619,6 +663,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
         }
         minionSummonCooldown = 500;
+    }
+    @Override
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
     }
 
 
