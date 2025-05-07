@@ -2,6 +2,8 @@ package net.bandit.darkdoppelganger;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import java.util.List;
+
 public class Config {
 
     public static final ForgeConfigSpec COMMON_CONFIG;
@@ -12,6 +14,8 @@ public class Config {
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_ARMOR;
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_FOLLOW_RANGE;
     public static ForgeConfigSpec.BooleanValue DOPPLEGANGER_HARD_MODE;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
+
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -45,6 +49,20 @@ public class Config {
         DOPPLEGANGER_HARD_MODE = builder
                 .comment("Hard mode of the Dark Doppelganger")
                 .define("hard_mode", false);
+
+        DOPPELGANGER_BANNED_ARMOR = builder
+                .comment("List of banned armor items (format: modid:item_name) that should not be copied to the Dark Doppelganger")
+                .defineListAllowEmpty(
+                        "banned_armor",
+                        () -> List.of(
+                                "cataclysm:cursium_helmet",
+                                "cataclysm:cursium_chestplate",
+                                "cataclysm:cursium_leggings",
+                                "cataclysm:cursium_boots"
+                        ),
+                        obj -> obj instanceof String
+                );
+
 
         builder.pop();
         COMMON_CONFIG = builder.build();

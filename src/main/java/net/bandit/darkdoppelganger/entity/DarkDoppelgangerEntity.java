@@ -33,6 +33,7 @@ import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
@@ -155,6 +156,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     @Override
     protected void registerGoals() {
         setFirstPhaseGoals();
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
@@ -668,6 +670,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 triggerThirdPhase();
                 return false;
             }
+        }
+        Entity attacker = source.getEntity();
+        if (attacker instanceof LivingEntity && attacker != this) {
+            this.setTarget((LivingEntity) attacker);
         }
 
         return super.hurt(source, amount);

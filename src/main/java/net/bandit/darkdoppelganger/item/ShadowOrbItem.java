@@ -1,6 +1,7 @@
 package net.bandit.darkdoppelganger.item;
 
 import io.redspace.ironsspellbooks.registries.ItemRegistry;
+import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.entity.EntityRegistry;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class ShadowOrbItem extends Item {
+
     public ShadowOrbItem(Properties properties) {
         super(properties);
     }
@@ -90,6 +92,7 @@ public class ShadowOrbItem extends Item {
     }
 
     private void summonDoppelganger(ServerLevel level, Player player) {
+        List<? extends String> banned = Config.DOPPELGANGER_BANNED_ARMOR.get();
         Vec3 forward = player.getLookAngle().normalize().scale(3);
         Vec3 spawnPos = player.position().add(forward).add(0, 1, 0);
 
@@ -115,7 +118,11 @@ public class ShadowOrbItem extends Item {
                 ItemStack playerItem = player.getItemBySlot(slot);
                 ItemStack itemToEquip;
 
-                if (!playerItem.isEmpty()) {
+                boolean isBanned = !playerItem.isEmpty() && banned.contains(
+                        playerItem.getItem().builtInRegistryHolder().key().location().toString()
+                );
+
+                if (!playerItem.isEmpty() && !isBanned) {
                     itemToEquip = playerItem.copy();
                 } else {
                     itemToEquip = switch (slot) {
@@ -131,7 +138,6 @@ public class ShadowOrbItem extends Item {
             }
         }
 
-// Example for weapons:
         if (player.getMainHandItem().isEmpty()) {
             boss.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ItemRegistry.ARTIFICER_STAFF.get()));
         } else {
