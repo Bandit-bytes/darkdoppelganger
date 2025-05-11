@@ -118,9 +118,8 @@ public class ShadowOrbItem extends Item {
                 ItemStack playerItem = player.getItemBySlot(slot);
                 ItemStack itemToEquip;
 
-                boolean isBanned = !playerItem.isEmpty() && banned.contains(
-                        playerItem.getItem().builtInRegistryHolder().key().location().toString()
-                );
+                boolean isBanned = isArmorBanned(playerItem, banned);
+
 
                 if (!playerItem.isEmpty() && !isBanned) {
                     itemToEquip = playerItem.copy();
@@ -160,6 +159,20 @@ public class ShadowOrbItem extends Item {
 
         DarkDoppelgangerMod.LOGGER.info("Dark Doppelganger summoned for player: {}", player.getName().getString());
     }
+    private boolean isArmorBanned(ItemStack stack, List<? extends String> bannedList) {
+        if (stack.isEmpty()) return false;
+
+        String itemId = stack.getItem().builtInRegistryHolder().key().location().toString();
+        for (String ban : bannedList) {
+            if (ban.endsWith("*")) {
+                if (itemId.startsWith(ban.substring(0, ban.length() - 1))) return true;
+            } else if (itemId.equals(ban)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.literal("§5Throw into the void...").withStyle(ChatFormatting.DARK_PURPLE));

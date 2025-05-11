@@ -51,14 +51,15 @@ public class Config {
                 .define("hard_mode", false);
 
         DOPPELGANGER_BANNED_ARMOR = builder
-                .comment("List of banned armor items (format: modid:item_name) that should not be copied to the Dark Doppelganger")
+                .comment("List of banned armor items (format: modid:item_name or modid:* for full mod) that should not be copied to the Dark Doppelganger")
                 .defineListAllowEmpty(
                         "banned_armor",
                         () -> List.of(
                                 "cataclysm:cursium_helmet",
                                 "cataclysm:cursium_chestplate",
                                 "cataclysm:cursium_leggings",
-                                "cataclysm:cursium_boots"
+                                "cataclysm:cursium_boots",
+                                "mycoolmod:*"
                         ),
                         obj -> obj instanceof String
                 );

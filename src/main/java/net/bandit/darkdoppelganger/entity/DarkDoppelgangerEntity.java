@@ -25,6 +25,7 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -51,6 +52,7 @@ import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 
 public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
@@ -67,16 +69,14 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private int lifeDrainCooldown = 150;
     private int roarSoundCooldown = 800;
     private int laughSoundCooldown = 800;
-    private static final int MAX_MINIONS = 5;
-    private static int currentMinionCount = 0;
+    private final List<UUID> activeMinionUUIDs = new java.util.ArrayList<>();
+    private final int MAX_MINIONS = 5;
     private int laughCooldown = 800;
     private int age;
     private int musicTimer = 0;
     private static final int MUSIC_DURATION = 6160;
     private boolean hasFallenIntoVoid = false;
     private int teleportCooldown = 0;
-
-
 
 
     public DarkDoppelgangerEntity(EntityType<? extends AbstractSpellCastingMob> type, Level world) {
@@ -276,28 +276,22 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
 
         if (!this.level().isClientSide) {
-            // Play boss music only for the main boss, and ensure it's not duplicated
             if (!this.isClone && !musicPlaying) {
                 playBossMusic();
             }
-
-            // Adjust attributes only for the main boss, not clones or minions
             if (!this.isClone) {
                 adjustAttributesFromConfig();
             }
         } else {
-            // Spawn particles for visual effect on the client
             spawnSummoningParticles();
         }
 
-        // Spawn a portal entity at the boss's position
         PortalJoinEntity portal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
         portal.setPos(this.position());
         portal.setYRot(this.getYRot());
         portal.yRotO = this.getYRot();
         this.level().addFreshEntity(portal);
     }
-
 
 
     private void copyAttribute(net.minecraft.world.entity.ai.attributes.Attribute attribute) {
@@ -337,9 +331,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Config.DOPPELGANGER_FOLLOW_RANGE.get());
         }
 
-        // Sync health attribute with current health
         this.setHealth(this.getMaxHealth());
     }
+
     private void applyAttributesFromConfig() {
         if (Config.DOPPELGANGER_HEALTH != null) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get());
@@ -360,7 +354,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Config.DOPPELGANGER_FOLLOW_RANGE.get());
         }
 
-        // Sync health attribute with current health
         this.setHealth(this.getMaxHealth());
     }
 
@@ -387,9 +380,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     private void stopMinecraftAmbientMusic() {
         if (!level().isClientSide && level().getServer() != null) {
-            // Loop through all players on the server
             for (ServerPlayer player : Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers()) {
-                // Stop specific Minecraft ambient music tracks
                 player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.game"), SoundSource.MUSIC));
                 player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.creative"), SoundSource.MUSIC));
                 player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.menu"), SoundSource.MUSIC));
@@ -416,6 +407,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.bossEvent.removePlayer(player);
         }
     }
+
     @Override
     public void tick() {
         super.tick();
@@ -450,12 +442,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         if (musicPlaying) {
             stopMinecraftAmbientMusic();
-        if (musicTimer > 0) {
-            musicTimer--;
-        } else {
-            playBossMusic();
+            if (musicTimer > 0) {
+                musicTimer--;
+            } else {
+                playBossMusic();
+            }
         }
-    }
         if (!musicPlaying) {
             stopMinecraftAmbientMusic();
             playBossMusic();
@@ -498,23 +490,23 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
         }
 
-        // Phase triggers
-        if (!secondPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
-            triggerSecondPhase();
-            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
-                setThirdPhaseGoals();
-            } else {
-                setSecondPhaseGoals();
-            }
-        }
-        if (!thirdPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
-            triggerThirdPhase();
-            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
-                setFinalPhaseGoals();
-            } else {
-                setThirdPhaseGoals();
-            }
-        }
+//        // Phase triggers
+//        if (!secondPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
+//            triggerSecondPhase();
+//            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
+//                setThirdPhaseGoals();
+//            } else {
+//                setSecondPhaseGoals();
+//            }
+//        }
+//        if (!thirdPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
+//            triggerThirdPhase();
+//            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
+//                setFinalPhaseGoals();
+//            } else {
+//                setThirdPhaseGoals();
+//            }
+//    }
 
         if (Config.DOPPLEGANGER_HARD_MODE.get()) {
             this.addEffect(new MobEffectInstance(MobEffectRegistry.OAKSKIN.get(), 10, 8, false, false, true));
@@ -660,17 +652,29 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return super.hurt(source, amount);
         }
 
-        if (!thirdPhaseTriggered) {
-            float newHealth = this.getHealth() - amount;
-            if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4) {
-                triggerSecondPhase();
-                return false;
+        float newHealth = this.getHealth() - amount;
+
+        // Phase transition logic moved from tick
+        if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4f) {
+            triggerSecondPhase();
+            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
+                setThirdPhaseGoals();
+            } else {
+                setSecondPhaseGoals();
             }
-            if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2) {
-                triggerThirdPhase();
-                return false;
-            }
+            return false;
         }
+
+        if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2f) {
+            triggerThirdPhase();
+            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
+                setFinalPhaseGoals();
+            } else {
+                setThirdPhaseGoals();
+            }
+            return false;
+        }
+
         Entity attacker = source.getEntity();
         if (attacker instanceof LivingEntity && attacker != this) {
             this.setTarget((LivingEntity) attacker);
@@ -678,13 +682,40 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         return super.hurt(source, amount);
     }
+    private void summonMinions() {
+        if (isClone || minionSummonCooldown > 0 || activeMinionUUIDs.size() >= MAX_MINIONS) return;
 
+        for (int i = 0; i < 2; i++) {
+            if (activeMinionUUIDs.size() >= MAX_MINIONS) break;
 
+            DarkDoppelgangerEntity minion = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
+            if (minion != null) {
+                minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
+                minion.setHealth(minion.getMaxHealth() * 0.3F);
+                minion.isClone = true;
+                minion.addTag("dark_doppelganger_clone");
+                minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
+                minion.applyAttributesFromConfig();
+
+                level().addFreshEntity(minion);
+                activeMinionUUIDs.add(minion.getUUID());
+            }
+        }
+
+        minionSummonCooldown = 500;
+    }
+
+    @Override
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
+    }
+    public void removeMinion(UUID uuid) {
+        activeMinionUUIDs.remove(uuid);
+    }
     private void summonIllusionClones() {
-        if (minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
+        if (minionSummonCooldown > 0 || activeMinionUUIDs.size() >= MAX_MINIONS) return;
 
         for (int i = 0; i < 3; i++) {
-            if (currentMinionCount >= MAX_MINIONS) break;
+            if (activeMinionUUIDs.size() >= MAX_MINIONS) break;
 
             DarkDoppelgangerEntity clone = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
             if (clone != null) {
@@ -694,37 +725,14 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 clone.addTag("dark_doppelganger_clone");
                 clone.setCustomName(Component.literal("Doppelganger Clone").withStyle(ChatFormatting.GRAY));
                 clone.applyAttributesFromConfig();
+
                 level().addFreshEntity(clone);
+                activeMinionUUIDs.add(clone.getUUID());
 
                 level().addParticle(ParticleTypes.ENCHANT, clone.getX(), clone.getY(), clone.getZ(), 0, 1, 0);
-                currentMinionCount++;
             }
         }
-        minionSummonCooldown = 500;
-    }
-    @Override
-    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
-    }
 
-
-    private void summonMinions() {
-        if (isClone || minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
-
-        for (int i = 0; i < 2; i++) {
-            if (currentMinionCount >= MAX_MINIONS) break;
-
-            DarkDoppelgangerEntity minion = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
-            if (minion != null) {
-                minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                minion.setHealth(minion.getMaxHealth() * 0.3F);
-                minion.isClone = true;
-                minion.addTag("dark_doppelganger_clone");
-                minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
-                level().addFreshEntity(minion);
-                minion.applyAttributesFromConfig();
-                currentMinionCount++;
-            }
-        }
         minionSummonCooldown = 500;
     }
 
@@ -741,10 +749,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
     @Override
     public void die(@NotNull DamageSource cause) {
-        // Handle death for clones
         if (isClone) {
-            synchronized (DarkDoppelgangerEntity.class) {
-                currentMinionCount = Math.max(0, currentMinionCount - 1);
+            for (Mob mob : level().getEntitiesOfClass(Mob.class, getBoundingBox().inflate(64))) {
+                if (mob instanceof DarkDoppelgangerEntity doppel && !doppel.isClone) {
+                    doppel.removeMinion(this.getUUID());
+                    break;
+                }
             }
             this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
             super.die(cause);
