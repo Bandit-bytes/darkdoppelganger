@@ -42,6 +42,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -411,6 +413,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     @Override
     public void tick() {
         super.tick();
+        createOrJoinDoppelTeam();
         if (!level().isClientSide && isClone && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
             Player target = null;
 
@@ -490,24 +493,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
         }
 
-//        // Phase triggers
-//        if (!secondPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
-//            triggerSecondPhase();
-//            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
-//                setThirdPhaseGoals();
-//            } else {
-//                setSecondPhaseGoals();
-//            }
-//        }
-//        if (!thirdPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
-//            triggerThirdPhase();
-//            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
-//                setFinalPhaseGoals();
-//            } else {
-//                setThirdPhaseGoals();
-//            }
-//    }
-
         if (Config.DOPPLEGANGER_HARD_MODE.get()) {
             this.addEffect(new MobEffectInstance(MobEffectRegistry.OAKSKIN.get(), 10, 8, false, false, true));
             this.addEffect(new MobEffectInstance(MobEffectRegistry.CHARGED.get(), 10, 2, false, false, true));
@@ -554,6 +539,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         age++;
     }
+
     private void playBossMusic() {
         if (!level().isClientSide && !musicPlaying && !this.isDeadOrDying()) {
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
@@ -571,6 +557,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             });
         }
     }
+
     @Nullable
     public Player getSummonerPlayer() {
         return summonerPlayer;
@@ -638,6 +625,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         minionSummonCooldown = 1050;
         lifeDrainCooldown = 200;
     }
+
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (source == this.level().damageSources().fellOutOfWorld()) {
@@ -682,6 +670,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         return super.hurt(source, amount);
     }
+
     private void summonMinions() {
         if (isClone || minionSummonCooldown > 0 || activeMinionUUIDs.size() >= MAX_MINIONS) return;
 
@@ -694,6 +683,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 minion.setHealth(minion.getMaxHealth() * 0.3F);
                 minion.isClone = true;
                 minion.addTag("dark_doppelganger_clone");
+
+                Team team = getTeam();
+                if (team instanceof PlayerTeam playerTeam) {
+                    level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
+                }
+
                 minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
                 minion.applyAttributesFromConfig();
 
@@ -705,12 +700,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         minionSummonCooldown = 500;
     }
 
+
     @Override
     protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
     }
+
     public void removeMinion(UUID uuid) {
         activeMinionUUIDs.remove(uuid);
     }
+
     private void summonIllusionClones() {
         if (minionSummonCooldown > 0 || activeMinionUUIDs.size() >= MAX_MINIONS) return;
 
@@ -723,6 +721,14 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 clone.setHealth(10.0F);
                 clone.isClone = true;
                 clone.addTag("dark_doppelganger_clone");
+
+                // Attempt to add to team if available
+                Team team = getTeam();
+                if (team instanceof PlayerTeam playerTeam) {
+                    level().getScoreboard().addPlayerToTeam(clone.getScoreboardName(), playerTeam);
+                }
+
+                // Continue normal setup
                 clone.setCustomName(Component.literal("Doppelganger Clone").withStyle(ChatFormatting.GRAY));
                 clone.applyAttributesFromConfig();
 
@@ -734,7 +740,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
 
         minionSummonCooldown = 500;
-    }
+
+}
 
     private void lifeDrainAttack() {
         level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(8)).forEach(player -> {
@@ -845,6 +852,22 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
         return PlayState.STOP;
     }
+    private void createOrJoinDoppelTeam() {
+        if (level().isClientSide || getTeam() != null) return;
+
+        var scoreboard = level().getScoreboard();
+        String teamName = "dark_doppelganger_team";
+
+        PlayerTeam team = scoreboard.getPlayerTeam(teamName);
+        if (team == null) {
+            team = scoreboard.addPlayerTeam(teamName);
+            team.setAllowFriendlyFire(false);
+            team.setSeeFriendlyInvisibles(true);
+        }
+
+        scoreboard.addPlayerToTeam(getScoreboardName(), team);
+    }
+
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
