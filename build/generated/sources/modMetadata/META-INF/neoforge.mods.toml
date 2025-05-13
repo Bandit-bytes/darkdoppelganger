@@ -32,7 +32,7 @@ displayName = "DarkDoppelganger" #mandatory
 authors = "Bandit-Bytes" #optional
 
 # The description text for the mod (multi line!) (#mandatory)
-description = '''A final boss that you can summon to look and act like you!'''
+description = '''A fearsome new Void spellcasting boss that copies the players attributes and tries to kill you!'''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 #[[mixins]]
@@ -69,6 +69,27 @@ modId = "minecraft"
 type = "required"
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
 versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."darkdoppelganger"]]
+modId = "irons_spellbooks"
+type = "required"
+versionRange = "[1.21.1-3.11.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."darkdoppelganger"]]
+modId = "geckolib"
+type = "required"
+versionRange = "[4.7.5.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."darkdoppelganger"]]
+modId = "playeranimator"
+type = "required"
+versionRange = "[2.0.1+1.21.1,)"
 ordering = "NONE"
 side = "BOTH"
 

@@ -34,6 +34,7 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
@@ -41,6 +42,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -167,6 +170,7 @@ public void setSummonerPlayer(Player summoner) {
     @Override
     protected void registerGoals() {
         setFirstPhaseGoals();
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
@@ -415,6 +419,7 @@ public void setSummonerPlayer(Player summoner) {
     @Override
     public void tick() {
         super.tick();
+        createOrJoinDoppelTeam();
         if (isClone || this.isDeadOrDying()) return;
 
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
@@ -471,24 +476,6 @@ public void setSummonerPlayer(Player summoner) {
         if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
             summonIllusionClones();
             minionSummonCooldown = 1000;
-        }
-
-        // Phase triggers
-        if (!secondPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
-            triggerSecondPhase();
-            if (Config.DOPPELGANGER_HARD_MODE.get()) {
-                setThirdPhaseGoals();
-            } else {
-                setSecondPhaseGoals();
-            }
-        }
-        if (!thirdPhaseTriggered && this.getHealth() < this.getMaxHealth() * 0.2) {
-            triggerThirdPhase();
-            if (Config.DOPPELGANGER_HARD_MODE.get()) {
-                setFinalPhaseGoals();
-            } else {
-                setThirdPhaseGoals();
-            }
         }
 
         if (Config.DOPPELGANGER_HARD_MODE.get()) {
@@ -636,6 +623,10 @@ public void setSummonerPlayer(Player summoner) {
                 clone.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
                 clone.setHealth(10.0F);
                 clone.isClone = true;
+                Team team = getTeam();
+                if (team instanceof PlayerTeam playerTeam) {
+                    level().getScoreboard().addPlayerToTeam(clone.getScoreboardName(), playerTeam);
+                }
                 clone.addTag("dark_doppelganger_clone");
                 clone.setCustomName(Component.literal("Doppelganger Clone").withStyle(ChatFormatting.GRAY));
                 clone.applyAttributesFromConfig();
@@ -659,6 +650,11 @@ public void setSummonerPlayer(Player summoner) {
                 minion.setHealth(minion.getMaxHealth() * 0.3F);
                 minion.isClone = true;
                 minion.addTag("dark_doppelganger_clone");
+                Team team = getTeam();
+                if (team instanceof PlayerTeam playerTeam) {
+                    level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
+                }
+
                 minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
                 level().addFreshEntity(minion);
                 minion.applyAttributesFromConfig();
@@ -802,6 +798,21 @@ public void setSummonerPlayer(Player summoner) {
                 player.connection.send(new ClientboundStopSoundPacket(SoundRegistry.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC));
             });
         }
+    }
+    private void createOrJoinDoppelTeam() {
+        if (level().isClientSide || getTeam() != null) return;
+
+        var scoreboard = level().getScoreboard();
+        String teamName = "dark_doppelganger_team";
+
+        PlayerTeam team = scoreboard.getPlayerTeam(teamName);
+        if (team == null) {
+            team = scoreboard.addPlayerTeam(teamName);
+            team.setAllowFriendlyFire(false);
+            team.setSeeFriendlyInvisibles(true);
+        }
+
+        scoreboard.addPlayerToTeam(getScoreboardName(), team);
     }
 
 }

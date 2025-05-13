@@ -1,6 +1,7 @@
 package net.bandit.darkdoppelganger.client;
 
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
+import net.bandit.darkdoppelganger.client.gui.DarkDoppelBossBar;
 import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalLeaveRenderer;
@@ -20,6 +21,5 @@ public class ClientEvents {
         EntityRenderers.register(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerRenderer::new);
         EntityRenderers.register(EntityRegistry.PORTAL_JOIN_ENTITY.get(), PortalJoinRenderer::new);
         EntityRenderers.register(EntityRegistry.PORTAL_LEAVE_ENTITY.get(), PortalLeaveRenderer::new);
-
     }
 }

@@ -121,16 +121,16 @@ public class ShadowOrbItem extends Item {
 //                }
 //
 //                boss.setItemSlot(slot, armorToEquip);
-        boss.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ItemRegistry.ARTIFICER_STAFF));
+        boss.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ItemRegistry.PYRIUM_STAFF));
 
 // Always equip with fixed armor set
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
                 ItemStack armorToEquip = switch (slot) {
-                    case HEAD -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET);
-                    case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE);
-                    case LEGS -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS);
-                    case FEET -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS);
+                    case HEAD -> new ItemStack(ItemRegistry.SHADOWWALKER_HELMET);
+                    case CHEST -> new ItemStack(ItemRegistry.SHADOWWALKER_CHESTPLATE);
+                    case LEGS -> new ItemStack(ItemRegistry.SHADOWWALKER_LEGGINGS);
+                    case FEET -> new ItemStack(ItemRegistry.SHADOWWALKER_BOOTS);
                     default -> ItemStack.EMPTY;
                 };
 
