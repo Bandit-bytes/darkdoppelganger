@@ -28,18 +28,16 @@ public class DarkDoppelgangerMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public DarkDoppelgangerMod(IEventBus modEventBus, ModContainer modContainer) {
-        // Register setup methods to the mod event bus
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
-        // Register registries to the mod event bus
         SoundRegistry.register(modEventBus);
         EntityRegistry.register(modEventBus);
         SpellRegistry.register(modEventBus);
         ItemRegistry.register(modEventBus);
         TabRegistry.register(modEventBus);
+        ComponentRegistry.init(modEventBus);
 
-        // Register the mod's config
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
