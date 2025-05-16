@@ -8,6 +8,8 @@ import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.SpellBarrageGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
+import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.FireBossMoveControl;
+import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.NotIdioticNavigation;
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
 import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.entity.ai.PatchedWarlockAttackGoal;
@@ -36,6 +38,7 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -102,18 +105,17 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     protected MoveControl createMoveControl() {
-        return new MoveControl(this) {
-            @Override
-            protected float rotlerp(float pSourceAngle, float pTargetAngle, float pMaximumChange) {
-                double d0 = this.wantedX - this.mob.getX();
-                double d1 = this.wantedZ - this.mob.getZ();
-                if (d0 * d0 + d1 * d1 < .5f) {
-                    return pSourceAngle;
-                } else {
-                    return super.rotlerp(pSourceAngle, pTargetAngle, pMaximumChange * .25f);
-                }
-            }
-        };
+        return new FireBossMoveControl(this);
+    }
+
+    @Override
+    public FireBossMoveControl getMoveControl() {
+        return (FireBossMoveControl) super.getMoveControl();
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level pLevel) {
+        return new NotIdioticNavigation(this, pLevel);
     }
 
 //    public void setSummonerPlayer(Player summoner) {
