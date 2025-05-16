@@ -600,17 +600,33 @@ public void setSummonerPlayer(Player summoner) {
         if (isClone) {
             return super.hurt(source, amount);
         }
-        if (!thirdPhaseTriggered) {
-            float newHealth = this.getHealth() - amount;
-            if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2) {
-                triggerSecondPhase();
-                return false;
+        float newHealth = this.getHealth() - amount;
+
+        if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4f) {
+            triggerSecondPhase();
+            if (Config.DOPPELGANGER_HARD_MODE.get()) {
+                setThirdPhaseGoals();
+            } else {
+                setSecondPhaseGoals();
             }
-            if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2) {
-                triggerThirdPhase();
-                return false;
-            }
+            return false;
         }
+
+        if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2f) {
+            triggerThirdPhase();
+            if (Config.DOPPELGANGER_HARD_MODE.get()) {
+                setFinalPhaseGoals();
+            } else {
+                setThirdPhaseGoals();
+            }
+            return false;
+        }
+
+        Entity attacker = source.getEntity();
+        if (attacker instanceof LivingEntity && attacker != this) {
+            this.setTarget((LivingEntity) attacker);
+        }
+
         return super.hurt(source, amount);
     }
     private void summonIllusionClones() {
