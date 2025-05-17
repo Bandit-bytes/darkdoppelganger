@@ -235,7 +235,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
     private void applyAttributesFromConfig() {
         if (Config.DOPPELGANGER_HEALTH != null) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get());
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get() / MAX_MINIONS);
         }
         if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
@@ -340,31 +340,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         lifeDrainCooldown = 200;
     }
 
-    private void summonIllusionClones() {
-        if (minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
-        for (int i = 0; i < 3; i++) {
-            if (currentMinionCount >= MAX_MINIONS) break;
-
-            DarkDoppelgangerEntity clone = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
-            if (clone != null) {
-                clone.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                clone.setHealth(10.0F);
-                clone.isClone = true;
-                Team team = getTeam();
-                if (team instanceof PlayerTeam playerTeam) {
-                    level().getScoreboard().addPlayerToTeam(clone.getScoreboardName(), playerTeam);
-                }
-                clone.addTag("dark_doppelganger_clone");
-                clone.setCustomName(Component.literal("Doppelganger Clone").withStyle(ChatFormatting.GRAY));
-                clone.applyAttributesFromConfig();
-                level().addFreshEntity(clone);
-                level().addParticle(ParticleTypes.ENCHANT, clone.getX(), clone.getY(), clone.getZ(), 0, 1, 0);
-                currentMinionCount++;
-            }
-        }
-        minionSummonCooldown = 500;
-    }
-
     private void summonMinions() {
         if (isClone || minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
 
@@ -452,7 +427,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     public void die(@NotNull DamageSource cause) {
         // Handle death for clones
         if (isClone) {
-            synchronized (DarkDoppelgangerEntity_old.class) {
+            synchronized (DarkDoppelgangerEntity.class) {
                 currentMinionCount = Math.max(0, currentMinionCount - 1);
             }
             this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
@@ -669,7 +644,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             laughCooldown--;
         }
         if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonIllusionClones();
+            summonMinions();
             minionSummonCooldown = 1000;
         }
         if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
@@ -704,7 +679,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
 
         if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonIllusionClones();
+            summonMinions();
             minionSummonCooldown = 1000;
         }
 
