@@ -476,7 +476,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                     serverPlayer.sendSystemMessage(Component.literal("You have slain the Dark Doppelganger!"));
                 }
             }
-            this.spawnAtLocation(ItemRegistry.DOPPELGANGER_RING.get());
+            int choice = this.random.nextInt(3);
+            switch (choice) {
+                case 0 -> this.spawnAtLocation(ItemRegistry.DOPPELGANGER_RING.get());
+                case 1 -> this.spawnAtLocation(ItemRegistry.ELDER_NECKLACE.get());
+                case 2 -> this.spawnAtLocation(ItemRegistry.SUMMONS_NECKLACE.get());
+            }
             this.spawnAtLocation(Items.NETHER_STAR);
             this.spawnAtLocation(Items.ECHO_SHARD, 3);
             this.spawnAtLocation(Items.DIAMOND_BLOCK, 3);

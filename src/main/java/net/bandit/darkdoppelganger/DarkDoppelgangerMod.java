@@ -28,6 +28,7 @@ public class DarkDoppelgangerMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public DarkDoppelgangerMod(IEventBus modEventBus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
 
@@ -37,8 +38,6 @@ public class DarkDoppelgangerMod {
         ItemRegistry.register(modEventBus);
         TabRegistry.register(modEventBus);
         ComponentRegistry.init(modEventBus);
-
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

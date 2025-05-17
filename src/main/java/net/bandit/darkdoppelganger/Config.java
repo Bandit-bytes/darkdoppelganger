@@ -26,11 +26,11 @@ public class Config {
 
         DOPPELGANGER_HEALTH = BUILDER
                 .comment("Health of the Dark Doppelganger")
-                .defineInRange("health", 6000.0, 1.0, 100000.0);
+                .defineInRange("health", 600.0, 1.0, 100000.0);
 
         DOPPELGANGER_ATTACK_DAMAGE = BUILDER
                 .comment("Attack Damage of the Dark Doppelganger")
-                .defineInRange("attack_damage", 20.0, 1.0, 100.0);
+                .defineInRange("attack_damage", 10.0, 1.0, 100.0);
 
         DOPPELGANGER_MOVEMENT_SPEED = BUILDER
                 .comment("Movement Speed of the Dark Doppelganger")
@@ -42,7 +42,7 @@ public class Config {
 
         DOPPELGANGER_ARMOR = BUILDER
                 .comment("Armor of the Dark Doppelganger")
-                .defineInRange("armor", 20.0, 0.0, 100.0);
+                .defineInRange("armor", 10.0, 0.0, 100.0);
 
         DOPPELGANGER_FOLLOW_RANGE = BUILDER
                 .comment("Follow Range of the Dark Doppelganger")
