@@ -17,7 +17,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class DarkDoppelgangerMod {
     }
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
-        event.put(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.prepareAttributes().build());
+        event.put(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.createAttributes().build());
     }
 
     @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

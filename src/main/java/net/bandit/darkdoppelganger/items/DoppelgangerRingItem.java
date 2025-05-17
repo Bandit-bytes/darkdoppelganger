@@ -6,13 +6,10 @@ import io.redspace.ironsspellbooks.api.spells.ISpellContainer;
 import io.redspace.ironsspellbooks.api.spells.SpellData;
 import io.redspace.ironsspellbooks.registries.ComponentRegistry;
 import net.bandit.darkdoppelganger.curios.CurioBaseItem;
-import io.redspace.ironsspellbooks.item.weapons.AttributeContainer;
 import net.bandit.darkdoppelganger.registry.SpellRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -21,7 +18,6 @@ import top.theillusivec4.curios.api.SlotContext;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.redspace.ironsspellbooks.api.registry.AttributeRegistry.COOLDOWN_REDUCTION;
 
 public class DoppelgangerRingItem extends CurioBaseItem implements IPresetSpellContainer {
     private static final int BASE_COOLDOWN = 100;

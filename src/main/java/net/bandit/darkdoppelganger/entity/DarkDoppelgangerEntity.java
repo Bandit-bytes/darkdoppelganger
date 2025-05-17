@@ -1,56 +1,32 @@
 package net.bandit.darkdoppelganger.entity;
 
-import io.redspace.ironsspellbooks.IronsSpellbooks;
-import io.redspace.ironsspellbooks.api.network.IClientEventEntity;
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
-import io.redspace.ironsspellbooks.api.util.*;
-import io.redspace.ironsspellbooks.capabilities.magic.MagicManager;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
-import io.redspace.ironsspellbooks.entity.mobs.goals.MomentHurtByTargetGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.SpellBarrageGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
-import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackKeyframe;
-import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.FireBossMoveControl;
-import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.InvokeDaggerKeyframe;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.NotIdioticNavigation;
-import io.redspace.ironsspellbooks.entity.spells.FireEruptionAoe;
-import io.redspace.ironsspellbooks.network.EntityEventPacket;
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
-import io.redspace.ironsspellbooks.registries.ParticleRegistry;
-import io.redspace.ironsspellbooks.registries.SoundRegistry;
-import io.redspace.ironsspellbooks.util.ParticleHelper;
 import net.bandit.darkdoppelganger.Config;
-import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
-import net.bandit.darkdoppelganger.entity.ai.*;
+import net.bandit.darkdoppelganger.entity.ai.PatchedWarlockAttackGoal;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.ItemRegistry;
-import net.bandit.darkdoppelganger.util.ModTags;
+import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.BossEvent;
-import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -68,53 +44,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
-import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker, IClientEventEntity{
-    public static final byte CLIENT_STOP_TRACKING = 0;
-    public static final byte CLIENT_START_TRACKING = 1;
-    public static final byte PROC_SPECTRAL_DAGGER = 6;
-
-    public static final int UNLOADED_DESPAWN_LIMIT_SECONDS = 300;
-
-    private boolean canAnimateOver;
-    private int destroyBlockDelay;
-    private boolean stopHeadAnimation;
-
-    public float isAnimatingDampener;
-
-    /*
-     * Stance Break Mechanic
-     * - In order for a long-form cinematic and serializable ability to take place, we must store a decent bit of data on the entity itself
-     * - At 2/3 and 1/3 health, the boss's stance will break, interrupting all actions, and playing a short stun animation
-     * - At the end of the stun, he performs 3 strikes of Raise Hell
-     * - He goes into Soul Mode on the second break
-     */
-    int stanceBreakCounter;
-    int stanceBreakTimer;
-    static final int STANCE_BREAK_ANIM_TIME = (int) (9 * 20);
-    static final int STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP = (int) (6.5 * 20);
-    static final int STANCE_BREAK_COUNT = 2;
+public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
 
     @Nullable
     private Player summonerPlayer;
+
+    private final ServerBossEvent bossEvent;
     private boolean secondPhaseTriggered = false;
     private boolean thirdPhaseTriggered = false;
     public boolean isClone = false;
@@ -132,53 +78,203 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private boolean hasFallenIntoVoid = false;
     private int teleportCooldown = 0;
 
+
     public DarkDoppelgangerEntity(EntityType<? extends AbstractSpellCastingMob> type, Level world) {
         super(type, world);
         this.setCustomName(Component.literal("Dark Doppelganger"));
+        this.bossEvent = new ServerBossEvent(Component.literal("Dark Doppelganger"), ServerBossEvent.BossBarColor.PURPLE, ServerBossEvent.BossBarOverlay.PROGRESS);
         this.lookControl = createLookControl();
         this.moveControl = createMoveControl();
-
     }
 
-    public void setSummonerPlayer(Player summoner) {
-        this.summonerPlayer = summoner;
-        if (summoner != null) {
-            for (EquipmentSlot slot : EquipmentSlot.values()) {
-                if (slot == EquipmentSlot.OFFHAND) {
-                    continue;
-                }
-                ItemStack itemStack = summoner.getItemBySlot(slot);
-                if (!itemStack.isEmpty()) {
-                    this.setItemSlot(slot, itemStack.copy());
-                }
+    protected LookControl createLookControl() {
+        return new LookControl(this) {
+            @Override
+            protected float rotateTowards(float pFrom, float pTo, float pMaxDelta) {
+                return super.rotateTowards(pFrom, pTo, pMaxDelta * 2.5f);
             }
-            this.setPersistenceRequired();
+
+            @Override
+            protected boolean resetXRotOnTick() {
+                return getTarget() == null;
+            }
+        };
+    }
+
+    protected MoveControl createMoveControl() {
+        return new FireBossMoveControl(this);
+    }
+
+    @Override
+    public FireBossMoveControl getMoveControl() {
+        return (FireBossMoveControl) super.getMoveControl();
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level pLevel) {
+        return new NotIdioticNavigation(this, pLevel);
+    }
+
+//    public void setSummonerPlayer(Player summoner) {
+//        this.summonerPlayer = summoner;
+//        if (summoner != null) {
+//            for (EquipmentSlot slot : EquipmentSlot.values()) {
+//                ItemStack itemStack = summoner.getItemBySlot(slot);
+//                if (!itemStack.isEmpty()) {
+//                    this.setItemSlot(slot, itemStack.copy());
+//                }
+//            }
+//            this.setPersistenceRequired();
+//        }
+public void setSummonerPlayer(Player summoner) {
+    this.summonerPlayer = summoner;
+    if (summoner != null) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot == EquipmentSlot.OFFHAND) {
+                continue;
+            }
+            ItemStack itemStack = summoner.getItemBySlot(slot);
+            if (!itemStack.isEmpty()) {
+                this.setItemSlot(slot, itemStack.copy());
+            }
+        }
+        this.setPersistenceRequired();
+    }
+
+
+    copyAttribute(AttributeRegistry.HOLY_SPELL_POWER);
+    copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER);
+    copyAttribute(AttributeRegistry.NATURE_SPELL_POWER);
+    copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER);
+    copyAttribute(AttributeRegistry.FIRE_SPELL_POWER);
+    copyAttribute(AttributeRegistry.ICE_SPELL_POWER);
+    copyAttribute(AttributeRegistry.LIGHTNING_SPELL_POWER);
+    copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER);
+    copyAttribute(AttributeRegistry.ENDER_SPELL_POWER);
+    copyAttribute(AttributeRegistry.SPELL_POWER);
+
+            if (Config.DOPPELGANGER_HARD_MODE.get()) {
+                this.getAttribute(AttributeRegistry.HOLY_SPELL_POWER.getDelegate()).setBaseValue(1.3);
+                this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST.getDelegate()).setBaseValue(1.5f);
+                this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST.getDelegate()).setBaseValue(1.5f);
+                this.getAttribute(AttributeRegistry.ELDRITCH_MAGIC_RESIST.getDelegate()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.ICE_MAGIC_RESIST.getDelegate()).setBaseValue(1.6f);
+                this.getAttribute(AttributeRegistry.LIGHTNING_MAGIC_RESIST.getDelegate()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.EVOCATION_MAGIC_RESIST.getDelegate()).setBaseValue(1.3f);
+                this.getAttribute(AttributeRegistry.ENDER_MAGIC_RESIST.getDelegate()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.SPELL_RESIST.getDelegate()).setBaseValue(1.5f);
+            }
         }
 
+    @Override
+    protected void registerGoals() {
+        setFirstPhaseGoals();
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+    }
 
-        copyAttribute(AttributeRegistry.HOLY_SPELL_POWER);
-        copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER);
-        copyAttribute(AttributeRegistry.NATURE_SPELL_POWER);
-        copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER);
-        copyAttribute(AttributeRegistry.FIRE_SPELL_POWER);
-        copyAttribute(AttributeRegistry.ICE_SPELL_POWER);
-        copyAttribute(AttributeRegistry.LIGHTNING_SPELL_POWER);
-        copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER);
-        copyAttribute(AttributeRegistry.ENDER_SPELL_POWER);
-        copyAttribute(AttributeRegistry.SPELL_POWER);
+    protected void setFirstPhaseGoals() {
+        this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
+        this.goalSelector.removeAllGoals((x) -> true);
+        this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.DEVOUR_SPELL.get(), 3, 6, 100, 250, 1));
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
+                .setMoveset(List.of(
+                        new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
+                        new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
+                        new AttackAnimationData(10, "simple_sword_stab_alternate", 8),
+                        new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
+                ))
+                .setComboChance(.4f)
+                .setMeleeAttackInverval(10, 30)
+                .setMeleeMovespeedModifier(1.5f)
+                .setSpells(
+                        List.of(SpellRegistry.GUIDING_BOLT_SPELL.get(), SpellRegistry.BLOOD_NEEDLES_SPELL.get(), SpellRegistry.BLOOD_SLASH_SPELL.get()),
+                        List.of(SpellRegistry.FANG_WARD_SPELL.get(), SpellRegistry.GUST_SPELL.get()),
+                        List.of(SpellRegistry.BURNING_DASH_SPELL.get()),
+                        List.of(SpellRegistry.BLIGHT_SPELL.get(), SpellRegistry.INVISIBILITY_SPELL.get())
+                )
+        );
+        this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
+        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+    }
 
+    protected void setSecondPhaseGoals() {
+        this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
+        this.goalSelector.removeAllGoals((x) -> true);
+        this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.FIREBALL_SPELL.get(), 3, 5, 100, 250, 1));
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
+                .setMoveset(List.of(
+                        new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
+                        new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
+                        new AttackAnimationData(10, "simple_sword_stab_alternate", 8),
+                        new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
+                ))
+                .setComboChance(.4f)
+                .setMeleeAttackInverval(10, 30)
+                .setMeleeMovespeedModifier(1.5f)
+                .setSpells(
+                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.POISON_ARROW_SPELL.get(), SpellRegistry.MAGMA_BOMB_SPELL.get()),
+                        List.of(SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.FLAMING_STRIKE_SPELL.get()),
+                        List.of(SpellRegistry.FROST_STEP_SPELL.get()),
+                        List.of(SpellRegistry.ROOT_SPELL.get(), SpellRegistry.THUNDERSTORM_SPELL.get())
+                )
+        );
+        this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
+        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+    }
 
-        if (Config.DOPPELGANGER_HARD_MODE.get()) {
-            this.getAttribute(AttributeRegistry.HOLY_SPELL_POWER).setBaseValue(1.3);
-            this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST).setBaseValue(1.5f);
-            this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST).setBaseValue(1.5f);
-            this.getAttribute(AttributeRegistry.ELDRITCH_MAGIC_RESIST).setBaseValue(1.4f);
-            this.getAttribute(AttributeRegistry.ICE_MAGIC_RESIST).setBaseValue(1.6f);
-            this.getAttribute(AttributeRegistry.LIGHTNING_MAGIC_RESIST).setBaseValue(1.4f);
-            this.getAttribute(AttributeRegistry.EVOCATION_MAGIC_RESIST).setBaseValue(1.3f);
-            this.getAttribute(AttributeRegistry.ENDER_MAGIC_RESIST).setBaseValue(1.4f);
-            this.getAttribute(AttributeRegistry.SPELL_RESIST).setBaseValue(1.5f);
-        }
+    protected void setThirdPhaseGoals() {
+        this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
+        this.goalSelector.removeAllGoals((x) -> true);
+        this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.RAY_OF_FROST_SPELL.get(), 3, 5, 100, 250, 1));
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
+                .setMoveset(List.of(
+                        new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
+                        new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
+                        new AttackAnimationData(10, "simple_sword_stab_alternate", 8),
+                        new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
+                ))
+                .setComboChance(.4f)
+                .setMeleeAttackInverval(10, 30)
+                .setMeleeMovespeedModifier(1.5f)
+                .setSpells(
+                        List.of(SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.STOMP_SPELL.get()),
+                        List.of(SpellRegistry.SHOCKWAVE_SPELL.get(), SpellRegistry.ASCENSION_SPELL.get()),
+                        List.of(SpellRegistry.BLOOD_STEP_SPELL.get()),
+                        List.of(SpellRegistry.EVASION_SPELL.get(), SpellRegistry.ECHOING_STRIKES_SPELL.get())
+                )
+        );
+        this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
+        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+    }
+
+    protected void setFinalPhaseGoals() {
+        this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
+        this.goalSelector.removeAllGoals((x) -> true);
+        this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.SCULK_TENTACLES_SPELL.get(), 3, 4, 100, 160, 1));
+        this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.4f, 30, 50)
+                .setMoveset(List.of(
+                        new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
+                        new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
+                        new AttackAnimationData(10, "simple_sword_stab_alternate", 8),
+                        new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
+                ))
+                .setComboChance(.7f)
+                .setMeleeAttackInverval(10, 20)
+                .setMeleeMovespeedModifier(1.7f)
+                .setSpells(
+                        List.of(SpellRegistry.ELDRITCH_BLAST_SPELL.get(), SpellRegistry.SONIC_BOOM_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.RAY_OF_FROST_SPELL.get(), SpellRegistry.SCULK_TENTACLES_SPELL.get()),
+                        List.of(SpellRegistry.ASCENSION_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get()),
+                        List.of(SpellRegistry.BLOOD_STEP_SPELL.get()),
+                        List.of(SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.ECHOING_STRIKES_SPELL.get(), SpellRegistry.ROOT_SPELL.get(), SpellRegistry.BLIGHT_SPELL.get())
+                )
+        );
+        this.goalSelector.addGoal(5, new PatrolNearLocationGoal(this, 30, .75f));
+        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
     }
 
     @Override
@@ -186,7 +282,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         super.onAddedToLevel();
         this.setPersistenceRequired();
         if (this.isClone) {
-            this.addTag(ModTags.CLONES.toString());
+            this.addTag("dark_doppelganger_clone");
         } else {
             this.addTag("dark_doppelganger_boss");
         }
@@ -227,11 +323,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     private void adjustAttributesFromConfig() {
-        int extraPlayers = Math.max(0, playerScale - 1);
-        double extraHealthPercent = extraPlayers * 0.40 + extraPlayers * extraPlayers * 0.10;
-
         if (Config.DOPPELGANGER_HEALTH != null) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get() + (Config.DOPPELGANGER_HEALTH.get() * extraHealthPercent));
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get());
         }
         if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
@@ -252,19 +345,19 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
     private void applyAttributesFromConfig() {
         if (Config.DOPPELGANGER_HEALTH != null) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get());
         }
         if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
-            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get()/2);
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
         }
         if (Config.DOPPELGANGER_MOVEMENT_SPEED != null) {
             this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(Config.DOPPELGANGER_MOVEMENT_SPEED.get());
         }
         if (Config.DOPPELGANGER_KNOCKBACK_RESISTANCE != null) {
-            this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Config.DOPPELGANGER_KNOCKBACK_RESISTANCE.get()/2);
+            this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Config.DOPPELGANGER_KNOCKBACK_RESISTANCE.get());
         }
         if (Config.DOPPELGANGER_ARMOR != null) {
-            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get()/2);
+            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get());
         }
         if (Config.DOPPELGANGER_FOLLOW_RANGE != null) {
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Config.DOPPELGANGER_FOLLOW_RANGE.get());
@@ -284,6 +377,14 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
+    private void stopAllMusic() {
+        if (!level().isClientSide && level().getServer() != null) {
+            Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers().forEach(player -> {
+                player.connection.send(new ClientboundStopSoundPacket(null, SoundSource.MUSIC));
+            });
+        }
+    }
+
     private void stopMinecraftAmbientMusic() {
         if (!level().isClientSide && level().getServer() != null) {
             for (ServerPlayer player : Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers()) {
@@ -298,74 +399,153 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
+
+    @Override
+    public void startSeenByPlayer(@NotNull ServerPlayer player) {
+        super.startSeenByPlayer(player);
+        if (!this.isClone) {
+            this.bossEvent.addPlayer(player);
+        }
+    }
+
+    @Override
+    public void stopSeenByPlayer(@NotNull ServerPlayer player) {
+        super.stopSeenByPlayer(player);
+        if (!this.isClone) {
+            this.bossEvent.removePlayer(player);
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        createOrJoinDoppelTeam();
+        if (isClone || this.isDeadOrDying()) return;
+
+        this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+
+        if (musicPlaying) {
+            stopMinecraftAmbientMusic();
+            if (musicTimer > 0) {
+                musicTimer--;
+            } else {
+                playBossMusic();
+            }
+        }
+        if (!musicPlaying) {
+            playBossMusic();
+        }
+        if (!isClone && laughCooldown > 0) {
+            laughCooldown--;
+        }
+        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
+            summonIllusionClones();
+            minionSummonCooldown = 1000;
+        }
+        if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
+            Player summoner = this.getSummonerPlayer();
+            if (summoner != null && !summoner.isDeadOrDying()) {
+                PortalJoinEntity exitPortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+                exitPortal.setPos(this.position());
+                this.level().addFreshEntity(exitPortal);
+                double targetX = summoner.getX();
+                double targetY = summoner.getY() + 1.5;
+                double targetZ = summoner.getZ();
+
+                this.teleportTo(targetX, targetY, targetZ);
+                this.setYRot(summoner.getYRot());
+                this.level().playSound(null, summoner.blockPosition(), SoundEvents.PORTAL_TRAVEL, SoundSource.HOSTILE, 1.0F, 1.0F);
+
+                PortalJoinEntity entrancePortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+                entrancePortal.setPos(targetX, targetY - 1.5, targetZ);
+                this.level().addFreshEntity(entrancePortal);
+
+                summoner.sendSystemMessage(Component.literal("The Dark Doppelganger has returned from the void...").withStyle(ChatFormatting.DARK_PURPLE));
+
+                hasFallenIntoVoid = true;
+                teleportCooldown = 100;
+            }
+        }
+        if (teleportCooldown > 0) {
+            teleportCooldown--;
+            if (teleportCooldown == 0) {
+                hasFallenIntoVoid = false;
+            }
+        }
+
+        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
+            summonIllusionClones();
+            minionSummonCooldown = 1000;
+        }
+
+        if (Config.DOPPELGANGER_HARD_MODE.get()) {
+            this.addEffect(new MobEffectInstance(MobEffectRegistry.OAKSKIN.getDelegate(), 10, 8, false, false, true));
+            this.addEffect(new MobEffectInstance( MobEffectRegistry.CHARGED.getDelegate(), 10, 2, false, false, true));
+            this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 10, 0, false, false));
+        }
+
+        if (Config.DOPPELGANGER_HARD_MODE.get()) {
+            if (this.tickCount % 10 == 0) {
+                this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(20, 10, 20)).forEach(target -> {
+                    if (target != this) {
+                        if (target.hasEffect(MobEffects.DIG_SPEED)) {
+                            target.removeEffect(MobEffects.DIG_SPEED);
+                        }
+                        if (target.hasEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate())) {
+                            target.removeEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate());
+                        }
+                        if (target.hasEffect( MobEffectRegistry.EVASION.getDelegate())) {
+                            target.removeEffect(MobEffectRegistry.EVASION.getDelegate());
+                        }
+                        if (target.hasEffect(MobEffectRegistry.HASTENED.getDelegate())) {
+                            target.removeEffect( MobEffectRegistry.HASTENED.getDelegate());
+                        }
+                        if (target.hasEffect(MobEffectRegistry.ECHOING_STRIKES.getDelegate())) {
+                            target.removeEffect( MobEffectRegistry.ECHOING_STRIKES.getDelegate());
+                        }
+                    }
+                });
+            }
+        }
+
+        if (thirdPhaseTriggered) {
+            if (minionSummonCooldown-- <= 0) {
+                summonMinions();
+                minionSummonCooldown = 500;
+            }
+            if (lifeDrainCooldown-- <= 0) {
+                lifeDrainAttack();
+                lifeDrainCooldown = 150;
+            }
+        }
+
+        if (roarSoundCooldown > 0) roarSoundCooldown--;
+        if (laughSoundCooldown > 0) laughSoundCooldown--;
+
+        age++;
+    }
     @Nullable
     public Player getSummonerPlayer() {
         return summonerPlayer;
     }
-
-    public void triggerStanceBreak() {
-        stanceBreakCounter++;
-        stanceBreakTimer = STANCE_BREAK_ANIM_TIME;
-        this.castComplete();
-        this.attackGoal.stopMeleeAction();
-        this.serverTriggerAnimation("fire_boss_break_stance");
-        this.playSound(SoundRegistry.BOSS_STANCE_BREAK.get(), 3, 1);
-        Vec3 vec3 = this.getBoundingBox().getCenter();
-        MagicManager.spawnParticles(level(), ParticleRegistry.EMBEROUS_ASH_PARTICLE.get(), vec3.x, vec3.y, vec3.z, 25, 0.2, 0.2, 0.2, 0.12, false);
-    }
-
-    public boolean isStanceBroken() {
-        return stanceBreakTimer > 0;
-    }
-
     @Override
-    protected boolean isImmobile() {
-        return super.isImmobile() || isStanceBroken();
+    protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
     }
-
-    private void handleStanceBreakSequence() {
-        int tick = STANCE_BREAK_ANIM_TIME - stanceBreakTimer;
-        if (stanceBreakCounter == 2) {
-            if (tick < 80) {
-                var f = Mth.lerp(tick / 80f, 0.2, 0.4);
-                Vec3 vec3 = this.getBoundingBox().getCenter();
-                MagicManager.spawnParticles(level(), ParticleHelper.UNSTABLE_ENDER, vec3.x, vec3.y, vec3.z, 12 + (int) (f * 10), f, f, f, 0.02, true);
-            }
-        }
-        if (tick >= STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP) {
-            if (tick == STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP) {
-                createEruptionEntity(8, (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
-                playSound(SoundRegistry.FIRE_ERUPTION_SLAM.get(), 2, 1.2f);
-            } else if (tick == STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP + 25) {
-                createEruptionEntity(11, (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2);
-                playSound(SoundRegistry.FIRE_ERUPTION_SLAM.get(), 3, 1f);
-            } else if (tick == STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP + 50) {
-                createEruptionEntity(15, (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 3);
-                playSound(SoundRegistry.FIRE_ERUPTION_SLAM.get(), 4, 0.9f);
-            }
-        }
-    }
-
-    private void createEruptionEntity(float radius, float damage) {
-        Vec3 forward = this.getForward().multiply(1, 0, 1).normalize().scale(3);
-        Vec3 pos = Utils.moveToRelativeGroundLevel(level(), this.position().add(forward).add(0, 1, 0), 4);
-        FireEruptionAoe aoe = new FireEruptionAoe(level(), radius);
-        aoe.setOwner(this);
-        aoe.setDamage(damage);
-        aoe.moveTo(pos);
-        level().addFreshEntity(aoe);
-        CameraShakeManager.addCameraShake(new CameraShakeData(10 + (int) radius, pos, radius * 2 + 5));
-    }
+//    @Override
+//    public boolean addEffect(MobEffectInstance p_147208_, @Nullable Entity p_147209_) {
+//        if (!p_147208_.getEffect().isBeneficial()) {
+//            return false;
+//        }
+//        return super.addEffect(p_147208_, p_147209_);
+//    }
 
     private void triggerSecondPhase() {
         secondPhaseTriggered = true;
         setHealth(getMaxHealth());
 
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.ELDRITCH_BLAST_SPELL.get(), 5, 5, 80, 240, 1));
-
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
             player.sendSystemMessage(Component.literal("The Dark Doppelganger has entered its Second Phase!").withStyle(ChatFormatting.DARK_PURPLE));
-            level().playSound(null, getX(), getY(), getZ(), net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+            level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0));
         }
 
@@ -388,10 +568,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         setHealth(getMaxHealth());
         bossEvent.setName(Component.literal("Dark Doppelganger - Final Phase"));
 
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.SCULK_TENTACLES_SPELL.get(), 4, 4, 200, 300, 1));
-
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
-            level().playSound(null, getX(), getY(), getZ(), net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+            level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
             player.displayClientMessage(Component.literal("Final Form! Prepare yourself!").withStyle(ChatFormatting.RED), true);
         }
 
@@ -414,6 +592,67 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         minionSummonCooldown = 1050;
         lifeDrainCooldown = 200;
     }
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (this.isDeadOrDying() || source == this.level().damageSources().fellOutOfWorld()) {
+            return false;
+        }
+        if (isClone) {
+            return super.hurt(source, amount);
+        }
+        float newHealth = this.getHealth() - amount;
+
+        if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4f) {
+            triggerSecondPhase();
+            if (Config.DOPPELGANGER_HARD_MODE.get()) {
+                setThirdPhaseGoals();
+            } else {
+                setSecondPhaseGoals();
+            }
+            return false;
+        }
+
+        if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2f) {
+            triggerThirdPhase();
+            if (Config.DOPPELGANGER_HARD_MODE.get()) {
+                setFinalPhaseGoals();
+            } else {
+                setThirdPhaseGoals();
+            }
+            return false;
+        }
+
+        Entity attacker = source.getEntity();
+        if (attacker instanceof LivingEntity && attacker != this) {
+            this.setTarget((LivingEntity) attacker);
+        }
+
+        return super.hurt(source, amount);
+    }
+    private void summonIllusionClones() {
+        if (minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
+        for (int i = 0; i < 3; i++) {
+            if (currentMinionCount >= MAX_MINIONS) break;
+
+            DarkDoppelgangerEntity clone = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
+            if (clone != null) {
+                clone.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
+                clone.setHealth(10.0F);
+                //clone.isClone = true;
+                Team team = getTeam();
+                if (team instanceof PlayerTeam playerTeam) {
+                    level().getScoreboard().addPlayerToTeam(clone.getScoreboardName(), playerTeam);
+                }
+                clone.addTag("dark_doppelganger_clone");
+                clone.setCustomName(Component.literal("Doppelganger Clone").withStyle(ChatFormatting.GRAY));
+                //clone.applyAttributesFromConfig();
+                level().addFreshEntity(clone);
+                level().addParticle(ParticleTypes.ENCHANT, clone.getX(), clone.getY(), clone.getZ(), 0, 1, 0);
+                currentMinionCount++;
+            }
+        }
+        minionSummonCooldown = 500;
+    }
 
     private void summonMinions() {
         if (isClone || minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
@@ -425,7 +664,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             if (minion != null) {
                 minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
                 minion.setHealth(minion.getMaxHealth() * 0.3F);
-                minion.isClone = true;
+                //minion.isClone = true;
                 minion.addTag("dark_doppelganger_clone");
                 Team team = getTeam();
                 if (team instanceof PlayerTeam playerTeam) {
@@ -434,7 +673,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
                 minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
                 level().addFreshEntity(minion);
-                minion.applyAttributesFromConfig();
+                //minion.applyAttributesFromConfig();
                 currentMinionCount++;
             }
         }
@@ -447,54 +686,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         });
 
         if (laughCooldown <= 0) {
-            level().playSound(null, getX(), getY(), getZ(), net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_LAUGH.get(), SoundSource.HOSTILE, 0.0F, 1.0F);
+            level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_LAUGH.get(), SoundSource.HOSTILE, 0.0F, 1.0F);
             laughCooldown = 400;
-        }
-    }
-
-    private void playBossMusic() {
-        if (!level().isClientSide && !musicPlaying && !this.isDeadOrDying()) {
-            this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                    net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_FIGHT_MUSIC.get(), SoundSource.MUSIC, 1.0F, 1.0F);
-            musicPlaying = true;
-            musicTimer = MUSIC_DURATION; // Set timer to song duration
-        }
-    }
-
-
-    private void stopBossMusic() {
-        if (!level().isClientSide && level().getServer() != null) {
-            Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers().forEach(player -> {
-                player.connection.send(new ClientboundStopSoundPacket(net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC));
-            });
-        }
-    }
-    private void createOrJoinDoppelTeam() {
-        if (level().isClientSide || getTeam() != null) return;
-
-        var scoreboard = level().getScoreboard();
-        String teamName = "dark_doppelganger_team";
-
-        PlayerTeam team = scoreboard.getPlayerTeam(teamName);
-        if (team == null) {
-            team = scoreboard.addPlayerTeam(teamName);
-            team.setAllowFriendlyFire(false);
-            team.setSeeFriendlyInvisibles(true);
-        }
-
-        scoreboard.addPlayerToTeam(getScoreboardName(), team);
-    }
-
-    @Override
-    public void handleClientEvent(byte eventId) {
-        switch (eventId) {
-            case CLIENT_STOP_TRACKING -> {
-                FogManager.stopEvent(this.uuid);
-            }
-            case CLIENT_START_TRACKING -> {
-                FogManager.createEvent(this, new FogManager.FogEvent(Optional.empty(), true));
-            }
-            case PROC_SPECTRAL_DAGGER -> procSpectralDagger();
         }
     }
 
@@ -543,7 +736,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.level().getServer().getPlayerList().getPlayers().forEach(player -> {
                 if (player.connection != null) {
                     player.connection.send(
-                            new ClientboundStopSoundPacket(net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC)
+                            new ClientboundStopSoundPacket(SoundRegistry.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC)
                     );
                 }
             });
@@ -552,407 +745,30 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.bossEvent.removeAllPlayers();
         }
         super.die(cause);
-
-        if (this.isDeadOrDying() && !this.level().isClientSide) {
-            this.stanceBreakTimer = 0;
-            this.castComplete();
-            this.attackGoal.stop();
-            this.serverTriggerAnimation("fire_boss_death");
-            this.playSound(net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_ROAR.get(), 5, 1);
-        }
     }
 
-    @Override
-    protected void tickDeath() {
-        this.deathTime++;
-        if (!level().isClientSide) {
-            float scale = getScale();
-            Vec3 vec3 = this.position();
-            deathParticles();
-            if (this.deathTime >= 160 && !this.level().isClientSide() && !this.isRemoved()) {
-                this.remove(Entity.RemovalReason.KILLED);
-                MagicManager.spawnParticles(level(), ParticleRegistry.UNSTABLE_ENDER_PARTICLE.get(), vec3.x, vec3.y + 1, vec3.z, 50, 0.3, 0.3, 0.3, 0.2 * scale, true);
-            }
-        }
-    }
-
-    private void deathParticles() {
-        float scale = getScale();
-        Vec3 vec3 = this.position();
-        int particles = (int) Mth.lerp(Math.clamp((deathTime - 20) / 60f, 0, 1), 0, 5 * scale);
-        float range = Mth.lerp(Math.clamp((deathTime - 20) / 80f, 0, 1), 0, 0.4f * scale);
-        if (particles > 0) {
-            MagicManager.spawnParticles(level(), ParticleRegistry.UNSTABLE_ENDER_PARTICLE.get(), vec3.x, vec3.y + 1, vec3.z, particles, range, range, range, 100, false);
-        }
-    }
-
-    @Override
-    public void knockback(double pStrength, double pX, double pZ) {
-        if (isStanceBroken()) {
-            return;
-        }
-        super.knockback(pStrength, pX, pZ);
-    }
-
-    @Override
-    public boolean isPushable() {
-        return super.isPushable() && !isImmobile();
-    }
-
-    private int playerScale;
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder pBuilder) {
-        super.defineSynchedData(pBuilder);
-    }
-
-    protected LookControl createLookControl() {
-        return new LookControl(this) {
-            //This allows us to more rapidly turn towards our target. Helps to make sure his targets are aligned with his swing animations
-            @Override
-            protected float rotateTowards(float pFrom, float pTo, float pMaxDelta) {
-                return super.rotateTowards(pFrom, pTo, pMaxDelta * 2.5f);
-            }
-
-            @Override
-            protected boolean resetXRotOnTick() {
-                return getTarget() == null;
-            }
-        };
-    }
-
-    protected MoveControl createMoveControl() {
-        return new FireBossMoveControl(this);
-    }
-
-    public void startSeenByPlayer(ServerPlayer pPlayer) {
-        super.startSeenByPlayer(pPlayer);
-        if (!this.isClone) {
-            this.bossEvent.addPlayer(pPlayer);
-        }
-        PacketDistributor.sendToPlayer(pPlayer, new EntityEventPacket<DarkDoppelgangerEntity>(this, CLIENT_START_TRACKING));
-    }
-
-    public void stopSeenByPlayer(ServerPlayer pPlayer) {
-        super.stopSeenByPlayer(pPlayer);
-        if (!this.isClone) {
-            this.bossEvent.removePlayer(pPlayer);
-        }
-        PacketDistributor.sendToPlayer(pPlayer, new EntityEventPacket<DarkDoppelgangerEntity>(this, CLIENT_STOP_TRACKING));
-    }
-
-    public EnderBossAttackGoal attackGoal;
-
-    @Override
-    public FireBossMoveControl getMoveControl() {
-        return (FireBossMoveControl) super.getMoveControl();
-    }
-
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.5f, 50, 75)
-                .setMoveset(List.of(
-                        AttackAnimationData.builder("scythe_dagger_double_horizontal")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(15, new Vec3(0, 0, .25), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new InvokeDaggerKeyframe(35),
-                                        new EnderBossAttackKeyframe(36, new Vec3(0, 0, .75), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new AttackKeyframe(42, new Vec3(0, 0, 0))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_backpedal")
-                                .length(40)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, .3, -2), new EnderBossAttackKeyframe.SwingData(false, true))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_sideslash_downslash_sideslash")
-                                .length(62)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(18, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new EnderBossAttackKeyframe(50, new Vec3(0, 0.1, 1.25), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_jump_combo")
-                                .length(45)
-                                .cancellable()
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, 1, 0), new Vec3(0, 1.15, .1), new EnderBossAttackKeyframe.SwingData(true, false)),
-                                        new EnderBossAttackKeyframe(35, new Vec3(0, 0, -.2), new Vec3(0, 0, 0.5), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_downslash_sideslash")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(22, new Vec3(0, 0, .5f), new Vec3(0, -.2, 0), new EnderBossAttackKeyframe.SwingData(true, true)),
-                                        new EnderBossAttackKeyframe(40, new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_horizontal_slash_spin")
-                                .length(45)
-                                .area(0.25f)
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(14, new Vec3(0, 0.1, 1.25), new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0.1, 1.85), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build()
-
-                ))
-                .setComboChance(1f)
-                .setMeleeAttackInverval(10, 30)
-                .setMeleeBias(1f, 1f)
-                .setSpells(
-                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.FIREBALL_SPELL.get(), SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.POISON_SPLASH_SPELL.get(), SpellRegistry.ICE_SPIKES_SPELL.get()),
-                        List.of(SpellRegistry.EARTHQUAKE_SPELL.get(), SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.SHOCKWAVE_SPELL.get()),
-                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.BLOOD_STEP_SPELL.get()),
-                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.EVASION_SPELL.get())
-                );
-        this.goalSelector.addGoal(2, new EnderDaggerSwarmAbilityGoal(this));
-        this.goalSelector.addGoal(2, new EnderDaggerZoneAbilityGoal(this));
-        this.goalSelector.addGoal(3, attackGoal);
-
-        this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
-        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.targetSelector.addGoal(1, new MomentHurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
-    }
-
-    private final ServerBossEvent bossEvent = (ServerBossEvent) (new ServerBossEvent(Component.literal("Dark Doppelganger"), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS)).setCreateWorldFog(true);
-
-    @Override
-    public boolean requiresCustomPersistence() {
-        return true;
-    }
-
-    private static final AttributeModifier MANA_MODIFIER = new AttributeModifier(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "mana"), 10000, AttributeModifier.Operation.ADD_VALUE);
-
-    @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData) {
-        super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData);
-        RandomSource randomsource = Utils.random;
-        this.populateDefaultEquipmentSlots(randomsource, pDifficulty);
-        this.setLeftHanded(false);
-        this.getAttribute(AttributeRegistry.MAX_MANA).addOrReplacePermanentModifier(MANA_MODIFIER);
-        this.playerScale = pLevel.players().stream().filter(player -> distanceToSqr(player) < 3600 && !player.isSpectator() && !player.isCreative()).toList().size();
-        this.setHealth(this.getMaxHealth());
-        return pSpawnData;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        createOrJoinDoppelTeam();
-        if (isClone || this.isDeadOrDying()) return;
-
-        this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
-
-        if (musicPlaying) {
-            stopMinecraftAmbientMusic();
-            if (musicTimer > 0) {
-                musicTimer--;
-            } else {
-                playBossMusic();
-            }
-        }
-        if (!musicPlaying) {
-            playBossMusic();
-        }
-        if (!isClone && laughCooldown > 0) {
-            laughCooldown--;
-        }
-        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonMinions();
-            minionSummonCooldown = 1000;
-        }
-        if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
-            Player summoner = this.getSummonerPlayer();
-            if (summoner != null && !summoner.isDeadOrDying()) {
-                PortalJoinEntity exitPortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
-                exitPortal.setPos(this.position());
-                this.level().addFreshEntity(exitPortal);
-                double targetX = summoner.getX();
-                double targetY = summoner.getY() + 1.5;
-                double targetZ = summoner.getZ();
-
-                this.teleportTo(targetX, targetY, targetZ);
-                this.setYRot(summoner.getYRot());
-                this.level().playSound(null, summoner.blockPosition(), SoundEvents.PORTAL_TRAVEL, SoundSource.HOSTILE, 1.0F, 1.0F);
-
-                PortalJoinEntity entrancePortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
-                entrancePortal.setPos(targetX, targetY - 1.5, targetZ);
-                this.level().addFreshEntity(entrancePortal);
-
-                summoner.sendSystemMessage(Component.literal("The Dark Doppelganger has returned from the void...").withStyle(ChatFormatting.DARK_PURPLE));
-
-                hasFallenIntoVoid = true;
-                teleportCooldown = 100;
-            }
-        }
-        if (teleportCooldown > 0) {
-            teleportCooldown--;
-            if (teleportCooldown == 0) {
-                hasFallenIntoVoid = false;
-            }
-        }
-
-        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonMinions();
-            minionSummonCooldown = 1000;
-        }
-
-        if (Config.DOPPELGANGER_HARD_MODE.get()) {
-            this.addEffect(new MobEffectInstance(MobEffectRegistry.OAKSKIN.getDelegate(), 10, 8, false, false, true));
-            this.addEffect(new MobEffectInstance( MobEffectRegistry.CHARGED.getDelegate(), 10, 2, false, false, true));
-            this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 10, 0, false, false));
-        }
-
-        if (Config.DOPPELGANGER_HARD_MODE.get()) {
-            if (this.tickCount % 10 == 0) {
-                this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(20, 10, 20)).forEach(target -> {
-                    if (target != this) {
-                        if (target.hasEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate())) {
-                            target.removeEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate());
-                        }
-                        if (target.hasEffect(MobEffectRegistry.HASTENED.getDelegate())) {
-                            target.removeEffect( MobEffectRegistry.HASTENED.getDelegate());
-                        }
-                        if (target.hasEffect(MobEffectRegistry.ECHOING_STRIKES.getDelegate())) {
-                            target.removeEffect( MobEffectRegistry.ECHOING_STRIKES.getDelegate());
-                        }
-                    }
-                });
-            }
-        }
-
-        if (!level().isClientSide) {
-            if (isStanceBroken()) {
-                stanceBreakTimer--;
-                handleStanceBreakSequence();
-            }
-        }
-
-        if (thirdPhaseTriggered) {
-            if (minionSummonCooldown-- <= 0) {
-                summonMinions();
-                minionSummonCooldown = 500;
-            }
-            if (lifeDrainCooldown-- <= 0) {
-                lifeDrainAttack();
-                lifeDrainCooldown = 150;
-            }
-        }
-
-        if (roarSoundCooldown > 0) roarSoundCooldown--;
-        if (laughSoundCooldown > 0) laughSoundCooldown--;
-
-        age++;
-
-        float maxHealth = this.getMaxHealth();
-        float currentHealth = this.getHealth();
-        this.bossEvent.setProgress(currentHealth / maxHealth);
-        if (daggerTime > 0) {
-            daggerTime--;
-        }
-        if (destroyBlockDelay > 0) {
-            --destroyBlockDelay;
-        }
-    }
-
-    int daggerTime;
-    public boolean clientDaggerParticles;
-
-    public void procSpectralDagger() {
-        if (!level().isClientSide) {
-            serverTriggerEvent(PROC_SPECTRAL_DAGGER);
-        } else {
-            clientDaggerParticles = true;
-        }
-        this.daggerTime = 15;
-    }
-
-    public boolean spectralDaggerActive() {
-        return daggerTime > 0;
-    }
-
-    @Override
-    protected void customServerAiStep() {
-        super.customServerAiStep();
-        float maxHealth = this.getMaxHealth();
-        float currentHealth = this.getHealth();
-        if (stanceBreakCounter == 0) {
-            if (currentHealth < maxHealth * .75f) {
-                triggerStanceBreak();
-                return;
-            }
-        } else if (stanceBreakCounter == 1) {
-            if (currentHealth < maxHealth * .333f) {
-                triggerStanceBreak();
-                return;
-            }
-        }
-        if (tickCount > 400 && this.getTarget() == null && this.tickCount - this.getLastHurtByMobTimestamp() > 200) {
-            if (tickCount % 20 == 0) {
-                this.heal(5);
-            }
-        }
-    }
-
-    @Override
-    public boolean causeFallDamage(float pFallDistance, float pMultiplier, DamageSource pSource) {
-        return false;
-    }
-
-    public static AttributeSupplier.Builder prepareAttributes() {
-        return LivingEntity.createLivingAttributes()
-                .add(Attributes.ATTACK_DAMAGE, 20.0)
-                .add(AttributeRegistry.SPELL_POWER, 1.25)
-                .add(Attributes.ARMOR, 20.0)
-                .add(AttributeRegistry.SPELL_RESIST, 1.25)
-                .add(AttributeRegistry.FIRE_MAGIC_RESIST, 1.5)
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 6000.0)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.8)
-                .add(Attributes.ATTACK_KNOCKBACK, .6)
-                .add(Attributes.FOLLOW_RANGE, 48.0)
-                .add(Attributes.SCALE, 1)
-                .add(Attributes.GRAVITY, 0.03)
-                .add(Attributes.ENTITY_INTERACTION_RANGE, 3)
-                .add(Attributes.STEP_HEIGHT, 1)
-                .add(Attributes.MOVEMENT_SPEED, .21);
+                .add(Attributes.ATTACK_DAMAGE, 20.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.20)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6)
+                .add(Attributes.ARMOR, 20.0)
+                .add(Attributes.FOLLOW_RANGE, 64.0);
     }
 
-    @Override
-    public void calculateEntityAnimation(boolean pIncludeHeight) {
-        super.calculateEntityAnimation(false);
-    }
-
-    @Override
-    protected void updateWalkAnimation(float f) {
-        //reduce walk animation swing if we are floating or meleeing
-        super.updateWalkAnimation(f * (!this.onGround() ? .5f : .9f));
-    }
-
-    @Override
-    public boolean bobBodyWhileWalking() {
-        return !isAnimating();
-    }
-
-    //ANIMATIONS
     RawAnimation animationToPlay = null;
     private final RawAnimation ANIMATION_SPAWN = RawAnimation.begin().thenPlay("join_1");
-    private final AnimationController<DarkDoppelgangerEntity> meleeController = new AnimationController<>(this, "melee_animations", 0, this::predicate);
+    private final AnimationController<DarkDoppelgangerEntity> meleeController = new AnimationController<>(this, "keeper_animations", 0, this::predicate);
     private final AnimationController<DarkDoppelgangerEntity> spawnController = new AnimationController<>(this, "spawn_animations", 0, this::spawnPredicate);
 
     @Override
     public void playAnimation(String animationId) {
-        animationToPlay = RawAnimation.begin().thenPlay(animationId);
-        canAnimateOver = animationId.equals("summon_fiery_daggers");
-        stopHeadAnimation = animationId.equals("fire_boss_break_stance");
-    }
-
-    @Override
-    public boolean shouldAlwaysAnimateHead() {
-        return !stopHeadAnimation;
+        try {
+            animationToPlay = RawAnimation.begin().thenPlay(animationId);
+        } catch (Exception ignored) {
+//            DarkDoppelgangerMod.LOGGER.error("Entity {} Failed to play animation: {}", this, animationId);
+        }
     }
 
     private PlayState predicate(AnimationState<DarkDoppelgangerEntity> animationEvent) {
@@ -963,7 +779,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             controller.setAnimation(animationToPlay);
             animationToPlay = null;
         }
-        return PlayState.CONTINUE;
+        return spawnController.getAnimationState() == AnimationController.State.STOPPED ? PlayState.CONTINUE : PlayState.STOP;
     }
 
     private PlayState spawnPredicate(AnimationState<DarkDoppelgangerEntity> animationEvent) {
@@ -985,187 +801,39 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     @Override
     public boolean isAnimating() {
-        return (meleeController.getAnimationState() == AnimationController.State.RUNNING && !canAnimateOver) || super.isAnimating();
+        return meleeController.getAnimationState() != AnimationController.State.STOPPED || spawnController.getAnimationState() != AnimationController.State.STOPPED || super.isAnimating();
     }
-
-    @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
-        if (level().isClientSide) {
-            return false;
-        }
-        /*
-        can parry:
-        - serverside
-        - in combat
-        - we aren't in melee attack anim or spell cast
-        - the damage source is caused by an entity (ie not fall damage)
-        - the damage is caused within our rough field of vision (117 degrees)
-        - the damage is not /kill
-         */
-        boolean canParry = this.isAggressive() &&
-                !isImmobile() &&
-                !this.isClone &&
-                !attackGoal.isActing() &&
-                pSource.getEntity() != null &&
-                pSource.getSourcePosition() != null && pSource.getSourcePosition().subtract(this.position()).normalize().dot(this.getForward()) >= 0.35
-                && !pSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
-        if (canParry && this.random.nextFloat() < 0.5) {
-            serverTriggerAnimation("offhand_parry");
-            procSpectralDagger();
-            this.playSound(SoundRegistry.FIRE_DAGGER_PARRY.get());
-            return false;
-        }
-        if (isStanceBroken()) {
-            pAmount *= 0.60f;
-        }
-        // damage limiter
-        var limit = getMaxHealth() * 0.025f;
-        if (pAmount > limit) {
-            pAmount = limit + (pAmount - limit) * .3f; // damage about limit has .3x multiplier applied
-        }
-        if (pSource.is(DamageTypes.IN_WALL) && this.destroyBlockDelay <= 0) {
-            Utils.doMobBreakSuffocatingBlocks(this);
-            destroyBlockDelay = 40;
-        }
-
-        if (this.isDeadOrDying() || pSource == this.level().damageSources().fellOutOfWorld()) {
-            return false;
-        }
-        if (isClone) {
-            return super.hurt(pSource, pAmount);
-        }
-        float newHealth = this.getHealth() - pAmount;
-
-        if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4f) {
-            triggerSecondPhase();
-            return false;
-        }
-
-        if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2f) {
-            triggerThirdPhase();
-            if (Config.DOPPELGANGER_HARD_MODE.get()) {
-                setFinalPhaseGoals();
-            }
-            return false;
-        }
-
-        Entity attacker = pSource.getEntity();
-        if (attacker instanceof LivingEntity && attacker != this) {
-            this.setTarget((LivingEntity) attacker);
-        }
-
-        return super.hurt(pSource, pAmount);
-    }
-
-    protected void setFinalPhaseGoals() {
-        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.5f, 50, 75)
-                .setMoveset(List.of(
-                        AttackAnimationData.builder("scythe_dagger_double_horizontal")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(15, new Vec3(0, 0, .25), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new InvokeDaggerKeyframe(35),
-                                        new EnderBossAttackKeyframe(36, new Vec3(0, 0, .75), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new AttackKeyframe(42, new Vec3(0, 0, 0))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_backpedal")
-                                .length(40)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, .3, -2), new EnderBossAttackKeyframe.SwingData(false, true))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_sideslash_downslash_sideslash")
-                                .length(62)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(18, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new EnderBossAttackKeyframe(50, new Vec3(0, 0.1, 1.25), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_jump_combo")
-                                .length(45)
-                                .cancellable()
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, 1, 0), new Vec3(0, 1.15, .1), new EnderBossAttackKeyframe.SwingData(true, false)),
-                                        new EnderBossAttackKeyframe(35, new Vec3(0, 0, -.2), new Vec3(0, 0, 0.5), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_downslash_sideslash")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(22, new Vec3(0, 0, .5f), new Vec3(0, -.2, 0), new EnderBossAttackKeyframe.SwingData(true, true)),
-                                        new EnderBossAttackKeyframe(40, new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_horizontal_slash_spin")
-                                .length(45)
-                                .area(0.25f)
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(14, new Vec3(0, 0.1, 1.25), new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0.1, 1.85), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build()
-
-                ))
-                .setComboChance(1f)
-                .setMeleeAttackInverval(10, 30)
-                .setMeleeBias(1f, 1f)
-                .setSpells(
-                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.SCULK_TENTACLES_SPELL.get(), SpellRegistry.FIREBALL_SPELL.get(), SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.RAY_OF_FROST_SPELL.get(), SpellRegistry.SONIC_BOOM_SPELL.get(), SpellRegistry.ICE_SPIKES_SPELL.get(), SpellRegistry.BALL_LIGHTNING_SPELL.get(), SpellRegistry.ACID_ORB_SPELL.get()),
-                        List.of(SpellRegistry.EARTHQUAKE_SPELL.get(), SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.SHOCKWAVE_SPELL.get(), SpellRegistry.RAISE_HELL_SPELL.get(), SpellRegistry.OAKSKIN_SPELL.get()),
-                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.BLOOD_STEP_SPELL.get()),
-                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.HASTE_SPELL.get(), SpellRegistry.SLOW_SPELL.get(), SpellRegistry.BLIGHT_SPELL.get())
-                );
-
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.HEAL_SPELL.get(), 8, 8, 200, 300, 1));
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-        pCompound.putInt("playerScale", playerScale);
-        pCompound.putLong("unloadedGametime", level().getGameTime());
-        pCompound.putInt("stanceBreakCount", stanceBreakCounter);
-        if (stanceBreakTimer > 0) {
-            pCompound.putInt("stanceBreakTime", stanceBreakTimer);
+    private void playBossMusic() {
+        if (!level().isClientSide && !musicPlaying && !this.isDeadOrDying()) {
+            this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
+                   SoundRegistry.BOSS_FIGHT_MUSIC.get(), SoundSource.MUSIC, 1.0F, 1.0F);
+            musicPlaying = true;
+            musicTimer = MUSIC_DURATION; // Set timer to song duration
         }
     }
 
-    @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        this.playerScale = pCompound.getInt("playerScale");
-        this.stanceBreakCounter = pCompound.getInt("stanceBreakCount");
-        int stanceTime = pCompound.getInt("stanceBreakTime");
-        if (stanceTime > 0) {
-            this.stanceBreakTimer = stanceTime;
-            if (level().isClientSide) {
-                this.animationToPlay = RawAnimation.begin().thenPlay("fire_boss_break_stance");
-            }
+
+    private void stopBossMusic() {
+        if (!level().isClientSide && level().getServer() != null) {
+            Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers().forEach(player -> {
+                player.connection.send(new ClientboundStopSoundPacket(SoundRegistry.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC));
+            });
         }
     }
+    private void createOrJoinDoppelTeam() {
+        if (level().isClientSide || getTeam() != null) return;
 
-    @Override
-    public void load(CompoundTag pCompound) {
-        if (pCompound.contains("unloadedGametime", 99)) {
-            var unloadTimestamp = pCompound.getLong("unloadedGametime");
-            var delta = level().getGameTime() - unloadTimestamp;
-            if (delta > UNLOADED_DESPAWN_LIMIT_SECONDS * 20) {
-                this.setRemoved(RemovalReason.DISCARDED);
-                return;
-            }
+        var scoreboard = level().getScoreboard();
+        String teamName = "dark_doppelganger_team";
+
+        PlayerTeam team = scoreboard.getPlayerTeam(teamName);
+        if (team == null) {
+            team = scoreboard.addPlayerTeam(teamName);
+            team.setAllowFriendlyFire(false);
+            team.setSeeFriendlyInvisibles(true);
         }
-        super.load(pCompound);
-    }
 
-    @Override
-    public boolean isAlliedTo(Entity pEntity) {
-        return super.isAlliedTo(pEntity) || pEntity.getType().is(ModTags.CLONES);
+        scoreboard.addPlayerToTeam(getScoreboardName(), team);
     }
-
-    @Override
-    protected PathNavigation createNavigation(Level pLevel) {
-        return new NotIdioticNavigation(this, pLevel);
-    }
-
 
 }

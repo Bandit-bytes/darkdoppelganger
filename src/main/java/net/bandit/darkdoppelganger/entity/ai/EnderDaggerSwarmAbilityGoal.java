@@ -3,17 +3,17 @@ package net.bandit.darkdoppelganger.entity.ai;
 import io.redspace.ironsspellbooks.api.util.Utils;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.AnimatedActionGoal;
 import io.redspace.ironsspellbooks.registries.SoundRegistry;
-import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity_tyros_class;
 import net.bandit.darkdoppelganger.entity.EnderDaggerEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
-public class EnderDaggerSwarmAbilityGoal extends AnimatedActionGoal<DarkDoppelgangerEntity> {
+public class EnderDaggerSwarmAbilityGoal extends AnimatedActionGoal<DarkDoppelgangerEntity_tyros_class> {
     public static final int ANIM_DURATION = (int) (1.25 * 20);
     public static final int ACTION_TIMESTAMP = (int) (.88 * 20);
 
-    public EnderDaggerSwarmAbilityGoal(DarkDoppelgangerEntity mob) {
+    public EnderDaggerSwarmAbilityGoal(DarkDoppelgangerEntity_tyros_class mob) {
         super(mob);
     }
 

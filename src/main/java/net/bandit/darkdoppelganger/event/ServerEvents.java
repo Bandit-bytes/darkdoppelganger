@@ -1,17 +1,5 @@
 package net.bandit.darkdoppelganger.event;
 
-import io.redspace.ironsspellbooks.api.events.SpellPreCastEvent;
-import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
-import io.redspace.ironsspellbooks.entity.spells.target_area.TargetedAreaEntity;
-import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
-import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
-import net.bandit.darkdoppelganger.registry.EntityRegistry;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-
 
 //@EventBusSubscriber(modid = DarkDoppelgangerMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ServerEvents {
@@ -21,7 +9,7 @@ public class ServerEvents {
 //            if(event.getSpellId().equals(SpellRegistry.ROOT_SPELL.get().getSpellId()) || event.getSpellId().equals(SpellRegistry.SLOW_SPELL.get().getSpellId())
 //                    || event.getSpellId().equals(SpellRegistry.BLIGHT_SPELL.get().getSpellId()) || event.getSpellId().equals(SpellRegistry.ACID_ORB_SPELL.get().getSpellId())){
 //                if(event.getEntity() != null){
-//                    boolean doppelClose = event.getEntity().level().getEntitiesOfClass(DarkDoppelgangerEntity.class, event.getEntity().getBoundingBox().inflate(50, 50, 50)).isEmpty();
+//                    boolean doppelClose = event.getEntity().level().getEntitiesOfClass(DarkDoppelgangerEntity_tyros_class.class, event.getEntity().getBoundingBox().inflate(50, 50, 50)).isEmpty();
 //                    if(!doppelClose){
 //                        event.setCanceled(true);
 //                        if(event.getEntity() instanceof ServerPlayer player){
@@ -41,9 +29,9 @@ public class ServerEvents {
 //    @SubscribeEvent
 //    public static void onLivingHurt(LivingHurtEvent event){
 //        if(event.getEntity().getType() == EntityRegistry.DARK_DOPPELGANGER.get()){
-//            DarkDoppelgangerEntity doppel = (DarkDoppelgangerEntity) event.getEntity();
+//            DarkDoppelgangerEntity_tyros_class doppel = (DarkDoppelgangerEntity_tyros_class) event.getEntity();
 //            if(!doppel.isClone){
-//                boolean noClones = event.getEntity().level().getEntitiesOfClass(DarkDoppelgangerEntity.class, event.getEntity().getBoundingBox().inflate(20, 10, 20), (target) -> target.isClone).isEmpty();
+//                boolean noClones = event.getEntity().level().getEntitiesOfClass(DarkDoppelgangerEntity_tyros_class.class, event.getEntity().getBoundingBox().inflate(20, 10, 20), (target) -> target.isClone).isEmpty();
 //                if(!noClones){
 //                    event.setCanceled(true);
 //                }

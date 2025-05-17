@@ -9,17 +9,17 @@ import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.InvokeDaggerKey
 import io.redspace.ironsspellbooks.particle.FlameStrikeParticleOptions;
 import io.redspace.ironsspellbooks.registries.SoundRegistry;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
-import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity_tyros_class;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.Vec3;
 
-public class EnderBossAttackGoal extends GenericAnimatedWarlockAttackGoal<DarkDoppelgangerEntity> {
+public class EnderBossAttackGoal extends GenericAnimatedWarlockAttackGoal<DarkDoppelgangerEntity_tyros_class> {
     private static final AttributeModifier MODIFIER_ENDERIFIER = new AttributeModifier(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "enderifier"), 0.50, AttributeModifier.Operation.ADD_VALUE);
 
-    public EnderBossAttackGoal(DarkDoppelgangerEntity abstractSpellCastingMob, double pSpeedModifier, int minAttackInterval, int maxAttackInterval) {
+    public EnderBossAttackGoal(DarkDoppelgangerEntity_tyros_class abstractSpellCastingMob, double pSpeedModifier, int minAttackInterval, int maxAttackInterval) {
         super(abstractSpellCastingMob, pSpeedModifier, minAttackInterval, maxAttackInterval);
     }
 

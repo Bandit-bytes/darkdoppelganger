@@ -3,14 +3,14 @@ package net.bandit.darkdoppelganger.entity.ai;
 import io.redspace.ironsspellbooks.api.util.Utils;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.AnimatedActionGoal;
 import io.redspace.ironsspellbooks.registries.SoundRegistry;
-import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity_tyros_class;
 import net.bandit.darkdoppelganger.entity.EnderDaggerEntity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
-public class EnderDaggerZoneAbilityGoal extends AnimatedActionGoal<DarkDoppelgangerEntity> {
-    public EnderDaggerZoneAbilityGoal(DarkDoppelgangerEntity mob) {
+public class EnderDaggerZoneAbilityGoal extends AnimatedActionGoal<DarkDoppelgangerEntity_tyros_class> {
+    public EnderDaggerZoneAbilityGoal(DarkDoppelgangerEntity_tyros_class mob) {
         super(mob);
     }
 

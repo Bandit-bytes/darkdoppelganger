@@ -1,7 +1,6 @@
 package net.bandit.darkdoppelganger.client;
 
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
-import net.bandit.darkdoppelganger.client.gui.DarkDoppelBossBar;
 import net.bandit.darkdoppelganger.entity.EnderDaggerRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
