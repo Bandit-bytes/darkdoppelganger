@@ -46,7 +46,7 @@ public class DarkDoppelgangerMod {
     }
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
-        event.put(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.createAttributes().build());
+        event.put(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.prepareAttributes().build());
     }
 
     @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
