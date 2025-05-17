@@ -1004,6 +1004,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
          */
         boolean canParry = this.isAggressive() &&
                 !isImmobile() &&
+                !this.isClone &&
                 !attackGoal.isActing() &&
                 pSource.getEntity() != null &&
                 pSource.getSourcePosition() != null && pSource.getSourcePosition().subtract(this.position()).normalize().dot(this.getForward()) >= 0.35
