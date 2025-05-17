@@ -19,7 +19,7 @@ public class EnderDaggerSwarmAbilityGoal extends AnimatedActionGoal<DarkDoppelga
 
     @Override
     protected boolean canStartAction() {
-        return mob.getTarget() != null;
+        return mob.getTarget() != null && !mob.isClone;
     }
 
     @Override

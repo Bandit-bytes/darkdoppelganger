@@ -16,7 +16,7 @@ public class EnderDaggerZoneAbilityGoal extends AnimatedActionGoal<DarkDoppelgan
 
     @Override
     protected boolean canStartAction() {
-        return mob.onGround() && mob.getTarget() != null && mob.distanceToSqr(mob.getTarget()) > 6 * 6;
+        return mob.onGround() && !mob.isClone && mob.getTarget() != null && mob.distanceToSqr(mob.getTarget()) > 6 * 6;
     }
 
     @Override

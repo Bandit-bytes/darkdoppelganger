@@ -4,9 +4,8 @@ import io.redspace.ironsspellbooks.IronsSpellbooks;
 import io.redspace.ironsspellbooks.api.network.IClientEventEntity;
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
-import io.redspace.ironsspellbooks.api.util.FogManager;
-import io.redspace.ironsspellbooks.api.util.MusicManager;
-import io.redspace.ironsspellbooks.api.util.Utils;
+import io.redspace.ironsspellbooks.api.util.*;
+import io.redspace.ironsspellbooks.capabilities.magic.MagicManager;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
 import io.redspace.ironsspellbooks.entity.mobs.goals.MomentHurtByTargetGoal;
@@ -18,9 +17,12 @@ import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAtt
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.FireBossMoveControl;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.InvokeDaggerKeyframe;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.NotIdioticNavigation;
+import io.redspace.ironsspellbooks.entity.spells.FireEruptionAoe;
 import io.redspace.ironsspellbooks.network.EntityEventPacket;
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
+import io.redspace.ironsspellbooks.registries.ParticleRegistry;
 import io.redspace.ironsspellbooks.registries.SoundRegistry;
+import io.redspace.ironsspellbooks.util.ParticleHelper;
 import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.ai.*;
@@ -43,6 +45,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.DifficultyInstance;
@@ -93,8 +96,22 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     private boolean canAnimateOver;
     private int destroyBlockDelay;
+    private boolean stopHeadAnimation;
 
     public float isAnimatingDampener;
+
+    /*
+     * Stance Break Mechanic
+     * - In order for a long-form cinematic and serializable ability to take place, we must store a decent bit of data on the entity itself
+     * - At 2/3 and 1/3 health, the boss's stance will break, interrupting all actions, and playing a short stun animation
+     * - At the end of the stun, he performs 3 strikes of Raise Hell
+     * - He goes into Soul Mode on the second break
+     */
+    int stanceBreakCounter;
+    int stanceBreakTimer;
+    static final int STANCE_BREAK_ANIM_TIME = (int) (9 * 20);
+    static final int STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP = (int) (6.5 * 20);
+    static final int STANCE_BREAK_COUNT = 2;
 
     @Nullable
     private Player summonerPlayer;
@@ -235,19 +252,19 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
     private void applyAttributesFromConfig() {
         if (Config.DOPPELGANGER_HEALTH != null) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get() / MAX_MINIONS);
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);
         }
         if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
-            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get()/2);
         }
         if (Config.DOPPELGANGER_MOVEMENT_SPEED != null) {
             this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(Config.DOPPELGANGER_MOVEMENT_SPEED.get());
         }
         if (Config.DOPPELGANGER_KNOCKBACK_RESISTANCE != null) {
-            this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Config.DOPPELGANGER_KNOCKBACK_RESISTANCE.get());
+            this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Config.DOPPELGANGER_KNOCKBACK_RESISTANCE.get()/2);
         }
         if (Config.DOPPELGANGER_ARMOR != null) {
-            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get());
+            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get()/2);
         }
         if (Config.DOPPELGANGER_FOLLOW_RANGE != null) {
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Config.DOPPELGANGER_FOLLOW_RANGE.get());
@@ -286,9 +303,65 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         return summonerPlayer;
     }
 
+    public void triggerStanceBreak() {
+        stanceBreakCounter++;
+        stanceBreakTimer = STANCE_BREAK_ANIM_TIME;
+        this.castComplete();
+        this.attackGoal.stopMeleeAction();
+        this.serverTriggerAnimation("fire_boss_break_stance");
+        this.playSound(SoundRegistry.BOSS_STANCE_BREAK.get(), 3, 1);
+        Vec3 vec3 = this.getBoundingBox().getCenter();
+        MagicManager.spawnParticles(level(), ParticleRegistry.EMBEROUS_ASH_PARTICLE.get(), vec3.x, vec3.y, vec3.z, 25, 0.2, 0.2, 0.2, 0.12, false);
+    }
+
+    public boolean isStanceBroken() {
+        return stanceBreakTimer > 0;
+    }
+
+    @Override
+    protected boolean isImmobile() {
+        return super.isImmobile() || isStanceBroken();
+    }
+
+    private void handleStanceBreakSequence() {
+        int tick = STANCE_BREAK_ANIM_TIME - stanceBreakTimer;
+        if (stanceBreakCounter == 2) {
+            if (tick < 80) {
+                var f = Mth.lerp(tick / 80f, 0.2, 0.4);
+                Vec3 vec3 = this.getBoundingBox().getCenter();
+                MagicManager.spawnParticles(level(), ParticleHelper.UNSTABLE_ENDER, vec3.x, vec3.y, vec3.z, 12 + (int) (f * 10), f, f, f, 0.02, true);
+            }
+        }
+        if (tick >= STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP) {
+            if (tick == STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP) {
+                createEruptionEntity(8, (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                playSound(SoundRegistry.FIRE_ERUPTION_SLAM.get(), 2, 1.2f);
+            } else if (tick == STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP + 25) {
+                createEruptionEntity(11, (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2);
+                playSound(SoundRegistry.FIRE_ERUPTION_SLAM.get(), 3, 1f);
+            } else if (tick == STANCE_BREAK_BEGIN_SLAMS_TIMESTAMP + 50) {
+                createEruptionEntity(15, (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 3);
+                playSound(SoundRegistry.FIRE_ERUPTION_SLAM.get(), 4, 0.9f);
+            }
+        }
+    }
+
+    private void createEruptionEntity(float radius, float damage) {
+        Vec3 forward = this.getForward().multiply(1, 0, 1).normalize().scale(3);
+        Vec3 pos = Utils.moveToRelativeGroundLevel(level(), this.position().add(forward).add(0, 1, 0), 4);
+        FireEruptionAoe aoe = new FireEruptionAoe(level(), radius);
+        aoe.setOwner(this);
+        aoe.setDamage(damage);
+        aoe.moveTo(pos);
+        level().addFreshEntity(aoe);
+        CameraShakeManager.addCameraShake(new CameraShakeData(10 + (int) radius, pos, radius * 2 + 5));
+    }
+
     private void triggerSecondPhase() {
         secondPhaseTriggered = true;
         setHealth(getMaxHealth());
+
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.ELDRITCH_BLAST_SPELL.get(), 5, 5, 80, 240, 1));
 
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
             player.sendSystemMessage(Component.literal("The Dark Doppelganger has entered its Second Phase!").withStyle(ChatFormatting.DARK_PURPLE));
@@ -314,6 +387,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         thirdPhaseTriggered = true;
         setHealth(getMaxHealth());
         bossEvent.setName(Component.literal("Dark Doppelganger - Final Phase"));
+
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.SCULK_TENTACLES_SPELL.get(), 4, 4, 200, 300, 1));
 
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
             level().playSound(null, getX(), getY(), getZ(), net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
@@ -477,6 +552,51 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.bossEvent.removeAllPlayers();
         }
         super.die(cause);
+
+        if (this.isDeadOrDying() && !this.level().isClientSide) {
+            this.stanceBreakTimer = 0;
+            this.castComplete();
+            this.attackGoal.stop();
+            this.serverTriggerAnimation("fire_boss_death");
+            this.playSound(net.bandit.darkdoppelganger.registry.SoundRegistry.BOSS_ROAR.get(), 5, 1);
+        }
+    }
+
+    @Override
+    protected void tickDeath() {
+        this.deathTime++;
+        if (!level().isClientSide) {
+            float scale = getScale();
+            Vec3 vec3 = this.position();
+            deathParticles();
+            if (this.deathTime >= 160 && !this.level().isClientSide() && !this.isRemoved()) {
+                this.remove(Entity.RemovalReason.KILLED);
+                MagicManager.spawnParticles(level(), ParticleRegistry.UNSTABLE_ENDER_PARTICLE.get(), vec3.x, vec3.y + 1, vec3.z, 50, 0.3, 0.3, 0.3, 0.2 * scale, true);
+            }
+        }
+    }
+
+    private void deathParticles() {
+        float scale = getScale();
+        Vec3 vec3 = this.position();
+        int particles = (int) Mth.lerp(Math.clamp((deathTime - 20) / 60f, 0, 1), 0, 5 * scale);
+        float range = Mth.lerp(Math.clamp((deathTime - 20) / 80f, 0, 1), 0, 0.4f * scale);
+        if (particles > 0) {
+            MagicManager.spawnParticles(level(), ParticleRegistry.UNSTABLE_ENDER_PARTICLE.get(), vec3.x, vec3.y + 1, vec3.z, particles, range, range, range, 100, false);
+        }
+    }
+
+    @Override
+    public void knockback(double pStrength, double pX, double pZ) {
+        if (isStanceBroken()) {
+            return;
+        }
+        super.knockback(pStrength, pX, pZ);
+    }
+
+    @Override
+    public boolean isPushable() {
+        return super.isPushable() && !isImmobile();
     }
 
     private int playerScale;
@@ -583,15 +703,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeBias(1f, 1f)
                 .setSpells(
-                        List.of(SpellRegistry.MAGIC_MISSILE_SPELL.get(), SpellRegistry.ELDRITCH_BLAST_SPELL.get(), SpellRegistry.BLOOD_SLASH_SPELL.get(), SpellRegistry.FIREBOLT_SPELL.get(), SpellRegistry.WISP_SPELL.get(), SpellRegistry.BALL_LIGHTNING_SPELL.get()),
-                        List.of(SpellRegistry.FANG_WARD_SPELL.get(), SpellRegistry.FROSTWAVE_SPELL.get(), SpellRegistry.EARTHQUAKE_SPELL.get()),
-                        List.of(SpellRegistry.BURNING_DASH_SPELL.get()),
-                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get())
+                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.FIREBALL_SPELL.get(), SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.POISON_SPLASH_SPELL.get(), SpellRegistry.ICE_SPIKES_SPELL.get()),
+                        List.of(SpellRegistry.EARTHQUAKE_SPELL.get(), SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.SHOCKWAVE_SPELL.get()),
+                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.BLOOD_STEP_SPELL.get()),
+                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.EVASION_SPELL.get())
                 );
-        if(!isClone){
-            this.goalSelector.addGoal(2, new EnderDaggerSwarmAbilityGoal(this));
-            this.goalSelector.addGoal(2, new EnderDaggerZoneAbilityGoal(this));
-        }
+        this.goalSelector.addGoal(2, new EnderDaggerSwarmAbilityGoal(this));
+        this.goalSelector.addGoal(2, new EnderDaggerZoneAbilityGoal(this));
         this.goalSelector.addGoal(3, attackGoal);
 
         this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
@@ -693,14 +811,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             if (this.tickCount % 10 == 0) {
                 this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(20, 10, 20)).forEach(target -> {
                     if (target != this) {
-                        if (target.hasEffect(MobEffects.DIG_SPEED)) {
-                            target.removeEffect(MobEffects.DIG_SPEED);
-                        }
                         if (target.hasEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate())) {
                             target.removeEffect(MobEffectRegistry.ABYSSAL_SHROUD.getDelegate());
-                        }
-                        if (target.hasEffect( MobEffectRegistry.EVASION.getDelegate())) {
-                            target.removeEffect(MobEffectRegistry.EVASION.getDelegate());
                         }
                         if (target.hasEffect(MobEffectRegistry.HASTENED.getDelegate())) {
                             target.removeEffect( MobEffectRegistry.HASTENED.getDelegate());
@@ -710,6 +822,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         }
                     }
                 });
+            }
+        }
+
+        if (!level().isClientSide) {
+            if (isStanceBroken()) {
+                stanceBreakTimer--;
+                handleStanceBreakSequence();
             }
         }
 
@@ -759,6 +878,19 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
+        float maxHealth = this.getMaxHealth();
+        float currentHealth = this.getHealth();
+        if (stanceBreakCounter == 0) {
+            if (currentHealth < maxHealth * .75f) {
+                triggerStanceBreak();
+                return;
+            }
+        } else if (stanceBreakCounter == 1) {
+            if (currentHealth < maxHealth * .333f) {
+                triggerStanceBreak();
+                return;
+            }
+        }
         if (tickCount > 400 && this.getTarget() == null && this.tickCount - this.getLastHurtByMobTimestamp() > 200) {
             if (tickCount % 20 == 0) {
                 this.heal(5);
@@ -815,6 +947,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     public void playAnimation(String animationId) {
         animationToPlay = RawAnimation.begin().thenPlay(animationId);
         canAnimateOver = animationId.equals("summon_fiery_daggers");
+        stopHeadAnimation = animationId.equals("fire_boss_break_stance");
+    }
+
+    @Override
+    public boolean shouldAlwaysAnimateHead() {
+        return !stopHeadAnimation;
     }
 
     private PlayState predicate(AnimationState<DarkDoppelgangerEntity> animationEvent) {
@@ -876,6 +1014,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.playSound(SoundRegistry.FIRE_DAGGER_PARRY.get());
             return false;
         }
+        if (isStanceBroken()) {
+            pAmount *= 0.60f;
+        }
         // damage limiter
         var limit = getMaxHealth() * 0.025f;
         if (pAmount > limit) {
@@ -896,11 +1037,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4f) {
             triggerSecondPhase();
-            if (Config.DOPPELGANGER_HARD_MODE.get()) {
-                setThirdPhaseGoals();
-            } else {
-                setSecondPhaseGoals();
-            }
             return false;
         }
 
@@ -908,8 +1044,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             triggerThirdPhase();
             if (Config.DOPPELGANGER_HARD_MODE.get()) {
                 setFinalPhaseGoals();
-            } else {
-                setThirdPhaseGoals();
             }
             return false;
         }
@@ -922,128 +1056,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         return super.hurt(pSource, pAmount);
     }
 
-    protected void setSecondPhaseGoals() {
-        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.5f, 50, 75)
-                .setMoveset(List.of(
-                        AttackAnimationData.builder("scythe_dagger_double_horizontal")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(15, new Vec3(0, 0, .25), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new InvokeDaggerKeyframe(35),
-                                        new EnderBossAttackKeyframe(36, new Vec3(0, 0, .75), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new AttackKeyframe(42, new Vec3(0, 0, 0))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_backpedal")
-                                .length(40)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, .3, -2), new EnderBossAttackKeyframe.SwingData(false, true))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_sideslash_downslash_sideslash")
-                                .length(62)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(18, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new EnderBossAttackKeyframe(50, new Vec3(0, 0.1, 1.25), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_jump_combo")
-                                .length(45)
-                                .cancellable()
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, 1, 0), new Vec3(0, 1.15, .1), new EnderBossAttackKeyframe.SwingData(true, false)),
-                                        new EnderBossAttackKeyframe(35, new Vec3(0, 0, -.2), new Vec3(0, 0, 0.5), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_downslash_sideslash")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(22, new Vec3(0, 0, .5f), new Vec3(0, -.2, 0), new EnderBossAttackKeyframe.SwingData(true, true)),
-                                        new EnderBossAttackKeyframe(40, new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_horizontal_slash_spin")
-                                .length(45)
-                                .area(0.25f)
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(14, new Vec3(0, 0.1, 1.25), new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0.1, 1.85), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build()
-
-                ))
-                .setComboChance(1f)
-                .setMeleeAttackInverval(10, 30)
-                .setMeleeBias(1f, 1f)
-                .setSpells(
-                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.SONIC_BOOM_SPELL.get(), SpellRegistry.BLOOD_SLASH_SPELL.get(), SpellRegistry.FIRE_ARROW_SPELL.get(), SpellRegistry.BALL_LIGHTNING_SPELL.get(), SpellRegistry.FIREFLY_SWARM_SPELL.get()),
-                        List.of(SpellRegistry.FANG_WARD_SPELL.get(), SpellRegistry.EARTHQUAKE_SPELL.get()),
-                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.FROST_STEP_SPELL.get()),
-                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.CHARGE_SPELL.get())
-                );
-    }
-
-    protected void setThirdPhaseGoals() {
-        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.5f, 50, 75)
-                .setMoveset(List.of(
-                        AttackAnimationData.builder("scythe_dagger_double_horizontal")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(15, new Vec3(0, 0, .25), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new InvokeDaggerKeyframe(35),
-                                        new EnderBossAttackKeyframe(36, new Vec3(0, 0, .75), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new AttackKeyframe(42, new Vec3(0, 0, 0))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_backpedal")
-                                .length(40)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, .3, -2), new EnderBossAttackKeyframe.SwingData(false, true))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_sideslash_downslash_sideslash")
-                                .length(62)
-                                .rangeMultiplier(2f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(18, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, false)),
-                                        new EnderBossAttackKeyframe(50, new Vec3(0, 0.1, 1.25), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_jump_combo")
-                                .length(45)
-                                .cancellable()
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(20, new Vec3(0, 1, 0), new Vec3(0, 1.15, .1), new EnderBossAttackKeyframe.SwingData(true, false)),
-                                        new EnderBossAttackKeyframe(35, new Vec3(0, 0, -.2), new Vec3(0, 0, 0.5), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_downslash_sideslash")
-                                .length(60)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(22, new Vec3(0, 0, .5f), new Vec3(0, -.2, 0), new EnderBossAttackKeyframe.SwingData(true, true)),
-                                        new EnderBossAttackKeyframe(40, new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build(),
-                        AttackAnimationData.builder("scythe_horizontal_slash_spin")
-                                .length(45)
-                                .area(0.25f)
-                                .rangeMultiplier(3f)
-                                .attacks(
-                                        new EnderBossAttackKeyframe(14, new Vec3(0, 0.1, 1.25), new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, true)),
-                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0.1, 1.85), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
-                                ).build()
-
-                ))
-                .setComboChance(1f)
-                .setMeleeAttackInverval(10, 30)
-                .setMeleeBias(1f, 1f)
-                .setSpells(
-                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.SCULK_TENTACLES_SPELL.get(), SpellRegistry.FIREBALL_SPELL.get(), SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.RAY_OF_FROST_SPELL.get(), SpellRegistry.POISON_SPLASH_SPELL.get()),
-                        List.of(SpellRegistry.EARTHQUAKE_SPELL.get(), SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.SHOCKWAVE_SPELL.get()),
-                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.BLOOD_STEP_SPELL.get()),
-                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.EVASION_SPELL.get())
-                );
-    }
-
     protected void setFinalPhaseGoals() {
-        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.7f, 50, 75)
+        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.5f, 50, 75)
                 .setMoveset(List.of(
                         AttackAnimationData.builder("scythe_dagger_double_horizontal")
                                 .length(60)
@@ -1100,6 +1114,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.BLOOD_STEP_SPELL.get()),
                         List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.HASTE_SPELL.get(), SpellRegistry.SLOW_SPELL.get(), SpellRegistry.BLIGHT_SPELL.get())
                 );
+
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.HEAL_SPELL.get(), 8, 8, 200, 300, 1));
     }
 
     @Override
@@ -1107,12 +1123,24 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         super.addAdditionalSaveData(pCompound);
         pCompound.putInt("playerScale", playerScale);
         pCompound.putLong("unloadedGametime", level().getGameTime());
+        pCompound.putInt("stanceBreakCount", stanceBreakCounter);
+        if (stanceBreakTimer > 0) {
+            pCompound.putInt("stanceBreakTime", stanceBreakTimer);
+        }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
         this.playerScale = pCompound.getInt("playerScale");
+        this.stanceBreakCounter = pCompound.getInt("stanceBreakCount");
+        int stanceTime = pCompound.getInt("stanceBreakTime");
+        if (stanceTime > 0) {
+            this.stanceBreakTimer = stanceTime;
+            if (level().isClientSide) {
+                this.animationToPlay = RawAnimation.begin().thenPlay("fire_boss_break_stance");
+            }
+        }
     }
 
     @Override
@@ -1137,4 +1165,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     protected PathNavigation createNavigation(Level pLevel) {
         return new NotIdioticNavigation(this, pLevel);
     }
+
+
 }
