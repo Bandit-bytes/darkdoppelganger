@@ -18,6 +18,7 @@ import net.bandit.darkdoppelganger.registry.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
@@ -307,21 +308,21 @@ public void setSummonerPlayer(Player summoner) {
         this.level().addFreshEntity(portal);
     }
 
-    private void copyAttribute(net.minecraft.world.entity.ai.attributes.Attribute attribute) {
-//        AttributeInstance sourceAttribute = this.summonerPlayer.getAttribute((Holder<Attribute>) attribute);
-//        AttributeInstance targetAttribute = this.getAttribute((Holder<Attribute>) attribute);
-//
-//        if (sourceAttribute != null && targetAttribute != null) {
-//            targetAttribute.setBaseValue(sourceAttribute.getBaseValue());
-//
-//            for (AttributeModifier modifier : targetAttribute.getModifiers()) {
-//                targetAttribute.removeModifier(modifier);
-//            }
-//
-//            for (AttributeModifier modifier : sourceAttribute.getModifiers()) {
-//                targetAttribute.addPermanentModifier(modifier);
-//            }
-//        }
+    private void copyAttribute(Attribute attribute) {
+        AttributeInstance sourceAttribute = this.summonerPlayer.getAttribute((Holder<Attribute>) attribute);
+        AttributeInstance targetAttribute = this.getAttribute((Holder<Attribute>) attribute);
+
+        if (sourceAttribute != null && targetAttribute != null) {
+            targetAttribute.setBaseValue(sourceAttribute.getBaseValue());
+
+            for (AttributeModifier modifier : targetAttribute.getModifiers()) {
+                targetAttribute.removeModifier(modifier);
+            }
+
+            for (AttributeModifier modifier : sourceAttribute.getModifiers()) {
+                targetAttribute.addPermanentModifier(modifier);
+            }
+        }
     }
 
     private void adjustAttributesFromConfig() {
