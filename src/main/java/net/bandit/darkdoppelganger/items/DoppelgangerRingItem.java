@@ -19,16 +19,9 @@ import static io.redspace.ironsspellbooks.api.registry.AttributeRegistry.COOLDOW
 public class DoppelgangerRingItem extends CurioBaseItem {
     private static final int BASE_COOLDOWN = 100;
     private static final double HEALTH_BONUS = 20.0;
-    private static final double COOLDOWN_REDUCTION_PERCENT = 0.2;
 
     public DoppelgangerRingItem(Properties properties) {
         super(properties);
-
-        // Configure the ring's attributes
-        withAttributes(
-                new AttributeContainer(Attributes.MAX_HEALTH, HEALTH_BONUS, AttributeModifier.Operation.ADD_VALUE),
-                new AttributeContainer(COOLDOWN_REDUCTION, COOLDOWN_REDUCTION_PERCENT, AttributeModifier.Operation.ADD_VALUE)
-        );
     }
 
     /**
