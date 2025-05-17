@@ -9,6 +9,7 @@ import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.InvokeDaggerKey
 import io.redspace.ironsspellbooks.particle.FlameStrikeParticleOptions;
 import io.redspace.ironsspellbooks.registries.SoundRegistry;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity_tyros_class;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -16,10 +17,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.Vec3;
 
-public class EnderBossAttackGoal extends GenericAnimatedWarlockAttackGoal<DarkDoppelgangerEntity_tyros_class> {
+public class EnderBossAttackGoal extends GenericAnimatedWarlockAttackGoal<DarkDoppelgangerEntity> {
     private static final AttributeModifier MODIFIER_ENDERIFIER = new AttributeModifier(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "enderifier"), 0.50, AttributeModifier.Operation.ADD_VALUE);
 
-    public EnderBossAttackGoal(DarkDoppelgangerEntity_tyros_class abstractSpellCastingMob, double pSpeedModifier, int minAttackInterval, int maxAttackInterval) {
+    public EnderBossAttackGoal(DarkDoppelgangerEntity abstractSpellCastingMob, double pSpeedModifier, int minAttackInterval, int maxAttackInterval) {
         super(abstractSpellCastingMob, pSpeedModifier, minAttackInterval, maxAttackInterval);
     }
 
@@ -67,7 +68,7 @@ public class EnderBossAttackGoal extends GenericAnimatedWarlockAttackGoal<DarkDo
     @Override
     protected void onHitFrame(AttackKeyframe attackKeyframe, float meleeRange) {
         if (attackKeyframe instanceof InvokeDaggerKeyframe) {
-            this.mob.procSpectralDagger();
+//            this.mob.procSpectralDagger();
             this.mob.playSound(SoundRegistry.ENDER_CAST.get(), 3, 1f);
         } else {
             super.onHitFrame(attackKeyframe, meleeRange);
@@ -121,10 +122,10 @@ public class EnderBossAttackGoal extends GenericAnimatedWarlockAttackGoal<DarkDo
         }
         // delay attacking while the dagger is active (primarily to let parries play out)
         // or sometimes if we are midair (reduce, but not remove, ariel attacks)
-        boolean delayNextAttack = mob.spectralDaggerActive() || (!mob.onGround() && mob.getRandom().nextBoolean());
-        if (delayNextAttack) {
-            meleeAttackDelay++;
-        }
+//        boolean delayNextAttack = mob.spectralDaggerActive() || (!mob.onGround() && mob.getRandom().nextBoolean());
+//        if (delayNextAttack) {
+//            meleeAttackDelay++;
+//        }
         super.handleAttackLogic(distanceSquared);
     }
 

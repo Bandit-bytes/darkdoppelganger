@@ -1,6 +1,6 @@
 package net.bandit.darkdoppelganger.event;
 
-import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity_tyros_class;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.commands.CommandSourceStack;
@@ -70,7 +70,7 @@ public class SummonDoppelganger {
             }
             BlockPos spawnPosition = groundPos.above();
 
-            DarkDoppelgangerEntity_tyros_class entity = new DarkDoppelgangerEntity_tyros_class(EntityRegistry.DARK_DOPPELGANGER.get(), serverWorld);
+            DarkDoppelgangerEntity entity = new DarkDoppelgangerEntity(EntityRegistry.DARK_DOPPELGANGER.get(), serverWorld);
             entity.setPos(spawnPosition.getX() + 0.5, spawnPosition.getY(), spawnPosition.getZ() + 0.5);
             entity.setYRot(-player.getYRot());
             entity.setSummonerPlayer(player);
