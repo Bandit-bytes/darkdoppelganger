@@ -603,16 +603,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeBias(1f, 1f)
                 .setSpells(
-                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.ELDRITCH_BLAST_SPELL.get(), SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.SONIC_BOOM_SPELL.get()),
-                        List.of(),
-                        List.of(),
-                        List.of()
+                        List.of(SpellRegistry.MAGIC_MISSILE_SPELL.get(), SpellRegistry.ELDRITCH_BLAST_SPELL.get(), SpellRegistry.BLOOD_SLASH_SPELL.get(), SpellRegistry.FIREBOLT_SPELL.get(), SpellRegistry.WISP_SPELL.get(), SpellRegistry.BALL_LIGHTNING_SPELL.get()),
+                        List.of(SpellRegistry.FANG_WARD_SPELL.get(), SpellRegistry.FROSTWAVE_SPELL.get(), SpellRegistry.EARTHQUAKE_SPELL.get()),
+                        List.of(SpellRegistry.BURNING_DASH_SPELL.get()),
+                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get())
                 );
-        this.goalSelector.addGoal(2, new EnderDaggerSwarmAbilityGoal(this));
         if(!isClone){
+            this.goalSelector.addGoal(2, new EnderDaggerSwarmAbilityGoal(this));
             this.goalSelector.addGoal(2, new EnderDaggerZoneAbilityGoal(this));
         }
-        //this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.RAISE_HELL_SPELL.get(), 5, 5, 80, 240, 1));
         this.goalSelector.addGoal(3, attackGoal);
 
         this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
@@ -944,18 +943,183 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     protected void setSecondPhaseGoals() {
-        //this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
-        //this.goalSelector.removeAllGoals((x) -> true);
+        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.5f, 50, 75)
+                .setMoveset(List.of(
+                        AttackAnimationData.builder("scythe_dagger_double_horizontal")
+                                .length(60)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(15, new Vec3(0, 0, .25), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new InvokeDaggerKeyframe(35),
+                                        new EnderBossAttackKeyframe(36, new Vec3(0, 0, .75), new EnderBossAttackKeyframe.SwingData(false, false)),
+                                        new AttackKeyframe(42, new Vec3(0, 0, 0))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_backpedal")
+                                .length(40)
+                                .rangeMultiplier(2f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(20, new Vec3(0, .3, -2), new EnderBossAttackKeyframe.SwingData(false, true))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_sideslash_downslash_sideslash")
+                                .length(62)
+                                .rangeMultiplier(2f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(18, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, false)),
+                                        new EnderBossAttackKeyframe(50, new Vec3(0, 0.1, 1.25), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_jump_combo")
+                                .length(45)
+                                .cancellable()
+                                .rangeMultiplier(3f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(20, new Vec3(0, 1, 0), new Vec3(0, 1.15, .1), new EnderBossAttackKeyframe.SwingData(true, false)),
+                                        new EnderBossAttackKeyframe(35, new Vec3(0, 0, -.2), new Vec3(0, 0, 0.5), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_downslash_sideslash")
+                                .length(60)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(22, new Vec3(0, 0, .5f), new Vec3(0, -.2, 0), new EnderBossAttackKeyframe.SwingData(true, true)),
+                                        new EnderBossAttackKeyframe(40, new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_horizontal_slash_spin")
+                                .length(45)
+                                .area(0.25f)
+                                .rangeMultiplier(3f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(14, new Vec3(0, 0.1, 1.25), new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0.1, 1.85), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build()
+
+                ))
+                .setComboChance(1f)
+                .setMeleeAttackInverval(10, 30)
+                .setMeleeBias(1f, 1f)
+                .setSpells(
+                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.SONIC_BOOM_SPELL.get(), SpellRegistry.BLOOD_SLASH_SPELL.get(), SpellRegistry.FIRE_ARROW_SPELL.get(), SpellRegistry.BALL_LIGHTNING_SPELL.get(), SpellRegistry.FIREFLY_SWARM_SPELL.get()),
+                        List.of(SpellRegistry.FANG_WARD_SPELL.get(), SpellRegistry.EARTHQUAKE_SPELL.get()),
+                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.FROST_STEP_SPELL.get()),
+                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.CHARGE_SPELL.get())
+                );
     }
 
     protected void setThirdPhaseGoals() {
-        //this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
-        //this.goalSelector.removeAllGoals((x) -> true);
+        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.5f, 50, 75)
+                .setMoveset(List.of(
+                        AttackAnimationData.builder("scythe_dagger_double_horizontal")
+                                .length(60)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(15, new Vec3(0, 0, .25), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new InvokeDaggerKeyframe(35),
+                                        new EnderBossAttackKeyframe(36, new Vec3(0, 0, .75), new EnderBossAttackKeyframe.SwingData(false, false)),
+                                        new AttackKeyframe(42, new Vec3(0, 0, 0))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_backpedal")
+                                .length(40)
+                                .rangeMultiplier(2f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(20, new Vec3(0, .3, -2), new EnderBossAttackKeyframe.SwingData(false, true))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_sideslash_downslash_sideslash")
+                                .length(62)
+                                .rangeMultiplier(2f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(18, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, false)),
+                                        new EnderBossAttackKeyframe(50, new Vec3(0, 0.1, 1.25), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_jump_combo")
+                                .length(45)
+                                .cancellable()
+                                .rangeMultiplier(3f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(20, new Vec3(0, 1, 0), new Vec3(0, 1.15, .1), new EnderBossAttackKeyframe.SwingData(true, false)),
+                                        new EnderBossAttackKeyframe(35, new Vec3(0, 0, -.2), new Vec3(0, 0, 0.5), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_downslash_sideslash")
+                                .length(60)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(22, new Vec3(0, 0, .5f), new Vec3(0, -.2, 0), new EnderBossAttackKeyframe.SwingData(true, true)),
+                                        new EnderBossAttackKeyframe(40, new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_horizontal_slash_spin")
+                                .length(45)
+                                .area(0.25f)
+                                .rangeMultiplier(3f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(14, new Vec3(0, 0.1, 1.25), new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0.1, 1.85), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build()
+
+                ))
+                .setComboChance(1f)
+                .setMeleeAttackInverval(10, 30)
+                .setMeleeBias(1f, 1f)
+                .setSpells(
+                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.SCULK_TENTACLES_SPELL.get(), SpellRegistry.FIREBALL_SPELL.get(), SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.RAY_OF_FROST_SPELL.get(), SpellRegistry.POISON_SPLASH_SPELL.get()),
+                        List.of(SpellRegistry.EARTHQUAKE_SPELL.get(), SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.SHOCKWAVE_SPELL.get()),
+                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.BLOOD_STEP_SPELL.get()),
+                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.EVASION_SPELL.get())
+                );
     }
 
     protected void setFinalPhaseGoals() {
-        //this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
-        //this.goalSelector.removeAllGoals((x) -> true);
+        this.attackGoal = (EnderBossAttackGoal) new EnderBossAttackGoal(this, 1.7f, 50, 75)
+                .setMoveset(List.of(
+                        AttackAnimationData.builder("scythe_dagger_double_horizontal")
+                                .length(60)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(15, new Vec3(0, 0, .25), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new InvokeDaggerKeyframe(35),
+                                        new EnderBossAttackKeyframe(36, new Vec3(0, 0, .75), new EnderBossAttackKeyframe.SwingData(false, false)),
+                                        new AttackKeyframe(42, new Vec3(0, 0, 0))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_backpedal")
+                                .length(40)
+                                .rangeMultiplier(2f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(20, new Vec3(0, .3, -2), new EnderBossAttackKeyframe.SwingData(false, true))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_sideslash_downslash_sideslash")
+                                .length(62)
+                                .rangeMultiplier(2f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(18, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0, .45), new EnderBossAttackKeyframe.SwingData(false, false)),
+                                        new EnderBossAttackKeyframe(50, new Vec3(0, 0.1, 1.25), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_jump_combo")
+                                .length(45)
+                                .cancellable()
+                                .rangeMultiplier(3f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(20, new Vec3(0, 1, 0), new Vec3(0, 1.15, .1), new EnderBossAttackKeyframe.SwingData(true, false)),
+                                        new EnderBossAttackKeyframe(35, new Vec3(0, 0, -.2), new Vec3(0, 0, 0.5), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_downslash_sideslash")
+                                .length(60)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(22, new Vec3(0, 0, .5f), new Vec3(0, -.2, 0), new EnderBossAttackKeyframe.SwingData(true, true)),
+                                        new EnderBossAttackKeyframe(40, new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build(),
+                        AttackAnimationData.builder("scythe_horizontal_slash_spin")
+                                .length(45)
+                                .area(0.25f)
+                                .rangeMultiplier(3f)
+                                .attacks(
+                                        new EnderBossAttackKeyframe(14, new Vec3(0, 0.1, 1.25), new Vec3(0, .1, 0.8), new EnderBossAttackKeyframe.SwingData(false, true)),
+                                        new EnderBossAttackKeyframe(30, new Vec3(0, 0.1, 1.85), new Vec3(0, .3, 0.8), new EnderBossAttackKeyframe.SwingData(false, false))
+                                ).build()
+
+                ))
+                .setComboChance(1f)
+                .setMeleeAttackInverval(10, 30)
+                .setMeleeBias(1f, 1f)
+                .setSpells(
+                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.SCULK_TENTACLES_SPELL.get(), SpellRegistry.FIREBALL_SPELL.get(), SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.RAY_OF_FROST_SPELL.get(), SpellRegistry.SONIC_BOOM_SPELL.get(), SpellRegistry.ICE_SPIKES_SPELL.get(), SpellRegistry.BALL_LIGHTNING_SPELL.get(), SpellRegistry.ACID_ORB_SPELL.get()),
+                        List.of(SpellRegistry.EARTHQUAKE_SPELL.get(), SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.SHOCKWAVE_SPELL.get(), SpellRegistry.RAISE_HELL_SPELL.get(), SpellRegistry.OAKSKIN_SPELL.get()),
+                        List.of(SpellRegistry.BURNING_DASH_SPELL.get(), SpellRegistry.BLOOD_STEP_SPELL.get()),
+                        List.of(SpellRegistry.SUMMON_SWORDS.get(), SpellRegistry.CLEANSE_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.HASTE_SPELL.get(), SpellRegistry.SLOW_SPELL.get(), SpellRegistry.BLIGHT_SPELL.get())
+                );
     }
 
     @Override
