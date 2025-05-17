@@ -217,7 +217,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get() + (Config.DOPPELGANGER_HEALTH.get() * extraHealthPercent));
         }
         if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
-            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get() + (Config.DOPPELGANGER_ATTACK_DAMAGE.get() * 0.25 * extraPlayers));
+            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
         }
         if (Config.DOPPELGANGER_MOVEMENT_SPEED != null) {
             this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(Config.DOPPELGANGER_MOVEMENT_SPEED.get());
@@ -226,7 +226,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Config.DOPPELGANGER_KNOCKBACK_RESISTANCE.get());
         }
         if (Config.DOPPELGANGER_ARMOR != null) {
-            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get() + (Config.DOPPELGANGER_ARMOR.get() * 0.25 * extraPlayers));
+            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get());
         }
         if (Config.DOPPELGANGER_FOLLOW_RANGE != null) {
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Config.DOPPELGANGER_FOLLOW_RANGE.get());

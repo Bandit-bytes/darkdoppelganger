@@ -9,6 +9,7 @@ import io.redspace.ironsspellbooks.api.spells.CastType;
 import io.redspace.ironsspellbooks.api.spells.SpellRarity;
 import io.redspace.ironsspellbooks.api.util.AnimationHolder;
 import io.redspace.ironsspellbooks.api.util.Utils;
+import io.redspace.ironsspellbooks.network.particles.TeleportParticlesPacket;
 import io.redspace.ironsspellbooks.spells.ender.TeleportSpell;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.PortalJoinEntity;
@@ -22,12 +23,16 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 import java.util.Optional;
@@ -105,6 +110,7 @@ public class DoppelPortalSpell extends AbstractSpell {
     @Override
     public void onCast(Level level, int spellLevel, LivingEntity entity, CastSource castSource, MagicData playerMagicData) {
         if(!portalSpawned){
+            entity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 80, 5, false, false, true));
             PortalLeaveEntity portal = new PortalLeaveEntity(EntityRegistry.PORTAL_LEAVE_ENTITY.get(), level);
             portalSpawned = true;
             portal.setYRot(entity.getYRot());
@@ -131,12 +137,13 @@ public class DoppelPortalSpell extends AbstractSpell {
             if (dest == null) {
                 dest = findTeleportLocation(level, entity, getDistance(spellLevel, entity));
             }
-//
-//            Messages.sendToPlayersTrackingEntity(new ClientboundTeleportParticles(entity.position(), dest), entity, true); is this needed?
+
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new TeleportParticlesPacket(entity.position(), dest));
+
             if (entity.isPassenger()) {
                 entity.stopRiding();
             }
-            entity.teleportTo(dest.x, dest.y, dest.z);
+            Utils.handleSpellTeleport(this, entity, dest);
             entity.resetFallDistance();
 
             playerMagicData.resetAdditionalCastData();
@@ -155,25 +162,26 @@ public class DoppelPortalSpell extends AbstractSpell {
 
     public static Vec3 findTeleportLocation(Level level, LivingEntity entity, float maxDistance) {
         var blockHitResult = Utils.getTargetBlock(level, entity, ClipContext.Fluid.NONE, maxDistance);
-        var pos = blockHitResult.getBlockPos();
+        return solveTeleportDestination(level, entity, blockHitResult.getBlockPos(), blockHitResult.getLocation());
+    }
 
+    public static Vec3 solveTeleportDestination(Level level, LivingEntity entity, BlockPos blockPos, Vec3 vec3) {
+        BlockPos pos = blockPos;
         Vec3 bbOffset = entity.getForward().normalize().multiply(entity.getBbWidth() / 3, 0, entity.getBbHeight() / 3);
-        Vec3 bbImpact = blockHitResult.getLocation().subtract(bbOffset);
-        //        Vec3 lower = level.clip(new ClipContext(start, start.add(0, maxSteps * -2, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null)).getLocation();
-        int ledgeY = (int) level.clip(new ClipContext(Vec3.atBottomCenterOf(pos).add(0, 3, 0), Vec3.atBottomCenterOf(pos), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, (Entity) null)).getLocation().y;
-        boolean isAir = level.getBlockState(new BlockPos(new Vec3i(pos.getX(), ledgeY, pos.getZ()))).isAir();
+        Vec3 bbImpact = vec3.subtract(bbOffset);
+
+        double ledgeY = level.clip(new ClipContext(Vec3.atBottomCenterOf(pos).add(0, 3, 0), Vec3.atBottomCenterOf(pos), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty())).getLocation().y;
+        boolean isAir = level.getBlockState(new BlockPos(new Vec3i(pos.getX(), (int) ledgeY, pos.getZ())).above()).isAir();
         boolean los = level.clip(new ClipContext(bbImpact, bbImpact.add(0, ledgeY - pos.getY(), 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
 
         if (isAir && los && Math.abs(ledgeY - pos.getY()) <= 3) {
-            Vec3 correctedPos = new Vec3(pos.getX(), ledgeY, pos.getZ());
-            return correctedPos.add(0.5, 0.076, 0.5);
-        } else {
-            return level.clip(new ClipContext(bbImpact, bbImpact.add(0, -entity.getBbHeight(), 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getLocation().add(0, 0.076, 0);
+            return new Vec3(pos.getX() + .5, ledgeY + 0.001, pos.getZ() + .5);
         }
+        return level.clip(new ClipContext(bbImpact, bbImpact.add(0, -entity.getBbHeight(), 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getLocation().add(0, 0.001, 0);
     }
 
     private float getDistance(int spellLevel, LivingEntity sourceEntity) {
-        return (float) (Utils.softCapFormula(getEntityPowerMultiplier(sourceEntity)) * getSpellPower(spellLevel + 8, null));
+        return (float) (Utils.softCapFormula(getEntityPowerMultiplier(sourceEntity)) * getSpellPower(spellLevel, null)) * 5;
     }
 
     @Override
