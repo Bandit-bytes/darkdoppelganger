@@ -115,17 +115,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         return new NotIdioticNavigation(this, pLevel);
     }
 
-//    public void setSummonerPlayer(Player summoner) {
-//        this.summonerPlayer = summoner;
-//        if (summoner != null) {
-//            for (EquipmentSlot slot : EquipmentSlot.values()) {
-//                ItemStack itemStack = summoner.getItemBySlot(slot);
-//                if (!itemStack.isEmpty()) {
-//                    this.setItemSlot(slot, itemStack.copy());
-//                }
-//            }
-//            this.setPersistenceRequired();
-//        }
 public void setSummonerPlayer(Player summoner) {
     this.summonerPlayer = summoner;
     if (summoner != null) {
@@ -140,7 +129,6 @@ public void setSummonerPlayer(Player summoner) {
         }
         this.setPersistenceRequired();
     }
-
 
     copyAttribute(AttributeRegistry.HOLY_SPELL_POWER);
     copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER);
@@ -343,27 +331,6 @@ public void setSummonerPlayer(Player summoner) {
         }
         this.setHealth(this.getMaxHealth());
     }
-    private void applyAttributesFromConfig() {
-        if (Config.DOPPELGANGER_HEALTH != null) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get());
-        }
-        if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
-            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
-        }
-        if (Config.DOPPELGANGER_MOVEMENT_SPEED != null) {
-            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(Config.DOPPELGANGER_MOVEMENT_SPEED.get());
-        }
-        if (Config.DOPPELGANGER_KNOCKBACK_RESISTANCE != null) {
-            this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Config.DOPPELGANGER_KNOCKBACK_RESISTANCE.get());
-        }
-        if (Config.DOPPELGANGER_ARMOR != null) {
-            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get());
-        }
-        if (Config.DOPPELGANGER_FOLLOW_RANGE != null) {
-            this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Config.DOPPELGANGER_FOLLOW_RANGE.get());
-        }
-        this.setHealth(this.getMaxHealth());
-    }
 
     private void spawnSummoningParticles() {
         for (int i = 0; i < 20; i++) {
@@ -374,14 +341,6 @@ public void setSummonerPlayer(Player summoner) {
             this.level().addParticle(ParticleTypes.FLAME,
                     this.getX() + xOffset, this.getY() + yOffset, this.getZ() + zOffset,
                     0, 0, 0);
-        }
-    }
-
-    private void stopAllMusic() {
-        if (!level().isClientSide && level().getServer() != null) {
-            Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers().forEach(player -> {
-                player.connection.send(new ClientboundStopSoundPacket(null, SoundSource.MUSIC));
-            });
         }
     }
 
@@ -439,7 +398,7 @@ public void setSummonerPlayer(Player summoner) {
             laughCooldown--;
         }
         if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonIllusionClones();
+            summonMinions();
             minionSummonCooldown = 1000;
         }
         if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
@@ -474,7 +433,7 @@ public void setSummonerPlayer(Player summoner) {
         }
 
         if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonIllusionClones();
+            summonMinions();
             minionSummonCooldown = 1000;
         }
 
@@ -531,13 +490,6 @@ public void setSummonerPlayer(Player summoner) {
     @Override
     protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
     }
-//    @Override
-//    public boolean addEffect(MobEffectInstance p_147208_, @Nullable Entity p_147209_) {
-//        if (!p_147208_.getEffect().isBeneficial()) {
-//            return false;
-//        }
-//        return super.addEffect(p_147208_, p_147209_);
-//    }
 
     private void triggerSecondPhase() {
         secondPhaseTriggered = true;
@@ -629,30 +581,6 @@ public void setSummonerPlayer(Player summoner) {
 
         return super.hurt(source, amount);
     }
-    private void summonIllusionClones() {
-        if (minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
-        for (int i = 0; i < 3; i++) {
-            if (currentMinionCount >= MAX_MINIONS) break;
-
-            DarkDoppelgangerEntity clone = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
-            if (clone != null) {
-                clone.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                clone.setHealth(10.0F);
-                //clone.isClone = true;
-                Team team = getTeam();
-                if (team instanceof PlayerTeam playerTeam) {
-                    level().getScoreboard().addPlayerToTeam(clone.getScoreboardName(), playerTeam);
-                }
-                clone.addTag("dark_doppelganger_clone");
-                clone.setCustomName(Component.literal("Doppelganger Clone").withStyle(ChatFormatting.GRAY));
-                //clone.applyAttributesFromConfig();
-                level().addFreshEntity(clone);
-                level().addParticle(ParticleTypes.ENCHANT, clone.getX(), clone.getY(), clone.getZ(), 0, 1, 0);
-                currentMinionCount++;
-            }
-        }
-        minionSummonCooldown = 500;
-    }
 
     private void summonMinions() {
         if (isClone || minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
@@ -663,17 +591,19 @@ public void setSummonerPlayer(Player summoner) {
             DarkDoppelgangerEntity minion = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
             if (minion != null) {
                 minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                minion.setHealth(minion.getMaxHealth() * 0.3F);
-                //minion.isClone = true;
+                minion.isClone = true;
                 minion.addTag("dark_doppelganger_clone");
+                minion.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.getMaxHealth() * 0.3F);
+                minion.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.3F);
+                minion.getAttribute(Attributes.ARMOR).setBaseValue(this.getAttributeValue(Attributes.ARMOR) * 0.3F);
+                minion.setHealth(minion.getMaxHealth());
+
                 Team team = getTeam();
                 if (team instanceof PlayerTeam playerTeam) {
                     level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
                 }
-
                 minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
                 level().addFreshEntity(minion);
-                //minion.applyAttributesFromConfig();
                 currentMinionCount++;
             }
         }
@@ -767,7 +697,6 @@ public void setSummonerPlayer(Player summoner) {
         try {
             animationToPlay = RawAnimation.begin().thenPlay(animationId);
         } catch (Exception ignored) {
-//            DarkDoppelgangerMod.LOGGER.error("Entity {} Failed to play animation: {}", this, animationId);
         }
     }
 
@@ -832,8 +761,6 @@ public void setSummonerPlayer(Player summoner) {
             team.setAllowFriendlyFire(false);
             team.setSeeFriendlyInvisibles(true);
         }
-
         scoreboard.addPlayerToTeam(getScoreboardName(), team);
     }
-
 }

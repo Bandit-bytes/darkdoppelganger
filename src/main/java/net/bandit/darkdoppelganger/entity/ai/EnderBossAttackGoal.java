@@ -10,7 +10,6 @@ import io.redspace.ironsspellbooks.particle.FlameStrikeParticleOptions;
 import io.redspace.ironsspellbooks.registries.SoundRegistry;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
-import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity_tyros_class;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
