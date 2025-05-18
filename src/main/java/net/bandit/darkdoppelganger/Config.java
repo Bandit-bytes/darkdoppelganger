@@ -15,6 +15,9 @@ public class Config {
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_FOLLOW_RANGE;
     public static ForgeConfigSpec.BooleanValue DOPPLEGANGER_HARD_MODE;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_FINAL_PHASE_SPELLS;
+
+
 
 
     static {
@@ -61,6 +64,13 @@ public class Config {
                                 "cataclysm:cursium_boots",
                                 "mycoolmod:*"
                         ),
+                        obj -> obj instanceof String
+                );
+        DOPPELGANGER_FINAL_PHASE_SPELLS = builder
+                .comment("List of all spells the Dark Doppelganger can use in the final phase (Hard mode must be enabled for custom spell usage ( TO works !))")
+                .defineListAllowEmpty(
+                        "final_phase_spells",
+                        () -> List.of("irons_spellbooks:eldritch_blast", "irons_spellbooks:ray_of_frost", "traveloptics:tidal_grasp", "traveloptics:shadowed_miasma"),
                         obj -> obj instanceof String
                 );
 

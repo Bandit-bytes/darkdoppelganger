@@ -2,6 +2,7 @@ package net.bandit.darkdoppelganger.entity;
 
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
+import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
 import io.redspace.ironsspellbooks.entity.mobs.goals.AttackAnimationData;
@@ -52,9 +53,7 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 
 public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
@@ -244,7 +243,22 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getRunningGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.SCULK_TENTACLES_SPELL.get(), 3, 4, 100, 160, 1));
+
+        List<AbstractSpell> allSpells = new ArrayList<>(getConfiguredSpells(Config.DOPPELGANGER_FINAL_PHASE_SPELLS.get()));
+        Collections.shuffle(allSpells, new Random(this.getRandom().nextLong()));
+        // fallback to Eldritch Blast
+        AbstractSpell barrageSpell = allSpells.isEmpty()
+                ? SpellRegistry.ELDRITCH_BLAST_SPELL.get()
+                : allSpells.get(0);
+
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, barrageSpell, 3, 4, 160, 240, 1));
+
+        // Utility
+        List<AbstractSpell> group1 = getSpellGroup(allSpells, 0, 3);
+        List<AbstractSpell> group2 = getSpellGroup(allSpells, 3, 3);
+        List<AbstractSpell> group3 = getSpellGroup(allSpells, 6, 2);
+        List<AbstractSpell> group4 = getSpellGroup(allSpells, 8, 4);
+
         this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.4f, 30, 50, 3f)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -252,19 +266,21 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         new AttackAnimationData(10, "simple_sword_stab_alternate", 8),
                         new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
                 ))
-                .setComboChance(.7f)
+                .setComboChance(0.4f)
                 .setMeleeAttackInverval(10, 20)
                 .setMeleeMovespeedModifier(1.7f)
-                .setSpells(
-                        List.of(SpellRegistry.ELDRITCH_BLAST_SPELL.get(), SpellRegistry.SONIC_BOOM_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.RAY_OF_FROST_SPELL.get(), SpellRegistry.SCULK_TENTACLES_SPELL.get()),
-                        List.of(SpellRegistry.ASCENSION_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get()),
-                        List.of(SpellRegistry.BLOOD_STEP_SPELL.get()),
-                        List.of(SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.ECHOING_STRIKES_SPELL.get(), SpellRegistry.ROOT_SPELL.get(), SpellRegistry.BLIGHT_SPELL.get())
-                )
+                .setSpells(group1, group2, group3, group4)
         );
-        this.goalSelector.addGoal(5, new PatrolNearLocationGoal(this, 30, .75f));
+
+        this.goalSelector.addGoal(5, new PatrolNearLocationGoal(this, 30, 0.75f));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
     }
+
+    private List<AbstractSpell> getSpellGroup(List<AbstractSpell> list, int start, int count) {
+        if (start >= list.size()) return List.of();
+        return list.subList(start, Math.min(start + count, list.size()));
+    }
+
 
     @Override
     public void onAddedToWorld() {
@@ -641,10 +657,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
 
         float newHealth = this.getHealth() - amount;
-
-        // Phase transition logic moved from tick
-        if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.4f) {
+        if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.1f) {
             triggerSecondPhase();
+
             if (Config.DOPPLEGANGER_HARD_MODE.get()) {
                 setThirdPhaseGoals();
             } else {
@@ -653,7 +668,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return false;
         }
 
-        if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.2f) {
+        if (!thirdPhaseTriggered && newHealth <= this.getMaxHealth() * 0.1f) {
             triggerThirdPhase();
             if (Config.DOPPLEGANGER_HARD_MODE.get()) {
                 setFinalPhaseGoals();
@@ -662,6 +677,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
             return false;
         }
+
 
         Entity attacker = source.getEntity();
         if (attacker instanceof LivingEntity && attacker != this) {
@@ -879,5 +895,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     @Override
     public boolean isAnimating() {
         return meleeController.getAnimationState() != AnimationController.State.STOPPED || spawnController.getAnimationState() != AnimationController.State.STOPPED || super.isAnimating();
+    }
+    private List<AbstractSpell> getConfiguredSpells(List<? extends String> ids) {
+        return ids.stream()
+                .map(ResourceLocation::new)
+                .map(SpellRegistry::getSpell)
+                .filter(spell -> !(spell instanceof io.redspace.ironsspellbooks.spells.NoneSpell))
+                .toList();
     }
 }
