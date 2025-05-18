@@ -588,20 +588,17 @@ public void setSummonerPlayer(Player summoner) {
         for (int i = 0; i < 2; i++) {
             if (currentMinionCount >= MAX_MINIONS) break;
 
-            DarkDoppelgangerEntity minion = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
+            DarkDoppelgangerMinionEntity minion = (DarkDoppelgangerMinionEntity) EntityRegistry.DARK_DOPPELGANGER_MINION.get().create(level());
             if (minion != null) {
                 minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                minion.isClone = true;
-                minion.addTag("dark_doppelganger_clone");
-                minion.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.getMaxHealth() * 0.3F);
-                minion.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.3F);
-                minion.getAttribute(Attributes.ARMOR).setBaseValue(this.getAttributeValue(Attributes.ARMOR) * 0.3F);
+                minion.setSummonerUUID(this.getUUID()); // Tie to boss
                 minion.setHealth(minion.getMaxHealth());
 
                 Team team = getTeam();
                 if (team instanceof PlayerTeam playerTeam) {
                     level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
                 }
+
                 minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
                 level().addFreshEntity(minion);
                 currentMinionCount++;
@@ -609,6 +606,7 @@ public void setSummonerPlayer(Player summoner) {
         }
         minionSummonCooldown = 500;
     }
+
     private void lifeDrainAttack() {
         level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(8)).forEach(player -> {
             player.hurt(level().damageSources().magic(), 4.0F);

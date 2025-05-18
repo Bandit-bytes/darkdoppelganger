@@ -3,6 +3,8 @@ package net.bandit.darkdoppelganger;
 import com.mojang.logging.LogUtils;
 import net.bandit.darkdoppelganger.command.ModCommands;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerMinionEntity;
+import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerMinionRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalLeaveRenderer;
@@ -45,6 +47,7 @@ public class DarkDoppelgangerMod {
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.createAttributes().build());
+        event.put(EntityRegistry.DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerMinionEntity.createAttributes().build());
     }
 
     @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -52,6 +55,7 @@ public class DarkDoppelgangerMod {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             EntityRenderers.register(EntityRegistry.DARK_DOPPELGANGER.get(), DarkDoppelgangerRenderer::new);
+            EntityRenderers.register(EntityRegistry.DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerMinionRenderer::new);
             EntityRenderers.register(EntityRegistry.PORTAL_JOIN_ENTITY.get(), PortalJoinRenderer::new);
             EntityRenderers.register(EntityRegistry.PORTAL_LEAVE_ENTITY.get(), PortalLeaveRenderer::new);
             LOGGER.info("Client setup for Dark Doppelganger Mod");

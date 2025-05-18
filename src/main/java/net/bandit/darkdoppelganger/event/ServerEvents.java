@@ -1,42 +1,61 @@
 package net.bandit.darkdoppelganger.event;
 
+import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerMinionEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
-//@EventBusSubscriber(modid = DarkDoppelgangerMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = DarkDoppelgangerMod.MOD_ID)
 public class ServerEvents {
-//    @SubscribeEvent
-//    public static void onSpellCasted(SpellPreCastEvent event) {
-//        if(event.getEntity().getType() != EntityRegistry.DARK_DOPPELGANGER.get()){
-//            if(event.getSpellId().equals(SpellRegistry.ROOT_SPELL.get().getSpellId()) || event.getSpellId().equals(SpellRegistry.SLOW_SPELL.get().getSpellId())
-//                    || event.getSpellId().equals(SpellRegistry.BLIGHT_SPELL.get().getSpellId()) || event.getSpellId().equals(SpellRegistry.ACID_ORB_SPELL.get().getSpellId())){
-//                if(event.getEntity() != null){
-//                    boolean doppelClose = event.getEntity().level().getEntitiesOfClass(DarkDoppelgangerEntity_tyros_class.class, event.getEntity().getBoundingBox().inflate(50, 50, 50)).isEmpty();
-//                    if(!doppelClose){
-//                        event.setCanceled(true);
-//                        if(event.getEntity() instanceof ServerPlayer player){
-//                            if(event.getSpellId().equals(SpellRegistry.ROOT_SPELL.get().getSpellId()) || event.getSpellId().equals(SpellRegistry.BLIGHT_SPELL.get().getSpellId()) || event.getSpellId().equals(SpellRegistry.SLOW_SPELL.get().getSpellId())){
-////                                Messages.message(new ClientboundSyncTargetingData(SpellRegistry.getSpell(event.getSpellId()), new ArrayList<>()), player);
-//                            }
-//                            if(event.getSpellId().equals(SpellRegistry.SLOW_SPELL.get().getSpellId())){
-//                                event.getEntity().level().getEntitiesOfClass(TargetedAreaEntity.class, event.getEntity().getBoundingBox().inflate(50, 50, 50)).forEach(Entity::discard);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    //This logic essentially protects the "original" DarkDoppelganger from taking damage as long as there are clones of itself nearby.
-//    @SubscribeEvent
-//    public static void onLivingHurt(LivingHurtEvent event){
-//        if(event.getEntity().getType() == EntityRegistry.DARK_DOPPELGANGER.get()){
-//            DarkDoppelgangerEntity_tyros_class doppel = (DarkDoppelgangerEntity_tyros_class) event.getEntity();
-//            if(!doppel.isClone){
-//                boolean noClones = event.getEntity().level().getEntitiesOfClass(DarkDoppelgangerEntity_tyros_class.class, event.getEntity().getBoundingBox().inflate(20, 10, 20), (target) -> target.isClone).isEmpty();
-//                if(!noClones){
-//                    event.setCanceled(true);
-//                }
-//            }
-//        }
-//    }
-}
 
+    @SubscribeEvent
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)) return;
+
+        AABB box = new AABB(event.getEntity().blockPosition()).inflate(128);
+        level.getEntitiesOfClass(DarkDoppelgangerMinionEntity.class, box, e -> true)
+                .forEach(LivingEntity::discard);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)) return;
+
+        AABB box = new AABB(event.getEntity().blockPosition()).inflate(128);
+        level.getEntitiesOfClass(DarkDoppelgangerMinionEntity.class, box, e -> true)
+                .forEach(LivingEntity::discard);
+    }
+
+    @SubscribeEvent
+    public static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)) return;
+
+        AABB box = new AABB(event.getEntity().blockPosition()).inflate(128);
+        level.getEntitiesOfClass(DarkDoppelgangerMinionEntity.class, box, e -> true)
+                .forEach(LivingEntity::discard);
+    }
+
+    @SubscribeEvent
+    public static void onWorldUnload(LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+
+        AABB box = new AABB(-3_000_000, -256, -3_000_000, 3_000_000, 320, 3_000_000);
+        level.getEntitiesOfClass(DarkDoppelgangerMinionEntity.class, box, e -> true)
+                .forEach(LivingEntity::discard);
+    }
+
+    @SubscribeEvent
+    public static void onServerStopping(ServerStoppingEvent event) {
+        event.getServer().getAllLevels().forEach(level -> {
+            AABB box = new AABB(-3_000_000, -256, -3_000_000, 3_000_000, 320, 3_000_000);
+            level.getEntitiesOfClass(DarkDoppelgangerMinionEntity.class, box, e -> true)
+                    .forEach(LivingEntity::discard);
+        });
+    }
+}

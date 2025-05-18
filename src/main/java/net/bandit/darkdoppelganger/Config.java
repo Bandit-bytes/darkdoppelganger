@@ -18,6 +18,10 @@ public class Config {
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_ARMOR;
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_FOLLOW_RANGE;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_HARD_MODE;
+    public static final ModConfigSpec.DoubleValue MINION_HEALTH;
+    public static final ModConfigSpec.DoubleValue MINION_ATTACK_DAMAGE;
+    public static final ModConfigSpec.DoubleValue MINION_MOVEMENT_SPEED;
+    public static final ModConfigSpec.DoubleValue MINION_ARMOR;
 
     public static final ModConfigSpec SPEC;
 
@@ -51,6 +55,16 @@ public class Config {
         DOPPELGANGER_HARD_MODE = BUILDER
                 .comment("Hard mode of the Dark Doppelganger")
                 .define("hard_mode", false);
+
+        BUILDER.pop();
+    }
+    static {
+        BUILDER.comment("Minion Configuration").push("minion");
+
+        MINION_HEALTH = BUILDER.defineInRange("health", 40.0, 1.0, 1000.0);
+        MINION_ATTACK_DAMAGE = BUILDER.defineInRange("attack_damage", 6.0, 0.1, 100.0);
+        MINION_MOVEMENT_SPEED = BUILDER.defineInRange("movement_speed", 0.28, 0.01, 1.0);
+        MINION_ARMOR = BUILDER.defineInRange("armor", 4.0, 0.0, 100.0);
 
         BUILDER.pop();
         SPEC = BUILDER.build();
