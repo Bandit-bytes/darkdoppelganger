@@ -2,8 +2,10 @@ package net.bandit.darkdoppelganger;
 
 import com.mojang.logging.LogUtils;
 import net.bandit.darkdoppelganger.command.ModCommands;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerMinionEntity;
 import net.bandit.darkdoppelganger.entity.PortalJoinEntity;
 import net.bandit.darkdoppelganger.entity.PortalLeaveEntity;
+import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerMinionRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalLeaveRenderer;
 import net.bandit.darkdoppelganger.registry.ItemRegistry;
@@ -33,6 +35,7 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
+
 @Mod(DarkDoppelgangerMod.MOD_ID)
 public class DarkDoppelgangerMod {
 
@@ -46,6 +49,12 @@ public class DarkDoppelgangerMod {
                     .sized(0.6F, 1.95F)
                     .build(MOD_ID + ":dark_doppelganger")
     );
+    public static final RegistryObject<EntityType<DarkDoppelgangerMinionEntity>> DARK_DOPPELGANGER_MINION =
+            ENTITY_TYPES.register("dark_doppelganger_minion",
+                    () -> EntityType.Builder.<DarkDoppelgangerMinionEntity>of(DarkDoppelgangerMinionEntity::new, MobCategory.MONSTER)
+                            .sized(0.6f, 1.95f)
+                            .build(new ResourceLocation(MOD_ID, "dark_doppelganger_minion").toString()));
+
 
     public static final RegistryObject<EntityType<PortalJoinEntity>> PORTAL_JOIN_ENTITY =
             ENTITY_TYPES.register("portal_join_entity", () -> EntityType.Builder.<PortalJoinEntity>of(PortalJoinEntity::new, MobCategory.MISC)
@@ -83,6 +92,7 @@ public class DarkDoppelgangerMod {
     @SubscribeEvent
     public void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.createAttributes().build());
+        event.put(DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerEntity.createAttributes().build());
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
@@ -94,6 +104,7 @@ public class DarkDoppelgangerMod {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             EntityRenderers.register(DARK_DOPPELGANGER.get(), DarkDoppelgangerRenderer::new);
+            EntityRenderers.register(DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerMinionRenderer::new);
             EntityRenderers.register(PORTAL_JOIN_ENTITY.get(), PortalJoinRenderer::new);
             EntityRenderers.register(PORTAL_LEAVE_ENTITY.get(), PortalLeaveRenderer::new);
         }

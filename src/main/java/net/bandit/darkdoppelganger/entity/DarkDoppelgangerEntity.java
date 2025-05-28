@@ -40,6 +40,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -693,11 +694,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         for (int i = 0; i < 2; i++) {
             if (activeMinionUUIDs.size() >= MAX_MINIONS) break;
 
-            DarkDoppelgangerEntity minion = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
+            DarkDoppelgangerMinionEntity minion = EntityRegistry.DARK_DOPPELGANGER_MINION.get().create(level());
             if (minion != null) {
                 minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
                 minion.setHealth(minion.getMaxHealth() * 0.3F);
-                minion.isClone = true;
+                minion.setSummonerUUID(this.getUUID()); // If needed for despawn or damage check
                 minion.addTag("dark_doppelganger_clone");
 
                 Team team = getTeam();
@@ -706,7 +707,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 }
 
                 minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
-                minion.applyAttributesFromConfig();
 
                 level().addFreshEntity(minion);
                 activeMinionUUIDs.add(minion.getUUID());
@@ -715,6 +715,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         minionSummonCooldown = 500;
     }
+
 
 
     @Override
@@ -789,6 +790,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.setHealth(1.0F);
             return;
         }
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            this.setItemSlot(slot, ItemStack.EMPTY);
+        }
         if (musicPlaying) {
             stopBossMusic();
             musicPlaying = false;
@@ -822,7 +826,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.bossEvent.removeAllPlayers();
         super.die(cause);
     }
+    @Override
+    protected void dropAllDeathLoot(DamageSource source) {
+        // Prevent any default drops
+    }
 
+    @Override
+    protected void dropCustomDeathLoot(DamageSource source, int looting, boolean recentlyHit) {
+        // Prevent any custom loot drops
+    }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()

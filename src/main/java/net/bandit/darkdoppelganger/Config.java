@@ -7,6 +7,7 @@ import java.util.List;
 public class Config {
 
     public static final ForgeConfigSpec COMMON_CONFIG;
+
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_HEALTH;
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_ATTACK_DAMAGE;
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_MOVEMENT_SPEED;
@@ -17,12 +18,15 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_FINAL_PHASE_SPELLS;
 
-
-
+    public static ForgeConfigSpec.DoubleValue MINION_HEALTH;
+    public static ForgeConfigSpec.DoubleValue MINION_ATTACK_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue MINION_MOVEMENT_SPEED;
+    public static ForgeConfigSpec.DoubleValue MINION_ARMOR;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
+        // Dark Doppelganger Settings
         builder.comment("Dark Doppelganger Configuration").push("dark_doppelganger");
 
         DOPPELGANGER_HEALTH = builder
@@ -54,7 +58,7 @@ public class Config {
                 .define("hard_mode", false);
 
         DOPPELGANGER_BANNED_ARMOR = builder
-                .comment("List of banned armor items (format: modid:item_name or modid:* for full mod) that should not be copied to the Dark Doppelganger")
+                .comment("List of banned armor items (e.g., modid:item_name or modid:*) that should not be copied to the Dark Doppelganger")
                 .defineListAllowEmpty(
                         "banned_armor",
                         () -> List.of(
@@ -66,16 +70,33 @@ public class Config {
                         ),
                         obj -> obj instanceof String
                 );
+
         DOPPELGANGER_FINAL_PHASE_SPELLS = builder
-                .comment("List of all spells the Dark Doppelganger can use in the final phase (Hard mode must be enabled for custom spell usage ( TO works !))")
+                .comment("List of all spells the Dark Doppelganger can use in the final phase (Hard mode must be enabled)")
                 .defineListAllowEmpty(
                         "final_phase_spells",
-                        () -> List.of("irons_spellbooks:eldritch_blast", "irons_spellbooks:ray_of_frost", "traveloptics:tidal_grasp", "traveloptics:shadowed_miasma"),
+                        () -> List.of(
+                                "irons_spellbooks:eldritch_blast",
+                                "irons_spellbooks:ray_of_frost",
+                                "traveloptics:tidal_grasp",
+                                "irons_spellbooks:abyssal_shroud",
+                                "traveloptics:shadowed_miasma"
+                        ),
                         obj -> obj instanceof String
                 );
 
+        builder.pop();
+
+        // Minion Settings
+        builder.comment("Minion Configuration").push("minion");
+
+        MINION_HEALTH = builder.defineInRange("health", 40.0, 1.0, 1000.0);
+        MINION_ATTACK_DAMAGE = builder.defineInRange("attack_damage", 6.0, 0.1, 100.0);
+        MINION_MOVEMENT_SPEED = builder.defineInRange("movement_speed", 0.28, 0.01, 1.0);
+        MINION_ARMOR = builder.defineInRange("armor", 4.0, 0.0, 100.0);
 
         builder.pop();
+
         COMMON_CONFIG = builder.build();
     }
 }

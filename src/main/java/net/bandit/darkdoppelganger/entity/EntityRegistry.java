@@ -22,6 +22,17 @@ public class EntityRegistry {
                             .setShouldReceiveVelocityUpdates(true)
                             .build(DarkDoppelgangerMod.MOD_ID + ":dark_doppelganger"));
 
+    public static final  RegistryObject<EntityType<DarkDoppelgangerMinionEntity>> DARK_DOPPELGANGER_MINION =
+            ENTITY_TYPES.register("dark_doppelganger_minion",
+                    () -> EntityType.Builder.of(DarkDoppelgangerMinionEntity::new, MobCategory.MONSTER)
+                            .sized(0.6F, 1.8F)
+                            .setTrackingRange(80)
+                            .setUpdateInterval(3)
+                            .clientTrackingRange(80)
+                            .setShouldReceiveVelocityUpdates(true)
+                            .build(DarkDoppelgangerMod.MOD_ID + "dark_doppelganger"));
+
+
     public static final RegistryObject<EntityType<PortalJoinEntity>> PORTAL_JOIN_ENTITY =
             ENTITY_TYPES.register("portal_join_entity", () -> EntityType.Builder.<PortalJoinEntity>of(PortalJoinEntity::new, MobCategory.MISC)
                     .sized(.1f, 3f)
