@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -360,19 +361,19 @@ public void setSummonerPlayer(Player summoner) {
 
 
     @Override
-    public void startSeenByPlayer(@NotNull ServerPlayer player) {
-        super.startSeenByPlayer(player);
-        if (!this.isClone) {
-            this.bossEvent.addPlayer(player);
-        }
-    }
-
-    @Override
     public void stopSeenByPlayer(@NotNull ServerPlayer player) {
         super.stopSeenByPlayer(player);
         if (!this.isClone) {
             this.bossEvent.removePlayer(player);
         }
+    }
+
+    @Override
+    protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
+    }
+
+    @Override
+    protected void dropAllDeathLoot(ServerLevel p_level, DamageSource damageSource) {
     }
 
     @Override
@@ -732,12 +733,31 @@ public void setSummonerPlayer(Player summoner) {
     }
     private void playBossMusic() {
         if (!level().isClientSide && !musicPlaying && !this.isDeadOrDying()) {
-            this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                   SoundRegistry.BOSS_FIGHT_MUSIC.get(), SoundSource.MUSIC, 1.0F, 1.0F);
+            stopMinecraftAmbientMusic(); // ⬅ move this here!
+            this.level().playSound(
+                    null,
+                    this.getX(), this.getY(), this.getZ(),
+                    SoundRegistry.BOSS_FIGHT_MUSIC.get(),
+                    SoundSource.MUSIC,
+                    1.0F,
+                    1.0F
+            );
             musicPlaying = true;
-            musicTimer = MUSIC_DURATION; // Set timer to song duration
+            musicTimer = MUSIC_DURATION;
         }
     }
+    @Override
+    public void startSeenByPlayer(@NotNull ServerPlayer player) {
+        super.startSeenByPlayer(player);
+        if (!this.isClone) {
+            this.bossEvent.addPlayer(player);
+            player.connection.send(new ClientboundStopSoundPacket(
+                    ResourceLocation.fromNamespaceAndPath("minecraft", "music.game"),
+                    SoundSource.MUSIC
+            ));
+        }
+    }
+
 
 
     private void stopBossMusic() {
