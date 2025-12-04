@@ -72,7 +72,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private int roarSoundCooldown = 800;
     private int laughSoundCooldown = 800;
     private final List<UUID> activeMinionUUIDs = new java.util.ArrayList<>();
-    private final int MAX_MINIONS = 5;
+    private final int MAX_MINIONS = 3;
     private int laughCooldown = 800;
     private int age;
     private int musicTimer = 0;
@@ -139,6 +139,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER.get());
             copyAttribute(AttributeRegistry.ENDER_SPELL_POWER.get());
             copyAttribute(AttributeRegistry.SPELL_POWER.get());
+
+            boostSpellPowerFromConfig();
 
             if (Config.DOPPLEGANGER_HARD_MODE.get()) {
                 this.getAttribute(AttributeRegistry.HOLY_MAGIC_RESIST.get()).setBaseValue(1.3f);
@@ -329,6 +331,31 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
         }
     }
+    private void boostSpellPowerFromConfig() {
+        double multiplier = Config.DOPPELGANGER_SPELL_POWER_MULTIPLIER.get();
+        if (multiplier <= 0.0 || multiplier == 1.0) {
+            return; // no change
+        }
+
+        scaleSpellPower(AttributeRegistry.HOLY_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.BLOOD_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.NATURE_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.ELDRITCH_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.FIRE_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.ICE_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.LIGHTNING_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.EVOCATION_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.ENDER_SPELL_POWER.get(), multiplier);
+        scaleSpellPower(AttributeRegistry.SPELL_POWER.get(), multiplier);
+    }
+
+    private void scaleSpellPower(net.minecraft.world.entity.ai.attributes.Attribute attribute, double multiplier) {
+        AttributeInstance inst = this.getAttribute(attribute);
+        if (inst != null) {
+            inst.setBaseValue(inst.getBaseValue() * multiplier);
+        }
+    }
+
 
     private void adjustAttributesFromConfig() {
         if (Config.DOPPELGANGER_HEALTH != null) {
@@ -478,7 +505,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
 
         if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonIllusionClones();
+            summonMinions();
             minionSummonCooldown = 1000;
         }
         if (!level().isClientSide && !isClone && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
@@ -648,7 +675,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (source == this.level().damageSources().fellOutOfWorld()) {
             return false;
         }
-
         if (this.isDeadOrDying()) {
             return false;
         }
@@ -657,7 +683,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return super.hurt(source, amount);
         }
 
+        double cap = Config.DOPPELGANGER_DAMAGE_CAP.get();
+        if (cap > 0.0 && amount > (float) cap) {
+            amount = (float) cap;
+        }
+
         float newHealth = this.getHealth() - amount;
+
         if (!secondPhaseTriggered && newHealth <= this.getMaxHealth() * 0.1f) {
             triggerSecondPhase();
 
@@ -678,8 +710,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
             return false;
         }
-
-
         Entity attacker = source.getEntity();
         if (attacker instanceof LivingEntity && attacker != this) {
             this.setTarget((LivingEntity) attacker);
@@ -698,7 +728,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             if (minion != null) {
                 minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
                 minion.setHealth(minion.getMaxHealth() * 0.3F);
-                minion.setSummonerUUID(this.getUUID()); // If needed for despawn or damage check
+                minion.setSummonerUUID(this.getUUID());
                 minion.addTag("dark_doppelganger_clone");
 
                 Team team = getTeam();
@@ -726,39 +756,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         activeMinionUUIDs.remove(uuid);
     }
 
-    private void summonIllusionClones() {
-        if (minionSummonCooldown > 0 || activeMinionUUIDs.size() >= MAX_MINIONS) return;
-
-        for (int i = 0; i < 3; i++) {
-            if (activeMinionUUIDs.size() >= MAX_MINIONS) break;
-
-            DarkDoppelgangerEntity clone = EntityRegistry.DARK_DOPPELGANGER.get().create(level());
-            if (clone != null) {
-                clone.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                clone.setHealth(10.0F);
-                clone.isClone = true;
-                clone.addTag("dark_doppelganger_clone");
-
-                // Attempt to add to team if available
-                Team team = getTeam();
-                if (team instanceof PlayerTeam playerTeam) {
-                    level().getScoreboard().addPlayerToTeam(clone.getScoreboardName(), playerTeam);
-                }
-
-                // Continue normal setup
-                clone.setCustomName(Component.literal("Doppelganger Clone").withStyle(ChatFormatting.GRAY));
-                clone.applyAttributesFromConfig();
-
-                level().addFreshEntity(clone);
-                activeMinionUUIDs.add(clone.getUUID());
-
-                level().addParticle(ParticleTypes.ENCHANT, clone.getX(), clone.getY(), clone.getZ(), 0, 1, 0);
-            }
-        }
-
-        minionSummonCooldown = 500;
-
-}
 
     private void lifeDrainAttack() {
         level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(8)).forEach(player -> {

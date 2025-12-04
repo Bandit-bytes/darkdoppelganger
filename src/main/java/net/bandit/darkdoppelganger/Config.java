@@ -22,6 +22,9 @@ public class Config {
     public static ForgeConfigSpec.DoubleValue MINION_ATTACK_DAMAGE;
     public static ForgeConfigSpec.DoubleValue MINION_MOVEMENT_SPEED;
     public static ForgeConfigSpec.DoubleValue MINION_ARMOR;
+    public static ForgeConfigSpec.DoubleValue DOPPELGANGER_DAMAGE_CAP;
+    public static ForgeConfigSpec.DoubleValue DOPPELGANGER_SPELL_POWER_MULTIPLIER;
+
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -56,6 +59,22 @@ public class Config {
         DOPPLEGANGER_HARD_MODE = builder
                 .comment("Hard mode of the Dark Doppelganger")
                 .define("hard_mode", false);
+
+        DOPPELGANGER_DAMAGE_CAP = builder
+                .comment(
+                        "Maximum damage the Dark Doppelganger can take from a single hit.",
+                        "Set to 0 to disable the cap."
+                )
+                .defineInRange("damage_cap_per_hit", 150.0, 0.0, 100000.0);
+
+        DOPPELGANGER_SPELL_POWER_MULTIPLIER = builder
+                .comment(
+                        "Multiplier applied to all of the Dark Doppelganger's spell power attributes",
+                        "after copying them from the summoner.",
+                        "1.0 = same as player, 1.5 = +50%, 2.0 = double, etc."
+                )
+                .defineInRange("spell_power_multiplier", 1.25, 0.0, 10.0);
+
 
         DOPPELGANGER_BANNED_ARMOR = builder
                 .comment("List of banned armor items (e.g., modid:item_name or modid:*) that should not be copied to the Dark Doppelganger")

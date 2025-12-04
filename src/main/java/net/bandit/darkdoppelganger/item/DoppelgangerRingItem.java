@@ -19,8 +19,6 @@ import java.util.UUID;
 
 public class DoppelgangerRingItem extends Item implements ICurioItem {
 
-    private static final UUID HEALTH_BOOST_UUID = UUID.fromString("1d1a82d8-c9d2-11ed-afa1-0242ac120002");
-    private static final UUID MAX_MANA_UUID = UUID.fromString("2d2a92d8-c9d2-11ed-afa1-0242ac120003");
 
     public DoppelgangerRingItem(Properties properties) {
         super(properties);
@@ -29,13 +27,16 @@ public class DoppelgangerRingItem extends Item implements ICurioItem {
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(SlotContext slotContext, UUID uuid, ItemStack stack) {
         Multimap<Attribute, AttributeModifier> modifiers = HashMultimap.create();
+
         modifiers.put(Attributes.MAX_HEALTH,
-                new AttributeModifier(HEALTH_BOOST_UUID, "Ring health boost", 30.0, AttributeModifier.Operation.ADDITION));
-        //Irons addon
+                new AttributeModifier(uuid, "Ring health boost", 30.0, AttributeModifier.Operation.ADDITION));
+
         modifiers.put(AttributeRegistry.MAX_MANA.get(),
-            new AttributeModifier(MAX_MANA_UUID, "Ring mana boost", 150.0, AttributeModifier.Operation.ADDITION));
+                new AttributeModifier(uuid, "Ring mana boost", 150.0, AttributeModifier.Operation.ADDITION));
+
         return modifiers;
     }
+
 
     @Override
     public boolean canEquip(SlotContext slotContext, ItemStack stack) {
