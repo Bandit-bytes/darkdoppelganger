@@ -26,7 +26,6 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -69,7 +68,7 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 40.0) // safe defaults
+                .add(Attributes.MAX_HEALTH, 40.0)
                 .add(Attributes.ATTACK_DAMAGE, 6.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.28)
                 .add(Attributes.ARMOR, 4.0);
@@ -78,8 +77,6 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-
-        // Only adjust on server
         if (!this.level().isClientSide) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.MINION_HEALTH.get());
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.MINION_ATTACK_DAMAGE.get());
@@ -99,10 +96,6 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         // Prevent any default drops
     }
 
-    @Override
-    protected void dropCustomDeathLoot(DamageSource source, int looting, boolean recentlyHit) {
-        // Prevent any custom loot drops
-    }
     @Override
     public void playAnimation(String animationId) {
         try {
@@ -174,6 +167,17 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
     public void tick() {
         super.tick();
         age++;
+
+        if (level().isClientSide) return;
+        Player summoner = getSummonerPlayer();
+        if (summoner == null || summoner.isDeadOrDying()) {
+            discard();
+            return;
+        }
+        if (summoner.level() != this.level()) {
+            discard();
+            return;
+        }
     }
 
     @Override

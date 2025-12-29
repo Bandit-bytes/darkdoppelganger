@@ -12,10 +12,8 @@ import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAtt
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
 import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
-import net.bandit.darkdoppelganger.registry.ItemRegistry;
 import net.bandit.darkdoppelganger.registry.ModSounds;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -26,7 +24,6 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -39,7 +36,6 @@ import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -804,33 +800,24 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                     serverPlayer.getAdvancements().award(advancement, "kill");
                     serverPlayer.sendSystemMessage(Component.literal("You have slain the Dark Doppelganger!"));
                 }
+            }{
+                this.level().addFreshEntity(new ExperienceOrb(this.level(), this.getX(), this.getY(), this.getZ(), 2500));
             }
 
-            List<Item> lootPool = List.of(
-                    ItemRegistry.DOPPELGANGER_RING.get(),
-                    ItemRegistry.ELDER_NECKLACE.get(),
-                    ItemRegistry.SUMMONS_NECKLACE.get()
-            );
-
-            Item selectedDrop = Util.getRandom(lootPool, this.getRandom());
-            this.spawnAtLocation(selectedDrop);
-            this.spawnAtLocation(Items.NETHER_STAR);
-            this.spawnAtLocation(Items.ECHO_SHARD, 3);
-            this.spawnAtLocation(Items.DIAMOND_BLOCK, 3);
-            this.level().addFreshEntity(new ExperienceOrb(this.level(), this.getX(), this.getY(), this.getZ(), 2500));
         }
 
         this.bossEvent.removeAllPlayers();
         super.die(cause);
     }
-    @Override
-    protected void dropAllDeathLoot(DamageSource source) {
-        // Prevent any default drops
+
+    private boolean isAnyClone() {
+        return this.isClone || this.getTags().contains("dark_doppelganger_clone");
     }
 
     @Override
-    protected void dropCustomDeathLoot(DamageSource source, int looting, boolean recentlyHit) {
-        // Prevent any custom loot drops
+    protected void dropAllDeathLoot(DamageSource source) {
+        if (isAnyClone()) return;
+        super.dropAllDeathLoot(source);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
