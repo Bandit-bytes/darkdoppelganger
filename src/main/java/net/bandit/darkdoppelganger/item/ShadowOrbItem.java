@@ -2,7 +2,6 @@ package net.bandit.darkdoppelganger.item;
 
 import io.redspace.ironsspellbooks.registries.ItemRegistry;
 import net.bandit.darkdoppelganger.Config;
-import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.entity.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.ModSounds;
@@ -15,9 +14,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,8 +32,8 @@ import java.util.UUID;
 
 public class ShadowOrbItem extends Item {
 
-
     private static final String TAG_THROWER = "ThrowerUUID";
+
     private static final String E_QUEUED   = "DoppelSummonQueued";
     private static final String E_DELAY    = "DoppelSummonDelay";
     private static final String E_ANCHOR_X = "DoppelAnchorX";
@@ -45,8 +45,40 @@ public class ShadowOrbItem extends Item {
     private static final int SUMMON_DELAY_TICKS = 100;
     private static final double VOID_TRIGGER_Y = 30.0;
 
+    private static final int NO_PICKUP_DELAY = 32767;
+
     public ShadowOrbItem(Properties properties) {
         super(properties);
+    }
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack held = player.getItemInHand(hand);
+
+        if (!level.isClientSide) {
+            ItemStack thrown = held.copy();
+            thrown.setCount(1);
+            tagWithThrower(thrown, player);
+
+            ItemEntity orb = new ItemEntity(level,
+                    player.getX(),
+                    player.getEyeY() - 0.2,
+                    player.getZ(),
+                    thrown
+            );
+
+            orb.setPickUpDelay(NO_PICKUP_DELAY);
+            orb.setThrower(player.getUUID());
+            Vec3 motion = player.getLookAngle().normalize().scale(0.85).add(0, 0.10, 0);
+            orb.setDeltaMovement(motion);
+
+            level.addFreshEntity(orb);
+
+            if (!player.getAbilities().instabuild) {
+                held.shrink(1);
+            }
+        }
+
+        return InteractionResultHolder.sidedSuccess(held, level.isClientSide);
     }
 
     @Override
@@ -59,14 +91,16 @@ public class ShadowOrbItem extends Item {
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         Level level = entity.level();
         if (level.isClientSide || !(level instanceof ServerLevel serverLevel)) return false;
+        entity.setPickUpDelay(NO_PICKUP_DELAY);
 
         ensureThrowerTagOnce(stack, serverLevel, entity);
 
         CompoundTag e = entity.getPersistentData();
-
         if (e.getBoolean(E_QUEUED)) {
             entity.setExtendedLifetime();
             entity.setNoGravity(true);
+            entity.setDeltaMovement(Vec3.ZERO);
+            entity.setPickUpDelay(NO_PICKUP_DELAY);
 
             Vec3 anchor = new Vec3(e.getDouble(E_ANCHOR_X), e.getDouble(E_ANCHOR_Y), e.getDouble(E_ANCHOR_Z));
 
@@ -80,7 +114,6 @@ public class ShadowOrbItem extends Item {
 
             Vec3 pos = anchor.add(ox, bob, oz);
             entity.teleportTo(pos.x, pos.y, pos.z);
-            entity.setDeltaMovement(Vec3.ZERO);
 
             serverLevel.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y + 0.1, pos.z, 2, 0.05, 0.02, 0.05, 0.0);
             if ((entity.tickCount % 4) == 0) {
@@ -110,10 +143,7 @@ public class ShadowOrbItem extends Item {
 
         if (serverLevel.dimension() == Level.END && entity.getY() < VOID_TRIGGER_Y) {
             UUID throwerId = getThrowerIdFromStack(stack);
-
-            if (throwerId != null) {
-                e.putUUID(E_THROWER, throwerId);
-            }
+            if (throwerId != null) e.putUUID(E_THROWER, throwerId);
 
             Player thrower = (throwerId != null) ? serverLevel.getPlayerByUUID(throwerId) : null;
 
@@ -137,6 +167,7 @@ public class ShadowOrbItem extends Item {
             entity.setDeltaMovement(Vec3.ZERO);
             entity.teleportTo(anchor.x, anchor.y, anchor.z);
             entity.setExtendedLifetime();
+            entity.setPickUpDelay(NO_PICKUP_DELAY);
 
             return false;
         }
@@ -172,7 +203,6 @@ public class ShadowOrbItem extends Item {
         UUID fromStack = getThrowerIdFromStack(stack);
         return (fromStack != null) ? level.getPlayerByUUID(fromStack) : null;
     }
-
 
     private static Vec3 getHoverAnchor(ServerLevel level, Player player) {
         Vec3 forward = player.getLookAngle().normalize();
@@ -228,7 +258,14 @@ public class ShadowOrbItem extends Item {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() != EquipmentSlot.Type.ARMOR) continue;
 
-            ItemStack playerItem = player.getItemBySlot(slot);
+            ItemStack playerItem = switch (slot) {
+                case FEET  -> player.getInventory().armor.get(0);
+                case LEGS  -> player.getInventory().armor.get(1);
+                case CHEST -> player.getInventory().armor.get(2);
+                case HEAD  -> player.getInventory().armor.get(3);
+                default    -> ItemStack.EMPTY;
+            };
+
             boolean bannedArmor = isArmorBanned(playerItem, banned);
 
             ItemStack equip = (!playerItem.isEmpty() && !bannedArmor)
@@ -243,6 +280,7 @@ public class ShadowOrbItem extends Item {
 
             boss.setItemSlot(slot, equip);
         }
+
 
         boolean spawned = level.addFreshEntity(boss);
 

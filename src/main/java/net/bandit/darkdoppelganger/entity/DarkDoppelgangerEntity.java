@@ -293,15 +293,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
 
         if (!this.level().isClientSide) {
-            if (!this.isClone && !musicPlaying) {
-                playBossMusic();
-            }
             if (!this.isClone) {
+                stopMinecraftAmbientMusic();
+                if (!musicPlaying) playBossMusic();
                 adjustAttributesFromConfig();
             }
         } else {
             spawnSummoningParticles();
         }
+
 
         PortalJoinEntity portal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
         portal.setPos(this.position());
@@ -420,19 +420,27 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
+    private static final ResourceLocation[] VANILLA_MUSIC = new ResourceLocation[] {
+            new ResourceLocation("minecraft", "music.game"),
+            new ResourceLocation("minecraft", "music.creative"),
+            new ResourceLocation("minecraft", "music.menu"),
+            new ResourceLocation("minecraft", "music.overworld.day"),
+            new ResourceLocation("minecraft", "music.overworld.night"),
+            new ResourceLocation("minecraft", "music.overworld.hills"),
+            new ResourceLocation("minecraft", "music.overworld.water")
+    };
+
     private void stopMinecraftAmbientMusic() {
-        if (!level().isClientSide && level().getServer() != null) {
-            for (ServerPlayer player : Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers()) {
-                player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.game"), SoundSource.MUSIC));
-                player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.creative"), SoundSource.MUSIC));
-                player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.menu"), SoundSource.MUSIC));
-                player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.overworld.day"), SoundSource.MUSIC));
-                player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.overworld.night"), SoundSource.MUSIC));
-                player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.overworld.hills"), SoundSource.MUSIC));
-                player.connection.send(new ClientboundStopSoundPacket(new ResourceLocation("minecraft:music.overworld.water"), SoundSource.MUSIC));
+        if (level().isClientSide || level().getServer() == null) return;
+
+        for (ServerPlayer player : level().getServer().getPlayerList().getPlayers()) {
+            for (ResourceLocation id : VANILLA_MUSIC) {
+                player.connection.send(new ClientboundStopSoundPacket(id, SoundSource.MUSIC));
             }
         }
     }
+
+
 
     @Override
     public void startSeenByPlayer(@NotNull ServerPlayer player) {
@@ -456,10 +464,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         createOrJoinDoppelTeam();
         if (!level().isClientSide && isClone && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
             Player target = null;
-
-            // Clones look for summoner; minions just look for nearest player
             if (this.getTags().contains("dark_doppelganger_clone")) {
-                target = getSummonerPlayer(); // Might be null
+                target = getSummonerPlayer();
             }
             if (target == null) {
                 target = level().getNearestPlayer(this, 64);
@@ -483,19 +489,18 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
 
-        if (musicPlaying) {
-            stopMinecraftAmbientMusic();
-            if (musicTimer > 0) {
-                musicTimer--;
-            } else {
+        if (!level().isClientSide) {
+            if (!musicPlaying) {
+                stopMinecraftAmbientMusic();
                 playBossMusic();
+            } else {
+                if (musicTimer > 0) {
+                    musicTimer--;
+                } else {
+                    musicPlaying = false;
+                }
             }
         }
-        if (!musicPlaying) {
-            stopMinecraftAmbientMusic();
-            playBossMusic();
-        }
-
         if (!isClone && laughCooldown > 0) {
             laughCooldown--;
         }
@@ -581,13 +586,21 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     private void playBossMusic() {
-        if (!level().isClientSide && !musicPlaying && !this.isDeadOrDying()) {
-            this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                    ModSounds.BOSS_FIGHT_MUSIC.get(), SoundSource.MUSIC, 1.0F, 1.0F);
-            musicPlaying = true;
-            musicTimer = MUSIC_DURATION; // Set timer to song duration
+        if (level().isClientSide || this.isDeadOrDying() || this.isClone) return;
+        if (musicPlaying) return;
+
+        if (level().getServer() != null) {
+            for (ServerPlayer player : level().getServer().getPlayerList().getPlayers()) {
+                if (player.level() != this.level()) continue;
+                if (player.distanceToSqr(this) > (128 * 128)) continue;
+                player.playNotifySound(ModSounds.BOSS_FIGHT_MUSIC.get(), SoundSource.MUSIC, 1.0F, 1.0F);
+            }
         }
+
+        musicPlaying = true;
+        musicTimer = MUSIC_DURATION;
     }
+
 
 
     private void stopBossMusic() {
@@ -886,6 +899,27 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         controllerRegistrar.add(meleeController);
         controllerRegistrar.add(spawnController);
         super.registerControllers(controllerRegistrar);
+    }
+
+    @Override
+    public void kill() {
+        cleanupBossFight();
+        super.kill();
+    }
+
+    private void cleanupBossFight() {
+        if (level().isClientSide) return;
+        if (isClone) return;
+
+        stopBossMusic();
+        musicPlaying = false;
+        musicTimer = 0;
+        bossEvent.removeAllPlayers();
+    }
+    @Override
+    public void remove(RemovalReason reason) {
+        cleanupBossFight();
+        super.remove(reason);
     }
 
     @Override
