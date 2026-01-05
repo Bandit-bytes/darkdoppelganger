@@ -7,9 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 
 public class PortalLeaveModel extends GeoModel<PortalLeaveEntity> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "textures/entity/portal.png");
-    private static final ResourceLocation MODEL = new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "geo/portal.geo.json");
-    public static final ResourceLocation ANIMS = new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "animations/model_portal_leave.animation.json");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "textures/entity/portal.png");
+    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "geo/portal.geo.json");
+    public static final ResourceLocation ANIMS = ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "animations/model_portal_leave.animation.json");
 
 
     public PortalLeaveModel() {

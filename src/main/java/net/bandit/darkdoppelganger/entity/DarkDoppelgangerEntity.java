@@ -5,7 +5,7 @@ import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
-import io.redspace.ironsspellbooks.entity.mobs.goals.AttackAnimationData;
+import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.SpellBarrageGoal;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
@@ -42,6 +42,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
+import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -63,7 +64,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private boolean thirdPhaseTriggered = false;
     public boolean isClone = false;
     private boolean musicPlaying = false;
-    private int minionSummonCooldown = 700;
+    private int minionSummonCooldown = 0;
     private int lifeDrainCooldown = 150;
     private int roarSoundCooldown = 800;
     private int laughSoundCooldown = 800;
@@ -83,11 +84,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.bossEvent = new ServerBossEvent(Component.literal("Dark Doppelganger"), ServerBossEvent.BossBarColor.PURPLE, ServerBossEvent.BossBarOverlay.PROGRESS);
         this.lookControl = createLookControl();
         this.moveControl = createMoveControl();
+        if (!world.isClientSide) {
+            adjustAttributesFromConfig();
+        }
     }
 
     protected LookControl createLookControl() {
         return new LookControl(this) {
-            //This allows us to more rapidly turn towards our target. Helps to make sure his targets are aligned with his swing animations
             @Override
             protected float rotateTowards(float pFrom, float pTo, float pMaxDelta) {
                 return super.rotateTowards(pFrom, pTo, pMaxDelta * 2.5f);
@@ -119,37 +122,43 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     public void setSummonerPlayer(Player summoner) {
         this.summonerPlayer = summoner;
-
         if (summoner != null) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
-                this.setItemSlot(slot, summoner.getItemBySlot(slot));
+                if (slot == EquipmentSlot.OFFHAND) {
+                    continue;
+                }
+                ItemStack itemStack = summoner.getItemBySlot(slot);
+                if (!itemStack.isEmpty()) {
+                    this.setItemSlot(slot, itemStack.copy());
+                }
             }
+            this.setPersistenceRequired();
+        }
 
-            copyAttribute(AttributeRegistry.HOLY_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.NATURE_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.FIRE_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.ICE_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.LIGHTNING_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.ENDER_SPELL_POWER.get());
-            copyAttribute(AttributeRegistry.SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.HOLY_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.NATURE_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.FIRE_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.ICE_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.LIGHTNING_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.ENDER_SPELL_POWER.get());
+        copyAttribute(AttributeRegistry.SPELL_POWER.get());
 
-            boostSpellPowerFromConfig();
+        boostSpellPowerFromConfig();
 
-            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
-                this.getAttribute(AttributeRegistry.HOLY_MAGIC_RESIST.get()).setBaseValue(1.3f);
-                this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST.get()).setBaseValue(1.5f);
-                this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST.get()).setBaseValue(1.5f);
-                this.getAttribute(AttributeRegistry.NATURE_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute(AttributeRegistry.ELDRITCH_MAGIC_RESIST.get()).setBaseValue(1.6f);
-                this.getAttribute(AttributeRegistry.ICE_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute(AttributeRegistry.LIGHTNING_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute(AttributeRegistry.EVOCATION_MAGIC_RESIST.get()).setBaseValue(1.3f);
-                this.getAttribute(AttributeRegistry.ENDER_MAGIC_RESIST.get()).setBaseValue(1.4f);
-                this.getAttribute(AttributeRegistry.SPELL_RESIST.get()).setBaseValue(1.5f);
-            }
+        if (Config.DOPPLEGANGER_HARD_MODE.get()) {
+            this.getAttribute(AttributeRegistry.HOLY_MAGIC_RESIST.get()).setBaseValue(1.3f);
+            this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST.get()).setBaseValue(1.5f);
+            this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST.get()).setBaseValue(1.5f);
+            this.getAttribute(AttributeRegistry.NATURE_MAGIC_RESIST.get()).setBaseValue(1.4f);
+            this.getAttribute(AttributeRegistry.ELDRITCH_MAGIC_RESIST.get()).setBaseValue(1.6f);
+            this.getAttribute(AttributeRegistry.ICE_MAGIC_RESIST.get()).setBaseValue(1.4f);
+            this.getAttribute(AttributeRegistry.LIGHTNING_MAGIC_RESIST.get()).setBaseValue(1.4f);
+            this.getAttribute(AttributeRegistry.EVOCATION_MAGIC_RESIST.get()).setBaseValue(1.3f);
+            this.getAttribute(AttributeRegistry.ENDER_MAGIC_RESIST.get()).setBaseValue(1.4f);
+            this.getAttribute(AttributeRegistry.SPELL_RESIST.get()).setBaseValue(1.5f);
         }
     }
 
@@ -165,7 +174,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.DEVOUR_SPELL.get(), 3, 6, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -191,7 +200,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.FIREBALL_SPELL.get(), 3, 5, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -217,7 +226,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.RAY_OF_FROST_SPELL.get(), 3, 5, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -258,7 +267,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         List<AbstractSpell> group3 = getSpellGroup(allSpells, 6, 2);
         List<AbstractSpell> group4 = getSpellGroup(allSpells, 8, 4);
 
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.4f, 30, 50, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.4f, 30, 50)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),
@@ -376,30 +385,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.setHealth(this.getMaxHealth());
     }
 
-    private void applyAttributesFromConfig() {
-        if (Config.DOPPELGANGER_HEALTH != null) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get());
-        }
-        if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
-            this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
-        }
-        if (Config.DOPPELGANGER_MOVEMENT_SPEED != null) {
-            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(Config.DOPPELGANGER_MOVEMENT_SPEED.get());
-        }
-        if (Config.DOPPELGANGER_KNOCKBACK_RESISTANCE != null) {
-            this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Config.DOPPELGANGER_KNOCKBACK_RESISTANCE.get());
-        }
-        if (Config.DOPPELGANGER_ARMOR != null) {
-            this.getAttribute(Attributes.ARMOR).setBaseValue(Config.DOPPELGANGER_ARMOR.get());
-        }
-        if (Config.DOPPELGANGER_FOLLOW_RANGE != null) {
-            this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Config.DOPPELGANGER_FOLLOW_RANGE.get());
-        }
-
-        this.setHealth(this.getMaxHealth());
-    }
-
-
     private void spawnSummoningParticles() {
         for (int i = 0; i < 20; i++) {
             double xOffset = (this.random.nextDouble() - 0.5) * 2;
@@ -412,22 +397,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
-    private void stopAllMusic() {
-        if (!level().isClientSide && level().getServer() != null) {
-            Objects.requireNonNull(level().getServer()).getPlayerList().getPlayers().forEach(player -> {
-                player.connection.send(new ClientboundStopSoundPacket(null, SoundSource.MUSIC));
-            });
-        }
-    }
 
     private static final ResourceLocation[] VANILLA_MUSIC = new ResourceLocation[] {
-            new ResourceLocation("minecraft", "music.game"),
-            new ResourceLocation("minecraft", "music.creative"),
-            new ResourceLocation("minecraft", "music.menu"),
-            new ResourceLocation("minecraft", "music.overworld.day"),
-            new ResourceLocation("minecraft", "music.overworld.night"),
-            new ResourceLocation("minecraft", "music.overworld.hills"),
-            new ResourceLocation("minecraft", "music.overworld.water")
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music.game"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music.creative"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music.menu"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music.overworld.day"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music.overworld.night"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music.overworld.hills"),
+            ResourceLocation.fromNamespaceAndPath("minecraft", "music.overworld.water")
     };
 
     private void stopMinecraftAmbientMusic() {
@@ -464,6 +442,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         createOrJoinDoppelTeam();
         if (!level().isClientSide && isClone && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
             Player target = null;
+
             if (this.getTags().contains("dark_doppelganger_clone")) {
                 target = getSummonerPlayer();
             }
@@ -478,13 +457,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 teleportCooldown = 100;
             }
         }
+
         if (teleportCooldown > 0) {
             teleportCooldown--;
             if (teleportCooldown == 0) {
                 hasFallenIntoVoid = false;
             }
         }
-
         if (isClone || this.isDeadOrDying()) return;
 
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
@@ -501,22 +480,27 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 }
             }
         }
-        if (!isClone && laughCooldown > 0) {
+
+        if (laughCooldown > 0) {
             laughCooldown--;
         }
 
-        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonMinions();
-            minionSummonCooldown = 1000;
-        }
-        if (!level().isClientSide && !isClone && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
+        if (!level().isClientSide && !hasFallenIntoVoid && level().dimension() == Level.END && this.getY() < -100) {
             Player summoner = this.getSummonerPlayer();
-            if (summoner != null && !summoner.isDeadOrDying()) {
+            if (summoner == null) {
+                if (getTarget() instanceof Player p) summoner = p;
+                else summoner = level().getNearestPlayer(this, 128);
+            }
+
+            if (summoner != null && (summoner.isSpectator() || summoner.isDeadOrDying())) {
+                summoner = null;
+            }
+
+            if (summoner != null) {
                 double targetX = summoner.getX();
                 double targetY = summoner.getY() + 1.5;
                 double targetZ = summoner.getZ();
 
-                // Exit portal at original position
                 PortalJoinEntity exitPortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
                 exitPortal.setPos(this.position());
                 this.level().addFreshEntity(exitPortal);
@@ -526,17 +510,23 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
                 this.level().playSound(null, summoner.blockPosition(), SoundEvents.PORTAL_TRAVEL, SoundSource.HOSTILE, 1.0F, 1.0F);
 
-                // Entrance portal at new location
                 PortalJoinEntity entrancePortal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
                 entrancePortal.setPos(targetX, targetY - 1.5, targetZ);
                 this.level().addFreshEntity(entrancePortal);
 
-                summoner.sendSystemMessage(Component.literal("The Dark Doppelganger has returned from the void...").withStyle(ChatFormatting.DARK_PURPLE));
+                summoner.sendSystemMessage(
+                        Component.literal("The Dark Doppelganger has returned from the void...")
+                                .withStyle(ChatFormatting.DARK_PURPLE)
+                );
 
                 hasFallenIntoVoid = true;
                 teleportCooldown = 100;
+            } else {
+                hasFallenIntoVoid = true;
+                teleportCooldown = 20;
             }
         }
+
 
         if (Config.DOPPLEGANGER_HARD_MODE.get()) {
             this.addEffect(new MobEffectInstance(MobEffectRegistry.OAKSKIN.get(), 10, 8, false, false, true));
@@ -548,39 +538,36 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             if (this.tickCount % 10 == 0) {
                 this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(20, 10, 20)).forEach(target -> {
                     if (target != this) {
-                        if (target.hasEffect(MobEffects.DIG_SPEED)) {
-                            target.removeEffect(MobEffects.DIG_SPEED);
-                        }
-                        if (target.hasEffect(MobEffectRegistry.ABYSSAL_SHROUD.get())) {
-                            target.removeEffect(MobEffectRegistry.ABYSSAL_SHROUD.get());
-                        }
-                        if (target.hasEffect(MobEffectRegistry.EVASION.get())) {
-                            target.removeEffect(MobEffectRegistry.EVASION.get());
-                        }
-                        if (target.hasEffect(MobEffectRegistry.HASTENED.get())) {
-                            target.removeEffect(MobEffectRegistry.HASTENED.get());
-                        }
-                        if (target.hasEffect(MobEffectRegistry.ECHOING_STRIKES.get())) {
-                            target.removeEffect(MobEffectRegistry.ECHOING_STRIKES.get());
-                        }
+                        if (target.hasEffect(MobEffects.DIG_SPEED)) target.removeEffect(MobEffects.DIG_SPEED);
+                        if (target.hasEffect(MobEffectRegistry.ABYSSAL_SHROUD.get())) target.removeEffect(MobEffectRegistry.ABYSSAL_SHROUD.get());
+                        if (target.hasEffect(MobEffectRegistry.EVASION.get())) target.removeEffect(MobEffectRegistry.EVASION.get());
+                        if (target.hasEffect(MobEffectRegistry.HASTENED.get())) target.removeEffect(MobEffectRegistry.HASTENED.get());
+                        if (target.hasEffect(MobEffectRegistry.ECHOING_STRIKES.get())) target.removeEffect(MobEffectRegistry.ECHOING_STRIKES.get());
                     }
                 });
             }
         }
 
-        if (thirdPhaseTriggered) {
-            if (minionSummonCooldown-- <= 0) {
+        if (!level().isClientSide) {
+            if (minionSummonCooldown > 0) minionSummonCooldown--;
+            if (lifeDrainCooldown > 0) lifeDrainCooldown--;
+            if (roarSoundCooldown > 0) roarSoundCooldown--;
+            if (laughSoundCooldown > 0) laughSoundCooldown--;
+        }
+        if (!level().isClientSide && this.getHealth() < this.getMaxHealth() * 0.4f && minionSummonCooldown <= 0) {
+            summonMinions();
+            minionSummonCooldown = 600;
+        }
+        if (thirdPhaseTriggered && !level().isClientSide) {
+            if (minionSummonCooldown <= 0) {
                 summonMinions();
                 minionSummonCooldown = 500;
             }
-            if (lifeDrainCooldown-- <= 0) {
+            if (lifeDrainCooldown <= 0) {
                 lifeDrainAttack();
                 lifeDrainCooldown = 150;
             }
         }
-
-        if (roarSoundCooldown > 0) roarSoundCooldown--;
-        if (laughSoundCooldown > 0) laughSoundCooldown--;
 
         age++;
     }
@@ -675,7 +662,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
         }
 
-        minionSummonCooldown = 1050;
+        minionSummonCooldown = 600;
         lifeDrainCooldown = 200;
     }
 
@@ -728,34 +715,46 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     private void summonMinions() {
-        if (isClone || minionSummonCooldown > 0 || activeMinionUUIDs.size() >= MAX_MINIONS) return;
-
-        for (int i = 0; i < 2; i++) {
-            if (activeMinionUUIDs.size() >= MAX_MINIONS) break;
-
-            DarkDoppelgangerMinionEntity minion = EntityRegistry.DARK_DOPPELGANGER_MINION.get().create(level());
-            if (minion != null) {
-                minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                minion.setHealth(minion.getMaxHealth() * 0.3F);
-                minion.setSummonerUUID(this.getUUID());
-                minion.addTag("dark_doppelganger_clone");
-
-                Team team = getTeam();
-                if (team instanceof PlayerTeam playerTeam) {
-                    level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
-                }
-
-                minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
-
-                level().addFreshEntity(minion);
-                activeMinionUUIDs.add(minion.getUUID());
-            }
+        if (level().isClientSide) return;
+        if (isClone) return;
+        if (minionSummonCooldown > 0) return;
+        if (activeMinionUUIDs.size() >= MAX_MINIONS) return;
+        Player summoner = this.getSummonerPlayer();
+        if (summoner == null) {
+            if (getTarget() instanceof Player p) summoner = p;
+            else summoner = level().getNearestPlayer(this, 128);
+        }
+        if (summoner == null || summoner.isDeadOrDying()) {
+            minionSummonCooldown = 200;
+            return;
         }
 
-        minionSummonCooldown = 500;
+        int toSpawn = Math.min(2, MAX_MINIONS - activeMinionUUIDs.size());
+
+        for (int i = 0; i < toSpawn; i++) {
+            DarkDoppelgangerMinionEntity minion = EntityRegistry.DARK_DOPPELGANGER_MINION.get().create(level());
+            if (minion == null) continue;
+
+            double x = getX() + (random.nextInt(5) - 2);
+            double z = getZ() + (random.nextInt(5) - 2);
+
+            minion.moveTo(x, getY(), z, this.getYRot(), this.getXRot());
+            minion.setSummonerUUID(summoner.getUUID());
+
+            minion.addTag("dark_doppelganger_clone");
+            minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
+            Team team = getTeam();
+            if (team instanceof PlayerTeam playerTeam) {
+                level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
+            }
+            minion.getPersistentData().putBoolean("SpawnWeak", true);
+
+            level().addFreshEntity(minion);
+            activeMinionUUIDs.add(minion.getUUID());
+        }
+
+        minionSummonCooldown = 600;
     }
-
-
 
     @Override
     protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {
@@ -791,7 +790,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return;
         }
 
-        // Main boss death logic
         if (!thirdPhaseTriggered) {
             this.setHealth(1.0F);
             return;
@@ -807,7 +805,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (!this.level().isClientSide) {
             if (cause.getEntity() instanceof ServerPlayer serverPlayer) {
                 Advancement advancement = Objects.requireNonNull(serverPlayer.getServer()).getAdvancements()
-                        .getAdvancement(new ResourceLocation("darkdoppelganger", "kill_dark_doppelganger"));
+                        .getAdvancement(ResourceLocation.fromNamespaceAndPath("darkdoppelganger", "kill_dark_doppelganger"));
 
                 if (advancement != null) {
                     serverPlayer.getAdvancements().award(advancement, "kill");
@@ -840,8 +838,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .add(Attributes.MOVEMENT_SPEED, 0.20)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.6)
                 .add(Attributes.ARMOR, 20.0)
-                .add(Attributes.FOLLOW_RANGE, 64.0);
+                .add(Attributes.FOLLOW_RANGE, 64.0)
+                .add(ForgeMod.ENTITY_REACH.get(), 3.0D);
     }
+
 
     RawAnimation animationToPlay = null;
     private final RawAnimation ANIMATION_SPAWN = RawAnimation.begin().thenPlay("join_1");

@@ -37,12 +37,12 @@ public class EntityRegistry {
             ENTITY_TYPES.register("portal_join_entity", () -> EntityType.Builder.<PortalJoinEntity>of(PortalJoinEntity::new, MobCategory.MISC)
                     .sized(.1f, 3f)
                     .clientTrackingRange(64)
-                    .build(new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "portal_join_entity").toString()));
+                    .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "portal_join_entity").toString()));
 
     public static final RegistryObject<EntityType<PortalLeaveEntity>> PORTAL_LEAVE_ENTITY =
             ENTITY_TYPES.register("portal_leave_entity", () -> EntityType.Builder.<PortalLeaveEntity>of(PortalLeaveEntity::new, MobCategory.MISC)
                     .sized(3f, .1f)
                     .clientTrackingRange(64)
-                    .build(new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "portal_leave_entity").toString()));
+                    .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "portal_leave_entity").toString()));
 
 }

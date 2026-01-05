@@ -16,7 +16,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class PortalLeaveRenderer extends GeoEntityRenderer<PortalLeaveEntity> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "textures/entity/portal.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "textures/entity/portal.png");
 
     public PortalLeaveRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new PortalLeaveModel());

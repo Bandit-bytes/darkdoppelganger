@@ -20,7 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,11 +44,12 @@ public class ShadowOrbItem extends Item {
     private static final int SUMMON_DELAY_TICKS = 100;
     private static final double VOID_TRIGGER_Y = 30.0;
 
-    private static final int NO_PICKUP_DELAY = 32767;
+    private static final int NO_PICKUP_DELAY = 700;
 
     public ShadowOrbItem(Properties properties) {
         super(properties);
     }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
@@ -68,6 +68,7 @@ public class ShadowOrbItem extends Item {
 
             orb.setPickUpDelay(NO_PICKUP_DELAY);
             orb.setThrower(player.getUUID());
+
             Vec3 motion = player.getLookAngle().normalize().scale(0.85).add(0, 0.10, 0);
             orb.setDeltaMovement(motion);
 
@@ -91,8 +92,8 @@ public class ShadowOrbItem extends Item {
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         Level level = entity.level();
         if (level.isClientSide || !(level instanceof ServerLevel serverLevel)) return false;
-        entity.setPickUpDelay(NO_PICKUP_DELAY);
 
+        entity.setPickUpDelay(NO_PICKUP_DELAY);
         ensureThrowerTagOnce(stack, serverLevel, entity);
 
         CompoundTag e = entity.getPersistentData();
@@ -133,7 +134,6 @@ public class ShadowOrbItem extends Item {
             if (thrower != null && thrower.isAlive()) {
                 serverLevel.sendParticles(ParticleTypes.EXPLOSION, pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
                 serverLevel.playSound(null, BlockPos.containing(pos), SoundEvents.ENDERMAN_SCREAM, SoundSource.HOSTILE, 0.7F, 0.7F);
-
                 summonDoppelganger(serverLevel, thrower);
             }
 
@@ -141,6 +141,7 @@ public class ShadowOrbItem extends Item {
             return false;
         }
 
+        // Trigger once when the orb falls into the End void threshold
         if (serverLevel.dimension() == Level.END && entity.getY() < VOID_TRIGGER_Y) {
             UUID throwerId = getThrowerIdFromStack(stack);
             if (throwerId != null) e.putUUID(E_THROWER, throwerId);
@@ -168,7 +169,6 @@ public class ShadowOrbItem extends Item {
             entity.teleportTo(anchor.x, anchor.y, anchor.z);
             entity.setExtendedLifetime();
             entity.setPickUpDelay(NO_PICKUP_DELAY);
-
             return false;
         }
 
@@ -182,6 +182,7 @@ public class ShadowOrbItem extends Item {
     private static void ensureThrowerTagOnce(ItemStack stack, ServerLevel level, ItemEntity entity) {
         CompoundTag tag = stack.getOrCreateTag();
         if (tag.hasUUID(TAG_THROWER)) return;
+
         Player nearest = level.getNearestPlayer(entity, 2);
         if (nearest != null) {
             tagWithThrower(stack, nearest);
@@ -244,49 +245,44 @@ public class ShadowOrbItem extends Item {
         boss.setCustomNameVisible(true);
         boss.setSummonerPlayer(player);
         boss.addTag("dark_doppelganger_boss");
+        boss.setItemSlot(EquipmentSlot.MAINHAND, player.getMainHandItem().copy());
+        setArmorFromPlayer(boss, player, banned);
 
-        boss.setItemInHand(InteractionHand.MAIN_HAND,
-                player.getMainHandItem().isEmpty()
-                        ? new ItemStack(ItemRegistry.ARTIFICER_STAFF.get())
-                        : player.getMainHandItem().copy());
+        boss.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
+        boss.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
+        boss.setDropChance(EquipmentSlot.HEAD, 0.0F);
+        boss.setDropChance(EquipmentSlot.CHEST, 0.0F);
+        boss.setDropChance(EquipmentSlot.LEGS, 0.0F);
+        boss.setDropChance(EquipmentSlot.FEET, 0.0F);
 
-        boss.setItemInHand(InteractionHand.OFF_HAND,
-                player.getOffhandItem().isEmpty()
-                        ? new ItemStack(Items.SHIELD)
-                        : player.getOffhandItem().copy());
-
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() != EquipmentSlot.Type.ARMOR) continue;
-
-            ItemStack playerItem = switch (slot) {
-                case FEET  -> player.getInventory().armor.get(0);
-                case LEGS  -> player.getInventory().armor.get(1);
-                case CHEST -> player.getInventory().armor.get(2);
-                case HEAD  -> player.getInventory().armor.get(3);
-                default    -> ItemStack.EMPTY;
-            };
-
-            boolean bannedArmor = isArmorBanned(playerItem, banned);
-
-            ItemStack equip = (!playerItem.isEmpty() && !bannedArmor)
-                    ? playerItem.copy()
-                    : switch (slot) {
-                case HEAD -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET.get());
-                case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE.get());
-                case LEGS -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS.get());
-                case FEET -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS.get());
-                default -> ItemStack.EMPTY;
-            };
-
-            boss.setItemSlot(slot, equip);
-        }
-
+        boss.setPersistenceRequired();
 
         boolean spawned = level.addFreshEntity(boss);
-
         if (spawned) {
             level.sendParticles(ParticleTypes.SMOKE, boss.getX(), boss.getY(), boss.getZ(), 30, 0.5, 1.0, 0.5, 0.05);
             level.playSound(null, boss.blockPosition(), SoundEvents.ENDERMAN_STARE, SoundSource.HOSTILE, 1.0F, 0.5F);
+        }
+    }
+
+    private static void setArmorFromPlayer(DarkDoppelgangerEntity boss, Player player, List<? extends String> banned) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() != EquipmentSlot.Type.ARMOR) continue;
+
+            ItemStack playerArmor = player.getItemBySlot(slot);
+
+            boolean bannedArmor = isArmorBanned(playerArmor, banned);
+
+            ItemStack equip = (!playerArmor.isEmpty() && !bannedArmor)
+                    ? playerArmor.copy()
+                    : switch (slot) {
+                case HEAD  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET.get());
+                case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE.get());
+                case LEGS  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS.get());
+                case FEET  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS.get());
+                default    -> ItemStack.EMPTY;
+            };
+
+            boss.setItemSlot(slot, equip);
         }
     }
 
@@ -306,7 +302,7 @@ public class ShadowOrbItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("Let it fall…").withStyle(ChatFormatting.DARK_PURPLE));
-        tooltip.add(Component.literal("In The End, it will not stay gone.").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("orb.tooltip1").withStyle(ChatFormatting.DARK_PURPLE));
+        tooltip.add(Component.translatable("orb.tooltip2").withStyle(ChatFormatting.GRAY));
     }
 }

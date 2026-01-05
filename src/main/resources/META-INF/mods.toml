@@ -28,7 +28,7 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId = "irons_spellbooks"
 mandatory = true
-versionRange = "[${minecraft_version}-${irons_spells_version},)"
+versionRange = "[${irons_spells_version},)"
 ordering = "NONE"
 side = "BOTH"
 

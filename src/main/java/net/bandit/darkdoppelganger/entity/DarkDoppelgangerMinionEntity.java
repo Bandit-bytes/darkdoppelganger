@@ -4,7 +4,7 @@ import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
-import io.redspace.ironsspellbooks.entity.mobs.goals.AttackAnimationData;
+import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.SpellBarrageGoal;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
@@ -29,6 +29,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -68,11 +69,13 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 40.0)
-                .add(Attributes.ATTACK_DAMAGE, 6.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.28)
-                .add(Attributes.ARMOR, 4.0);
+                .add(Attributes.MAX_HEALTH, 200.0)
+                .add(Attributes.ATTACK_DAMAGE, 8.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(ForgeMod.ENTITY_REACH.get(), 3.0D);
     }
+
 
     @Override
     public void onAddedToWorld() {
@@ -212,7 +215,7 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.DEVOUR_SPELL.get(), 3, 6, 100, 250, 1));
-        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75, 3f)
+        this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
                         new AttackAnimationData(8, "simple_sword_lunge_stab", 6),

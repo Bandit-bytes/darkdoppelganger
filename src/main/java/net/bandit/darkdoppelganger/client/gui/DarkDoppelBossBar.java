@@ -11,8 +11,8 @@ public class DarkDoppelBossBar {
 
     public static final DarkDoppelBossBar INSTANCE = new DarkDoppelBossBar();
 
-    private static final ResourceLocation FRAME = new ResourceLocation("darkdoppelganger", "textures/gui/doppel_bossbar.png");
-    private static final ResourceLocation FILL = new ResourceLocation("darkdoppelganger", "textures/gui/doppel_fill.png");
+    private static final ResourceLocation FRAME = ResourceLocation.fromNamespaceAndPath("darkdoppelganger", "textures/gui/doppel_bossbar.png");
+    private static final ResourceLocation FILL = ResourceLocation.fromNamespaceAndPath("darkdoppelganger", "textures/gui/doppel_fill.png");
 
     private static final int FRAME_WIDTH = 250;
     private static final int FRAME_HEIGHT = 50;

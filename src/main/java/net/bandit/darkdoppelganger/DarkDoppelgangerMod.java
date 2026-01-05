@@ -92,7 +92,7 @@ public class DarkDoppelgangerMod {
     @SubscribeEvent
     public void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.createAttributes().build());
-        event.put(DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerEntity.createAttributes().build());
+        event.put(DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerMinionEntity.createAttributes().build());
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

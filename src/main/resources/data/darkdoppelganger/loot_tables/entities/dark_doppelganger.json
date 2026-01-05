@@ -38,7 +38,28 @@
           ]
         }
       ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "irons_spellbooks:scroll",
+          "weight": 5,
+          "functions": [
+            {
+              "function": "irons_spellbooks:randomize_spell",
+              "quality": {
+                "min": 0.1,
+                "max": 1.0
+              },
+              "spells": [
+                "darkdoppelganger:doppel_portal"
+              ]
+            }
+          ]
+        }
+      ]
     }
-  ],
-  "random_sequence": "darkdoppelganger:entities/dark_doppelganger"
+  ]
 }
