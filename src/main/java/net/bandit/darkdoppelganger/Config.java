@@ -25,6 +25,25 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<String> MINION_BARRAGE_SPELL;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
 
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_A;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_B;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_C;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_D;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE2_SPELLS_A;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE2_SPELLS_B;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE2_SPELLS_C;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE2_SPELLS_D;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE3_SPELLS_A;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE3_SPELLS_B;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE3_SPELLS_C;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE3_SPELLS_D;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_FINAL_SPELLS_A;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_FINAL_SPELLS_B;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_FINAL_SPELLS_C;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_FINAL_SPELLS_D;
+
+
+
 
     public static final ModConfigSpec SPEC;
     static {
@@ -57,6 +76,113 @@ public class Config {
         DOPPELGANGER_HARD_MODE = BUILDER
                 .comment("Hard mode of the Dark Doppelganger")
                 .define("hard_mode", false);
+
+        DOPPEL_PHASE1_SPELLS_A = BUILDER.defineListAllowEmpty("phase1.spells_a",
+                List.of(
+                        "irons_spellbooks:guiding_bolt",
+                        "irons_spellbooks:blood_needles",
+                        "irons_spellbooks:blood_slash"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE1_SPELLS_B = BUILDER.defineListAllowEmpty("phase1.spells_b",
+                List.of(
+                        "irons_spellbooks:fang_ward",
+                        "irons_spellbooks:gust"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE1_SPELLS_C = BUILDER.defineListAllowEmpty("phase1.spells_c",
+                List.of("irons_spellbooks:burning_dash"),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE1_SPELLS_D = BUILDER.defineListAllowEmpty("phase1.spells_d",
+                List.of(
+                        "irons_spellbooks:blight",
+                        "irons_spellbooks:invisibility"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE2_SPELLS_A = BUILDER.defineListAllowEmpty("phase2.spells_a",
+                List.of(
+                        "irons_spellbooks:magic_arrow",
+                        "irons_spellbooks:poison_arrow",
+                        "irons_spellbooks:magma_bomb"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE2_SPELLS_B = BUILDER.defineListAllowEmpty("phase2.spells_b",
+                List.of(
+                        "irons_spellbooks:heat_surge",
+                        "irons_spellbooks:flaming_strike"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE2_SPELLS_C = BUILDER.defineListAllowEmpty("phase2.spells_c",
+                List.of("irons_spellbooks:frost_step"),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE2_SPELLS_D = BUILDER.defineListAllowEmpty("phase2.spells_d",
+                List.of(
+                        "irons_spellbooks:root",
+                        "irons_spellbooks:thunderstorm"
+                ),
+                o -> o instanceof String);
+        DOPPEL_PHASE3_SPELLS_A = BUILDER.defineListAllowEmpty("phase3.spells_a",
+                List.of(
+                        "irons_spellbooks:lightning_lance",
+                        "irons_spellbooks:stomp"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE3_SPELLS_B = BUILDER.defineListAllowEmpty("phase3.spells_b",
+                List.of(
+                        "irons_spellbooks:shockwave",
+                        "irons_spellbooks:ascension"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE3_SPELLS_C = BUILDER.defineListAllowEmpty("phase3.spells_c",
+                List.of("irons_spellbooks:blood_step"),
+                o -> o instanceof String);
+
+        DOPPEL_PHASE3_SPELLS_D = BUILDER.defineListAllowEmpty("phase3.spells_d",
+                List.of(
+                        "irons_spellbooks:evasion",
+                        "irons_spellbooks:echoing_strikes"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_FINAL_SPELLS_A = BUILDER.defineListAllowEmpty("final.spells_a",
+                List.of(
+                        "irons_spellbooks:eldritch_blast",
+                        "irons_spellbooks:sonic_boom",
+                        "irons_spellbooks:abyssal_shroud",
+                        "irons_spellbooks:ray_of_frost",
+                        "irons_spellbooks:sculk_tentacles"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_FINAL_SPELLS_B = BUILDER.defineListAllowEmpty("final.spells_b",
+                List.of(
+                        "irons_spellbooks:ascension",
+                        "irons_spellbooks:abyssal_shroud"
+                ),
+                o -> o instanceof String);
+
+        DOPPEL_FINAL_SPELLS_C = BUILDER.defineListAllowEmpty("final.spells_c",
+                List.of("irons_spellbooks:blood_step"),
+                o -> o instanceof String);
+
+        DOPPEL_FINAL_SPELLS_D = BUILDER.defineListAllowEmpty("final.spells_d",
+                List.of(
+                        "irons_spellbooks:abyssal_shroud",
+                        "irons_spellbooks:echoing_strikes",
+                        "irons_spellbooks:root",
+                        "irons_spellbooks:blight"
+                ),
+                o -> o instanceof String);
+
 
         DOPPELGANGER_BANNED_ARMOR = BUILDER
                 .comment("Armor item IDs the boss is NOT allowed to copy from the player. Supports wildcard with * suffix.",

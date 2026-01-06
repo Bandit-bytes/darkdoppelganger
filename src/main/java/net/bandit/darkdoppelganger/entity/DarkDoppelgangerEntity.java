@@ -2,6 +2,7 @@ package net.bandit.darkdoppelganger.entity;
 
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
+import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
 import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
@@ -179,11 +180,12 @@ public void setSummonerPlayer(Player summoner) {
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
                 .setSpells(
-                        List.of(SpellRegistry.GUIDING_BOLT_SPELL.get(), SpellRegistry.BLOOD_NEEDLES_SPELL.get(), SpellRegistry.BLOOD_SLASH_SPELL.get()),
-                        List.of(SpellRegistry.FANG_WARD_SPELL.get(), SpellRegistry.GUST_SPELL.get()),
-                        List.of(SpellRegistry.BURNING_DASH_SPELL.get()),
-                        List.of(SpellRegistry.BLIGHT_SPELL.get(), SpellRegistry.INVISIBILITY_SPELL.get())
+                        spellsFromConfig(Config.DOPPEL_PHASE1_SPELLS_A.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE1_SPELLS_B.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE1_SPELLS_C.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE1_SPELLS_D.get())
                 )
+
         );
         this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -205,11 +207,12 @@ public void setSummonerPlayer(Player summoner) {
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
                 .setSpells(
-                        List.of(SpellRegistry.MAGIC_ARROW_SPELL.get(), SpellRegistry.POISON_ARROW_SPELL.get(), SpellRegistry.MAGMA_BOMB_SPELL.get()),
-                        List.of(SpellRegistry.HEAT_SURGE_SPELL.get(), SpellRegistry.FLAMING_STRIKE_SPELL.get()),
-                        List.of(SpellRegistry.FROST_STEP_SPELL.get()),
-                        List.of(SpellRegistry.ROOT_SPELL.get(), SpellRegistry.THUNDERSTORM_SPELL.get())
+                        spellsFromConfig(Config.DOPPEL_PHASE2_SPELLS_A.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE2_SPELLS_B.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE2_SPELLS_C.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE2_SPELLS_D.get())
                 )
+
         );
         this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -231,11 +234,12 @@ public void setSummonerPlayer(Player summoner) {
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
                 .setSpells(
-                        List.of(SpellRegistry.LIGHTNING_LANCE_SPELL.get(), SpellRegistry.STOMP_SPELL.get()),
-                        List.of(SpellRegistry.SHOCKWAVE_SPELL.get(), SpellRegistry.ASCENSION_SPELL.get()),
-                        List.of(SpellRegistry.BLOOD_STEP_SPELL.get()),
-                        List.of(SpellRegistry.EVASION_SPELL.get(), SpellRegistry.ECHOING_STRIKES_SPELL.get())
+                        spellsFromConfig(Config.DOPPEL_PHASE3_SPELLS_A.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE3_SPELLS_B.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE3_SPELLS_C.get()),
+                        spellsFromConfig(Config.DOPPEL_PHASE3_SPELLS_D.get())
                 )
+
         );
         this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -257,14 +261,29 @@ public void setSummonerPlayer(Player summoner) {
                 .setMeleeAttackInverval(10, 20)
                 .setMeleeMovespeedModifier(1.7f)
                 .setSpells(
-                        List.of(SpellRegistry.ELDRITCH_BLAST_SPELL.get(), SpellRegistry.SONIC_BOOM_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.RAY_OF_FROST_SPELL.get(), SpellRegistry.SCULK_TENTACLES_SPELL.get()),
-                        List.of(SpellRegistry.ASCENSION_SPELL.get(), SpellRegistry.ABYSSAL_SHROUD_SPELL.get()),
-                        List.of(SpellRegistry.BLOOD_STEP_SPELL.get()),
-                        List.of(SpellRegistry.ABYSSAL_SHROUD_SPELL.get(), SpellRegistry.ECHOING_STRIKES_SPELL.get(), SpellRegistry.ROOT_SPELL.get(), SpellRegistry.BLIGHT_SPELL.get())
+                        spellsFromConfig(Config.DOPPEL_FINAL_SPELLS_A.get()),
+                        spellsFromConfig(Config.DOPPEL_FINAL_SPELLS_B.get()),
+                        spellsFromConfig(Config.DOPPEL_FINAL_SPELLS_C.get()),
+                        spellsFromConfig(Config.DOPPEL_FINAL_SPELLS_D.get())
                 )
+
         );
         this.goalSelector.addGoal(5, new PatrolNearLocationGoal(this, 30, .75f));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+    }
+    private static List<AbstractSpell> spellsFromConfig(List<? extends String> ids) {
+        List<AbstractSpell> out = new ArrayList<>();
+        if (ids == null) return out;
+        for (String s : ids) {
+            if (s == null || s.isBlank()) continue;
+            ResourceLocation rl = ResourceLocation.tryParse(s);
+            if (rl == null) continue;
+            AbstractSpell spell = SpellRegistry.getSpell(rl);
+            if (spell != null && spell != SpellRegistry.none()) {
+                out.add(spell);
+            }
+        }
+        return out;
     }
 
     @Override
@@ -310,6 +329,23 @@ public void setSummonerPlayer(Player summoner) {
                 targetAttribute.addPermanentModifier(modifier);
             }
         }
+    }
+    private static List<AbstractSpell> spellsFromIds(List<? extends String> ids, List<AbstractSpell> fallback) {
+        if (ids == null || ids.isEmpty()) return fallback;
+
+        List<AbstractSpell> out = new ArrayList<>();
+        for (String s : ids) {
+            if (s == null || s.isBlank()) continue;
+
+            try {
+                ResourceLocation id = ResourceLocation.parse(s);
+                var holder = SpellRegistry.REGISTRY.getHolder(id);
+                if (holder.isPresent()) {
+                    out.add(holder.get().value());
+                }
+            } catch (Exception ignored) {}
+        }
+        return out.isEmpty() ? fallback : out;
     }
 
     private void adjustAttributesFromConfig() {
