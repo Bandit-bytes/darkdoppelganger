@@ -3,6 +3,7 @@ package net.bandit.darkdoppelganger.registry;
 import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.spells.DoppelPortalSpell;
+import net.bandit.darkdoppelganger.spells.SummonDoppelMinionSpell;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -18,4 +19,5 @@ public class SpellRegistry {
     }
 
     public static final DeferredHolder<AbstractSpell, AbstractSpell> DOPPEL_PORTAL = registerSpell(new DoppelPortalSpell());
+    public static final DeferredHolder<AbstractSpell, AbstractSpell> MINION_SPELL = registerSpell(new SummonDoppelMinionSpell());
 }

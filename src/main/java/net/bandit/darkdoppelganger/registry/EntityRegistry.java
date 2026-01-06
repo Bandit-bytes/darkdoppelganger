@@ -46,17 +46,6 @@ public class EntityRegistry {
                     .clientTrackingRange(64)
                     .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "portal_leave_entity").toString()));
 
-    public static final DeferredHolder<EntityType<?>, EntityType<EnderDaggerEntity>> ENDER_DAGGER_PROJECTILE =
-            ENTITY_TYPES.register("ender_dagger", () -> EntityType.Builder.<EnderDaggerEntity>of(EnderDaggerEntity::new, MobCategory.MISC)
-                    .sized(.5f, .5f)
-                    .clientTrackingRange(64)
-                    .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "ender_dagger").toString()));
-
-    public static final DeferredHolder<EntityType<?>, EntityType<EnderField>> ENDER_FIELD =
-            ENTITY_TYPES.register("ender_field", () -> EntityType.Builder.<EnderField>of(EnderField::new, MobCategory.MISC)
-                    .sized(4f, 1.2f)
-                    .clientTrackingRange(64)
-                    .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "ender_field").toString()));
 
     // Method to register sound events
     public static void register(IEventBus eventBus) {

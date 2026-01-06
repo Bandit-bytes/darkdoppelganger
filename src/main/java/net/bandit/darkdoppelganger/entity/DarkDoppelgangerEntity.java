@@ -53,8 +53,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.*;
 import software.bernie.geckolib.animation.AnimationState;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
 
@@ -78,6 +77,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private static final int MUSIC_DURATION = 6160;
     private boolean hasFallenIntoVoid = false;
     private int teleportCooldown = 0;
+    private final Set<UUID> activeMinionUUIDs = new HashSet<>();
+
 
 
     public DarkDoppelgangerEntity(EntityType<? extends AbstractSpellCastingMob> type, Level world) {
@@ -368,19 +369,15 @@ public void setSummonerPlayer(Player summoner) {
         }
     }
 
-    @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource damageSource, boolean recentlyHit) {
-    }
-
-    @Override
-    protected void dropAllDeathLoot(ServerLevel p_level, DamageSource damageSource) {
-    }
 
     @Override
     public void tick() {
         super.tick();
         createOrJoinDoppelTeam();
         if (isClone || this.isDeadOrDying()) return;
+        if (!level().isClientSide) {
+            cleanupMinions();
+        }
 
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
 
@@ -432,12 +429,6 @@ public void setSummonerPlayer(Player summoner) {
                 hasFallenIntoVoid = false;
             }
         }
-
-        if (this.getHealth() < this.getMaxHealth() * 0.4 && minionSummonCooldown <= 0) {
-            summonMinions();
-            minionSummonCooldown = 1000;
-        }
-
         if (Config.DOPPELGANGER_HARD_MODE.get()) {
             this.addEffect(new MobEffectInstance(MobEffectRegistry.OAKSKIN.getDelegate(), 10, 8, false, false, true));
             this.addEffect(new MobEffectInstance( MobEffectRegistry.CHARGED.getDelegate(), 10, 2, false, false, true));
@@ -582,29 +573,56 @@ public void setSummonerPlayer(Player summoner) {
 
         return super.hurt(source, amount);
     }
+    private void cleanupMinions() {
+        if (!(level() instanceof ServerLevel serverLevel)) return;
+
+        activeMinionUUIDs.removeIf(uuid -> {
+            Entity e = serverLevel.getEntity(uuid);
+            return !(e instanceof DarkDoppelgangerMinionEntity) || !e.isAlive();
+        });
+    }
 
     private void summonMinions() {
-        if (isClone || minionSummonCooldown > 0 || currentMinionCount >= MAX_MINIONS) return;
+        if (!(level() instanceof ServerLevel serverLevel)) return;
+        if (isClone) return;
+        if (minionSummonCooldown > 0) return;
 
-        for (int i = 0; i < 2; i++) {
-            if (currentMinionCount >= MAX_MINIONS) break;
+        cleanupMinions();
+        if (activeMinionUUIDs.size() >= MAX_MINIONS) return;
 
-            DarkDoppelgangerMinionEntity minion = (DarkDoppelgangerMinionEntity) EntityRegistry.DARK_DOPPELGANGER_MINION.get().create(level());
-            if (minion != null) {
-                minion.setPos(getX() + random.nextInt(5) - 2, getY(), getZ() + random.nextInt(5) - 2);
-                minion.setSummonerUUID(this.getUUID()); // Tie to boss
-                minion.setHealth(minion.getMaxHealth());
+        int toSpawn = Math.min(2, MAX_MINIONS - activeMinionUUIDs.size());
+        LivingEntity bossTarget = getTarget();
 
-                Team team = getTeam();
-                if (team instanceof PlayerTeam playerTeam) {
-                    level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
-                }
+        for (int i = 0; i < toSpawn; i++) {
+            DarkDoppelgangerMinionEntity minion = EntityRegistry.DARK_DOPPELGANGER_MINION.get().create(serverLevel);
+            if (minion == null) continue;
 
-                minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
-                level().addFreshEntity(minion);
-                currentMinionCount++;
+            double x = getX() + (random.nextInt(5) - 2);
+            double z = getZ() + (random.nextInt(5) - 2);
+
+            minion.moveTo(x, getY(), z, getYRot(), getXRot());
+
+            minion.setSummonerUUID(null);
+            minion.setBossMinion(true);
+
+            minion.getPersistentData().putBoolean("SpawnWeak", true);
+
+            minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
+            minion.setCustomNameVisible(true);
+
+            Team team = getTeam();
+            if (team instanceof PlayerTeam playerTeam) {
+                serverLevel.getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
+            }
+
+            serverLevel.addFreshEntity(minion);
+            activeMinionUUIDs.add(minion.getUUID());
+            if (bossTarget != null && bossTarget.isAlive()) {
+                minion.setTarget(bossTarget);
+                minion.setLastHurtByMob(bossTarget);
             }
         }
+
         minionSummonCooldown = 500;
     }
 
@@ -622,11 +640,7 @@ public void setSummonerPlayer(Player summoner) {
 
     @Override
     public void die(@NotNull DamageSource cause) {
-        // Handle death for clones
         if (isClone) {
-            synchronized (DarkDoppelgangerEntity.class) {
-                currentMinionCount = Math.max(0, currentMinionCount - 1);
-            }
             this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
             super.die(cause);
             return;
@@ -648,16 +662,6 @@ public void setSummonerPlayer(Player summoner) {
                     serverPlayer.sendSystemMessage(Component.literal("You have slain the Dark Doppelganger!"));
                 }
             }
-            int choice = this.random.nextInt(3);
-            switch (choice) {
-                case 0 -> this.spawnAtLocation(ItemRegistry.DOPPELGANGER_RING.get());
-                case 1 -> this.spawnAtLocation(ItemRegistry.ELDER_NECKLACE.get());
-                case 2 -> this.spawnAtLocation(ItemRegistry.SUMMONS_NECKLACE.get());
-            }
-            this.spawnAtLocation(Items.NETHER_STAR);
-            this.spawnAtLocation(Items.ECHO_SHARD, 3);
-            this.spawnAtLocation(Items.DIAMOND_BLOCK, 3);
-
             this.level().addFreshEntity(new ExperienceOrb(this.level(), this.getX(), this.getY(), this.getZ(), 2500));
         }
 
