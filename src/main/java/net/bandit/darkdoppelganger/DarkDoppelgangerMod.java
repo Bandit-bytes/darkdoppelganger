@@ -53,29 +53,24 @@ public class DarkDoppelgangerMod {
             ENTITY_TYPES.register("dark_doppelganger_minion",
                     () -> EntityType.Builder.<DarkDoppelgangerMinionEntity>of(DarkDoppelgangerMinionEntity::new, MobCategory.MONSTER)
                             .sized(0.6f, 1.95f)
-                            .build(new ResourceLocation(MOD_ID, "dark_doppelganger_minion").toString()));
-
+                            .build(ResourceLocation.fromNamespaceAndPath(MOD_ID, "dark_doppelganger_minion").toString()));
 
     public static final RegistryObject<EntityType<PortalJoinEntity>> PORTAL_JOIN_ENTITY =
             ENTITY_TYPES.register("portal_join_entity", () -> EntityType.Builder.<PortalJoinEntity>of(PortalJoinEntity::new, MobCategory.MISC)
                     .sized(.1f, 3f)
                     .clientTrackingRange(64)
-                    .build(new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "portal_join_entity").toString()));
+                    .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "portal_join_entity").toString()));
 
     public static final RegistryObject<EntityType<PortalLeaveEntity>> PORTAL_LEAVE_ENTITY =
             ENTITY_TYPES.register("portal_leave_entity", () -> EntityType.Builder.<PortalLeaveEntity>of(PortalLeaveEntity::new, MobCategory.MISC)
                     .sized(3f, .1f)
                     .clientTrackingRange(64)
-                    .build(new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "portal_leave_entity").toString()));
-
+                    .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "portal_leave_entity").toString()));
 
     public DarkDoppelgangerMod() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
-        modEventBus.addListener(this::addCreative);
-
 
         ItemRegistry.ITEMS.register(modEventBus);
         TabRegistry.register(modEventBus);
@@ -85,19 +80,13 @@ public class DarkDoppelgangerMod {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
-    }
-
-
     @SubscribeEvent
     public void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(DARK_DOPPELGANGER.get(), DarkDoppelgangerEntity.createAttributes().build());
         event.put(DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerMinionEntity.createAttributes().build());
     }
 
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        // Add items to creative tab
-    }
+
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {

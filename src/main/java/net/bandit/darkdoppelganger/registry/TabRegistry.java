@@ -19,7 +19,6 @@ public class TabRegistry {
                     .icon(() -> new ItemStack(ItemRegistry.DOPPELGANGER_RING.get()))
                     .title(Component.translatable("itemGroup.darkdoppelganger.doppelganger_tab"))
                     .displayItems((parameters, output) -> {
-                        // Add your items here
                         output.accept(ItemRegistry.DOPPELGANGER_RING.get());
                         output.accept(ItemRegistry.SUMMON_SCROLL.get());
                         output.accept(ItemRegistry.SHADOW_ORB.get());

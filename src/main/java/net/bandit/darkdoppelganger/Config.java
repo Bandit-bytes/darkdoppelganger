@@ -22,6 +22,8 @@ public class Config {
     public static ForgeConfigSpec.DoubleValue MINION_ATTACK_DAMAGE;
     public static ForgeConfigSpec.DoubleValue MINION_MOVEMENT_SPEED;
     public static ForgeConfigSpec.DoubleValue MINION_ARMOR;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> MINION_SPELLS;
+    public static ForgeConfigSpec.ConfigValue<String> MINION_BARRAGE_SPELL;
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_DAMAGE_CAP;
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_SPELL_POWER_MULTIPLIER;
 
@@ -113,6 +115,30 @@ public class Config {
         MINION_ATTACK_DAMAGE = builder.defineInRange("attack_damage", 6.0, 0.1, 100.0);
         MINION_MOVEMENT_SPEED = builder.defineInRange("movement_speed", 0.28, 0.01, 1.0);
         MINION_ARMOR = builder.defineInRange("armor", 4.0, 0.0, 100.0);
+        MINION_BARRAGE_SPELL = builder
+                .comment("Spell used for the minion's SpellBarrageGoal (string id)")
+                .define("barrage_spell", "irons_spellbooks:devour");
+
+        MINION_SPELLS = builder
+                .comment(
+                        "List of spells the minion can use (string ids).",
+                        "These will be shuffled and split into groups for the Warlock attack goal."
+                )
+                .defineListAllowEmpty(
+                        "spells",
+                        () -> List.of(
+                                "irons_spellbooks:guiding_bolt",
+                                "irons_spellbooks:blood_needles",
+                                "irons_spellbooks:blood_slash",
+                                "irons_spellbooks:fang_ward",
+                                "irons_spellbooks:gust",
+                                "irons_spellbooks:burning_dash",
+                                "irons_spellbooks:blight",
+                                "irons_spellbooks:invisibility"
+                        ),
+                        obj -> obj instanceof String
+                );
+
 
         builder.pop();
 

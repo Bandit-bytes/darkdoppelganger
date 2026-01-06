@@ -719,6 +719,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (isClone) return;
         if (minionSummonCooldown > 0) return;
         if (activeMinionUUIDs.size() >= MAX_MINIONS) return;
+
         Player summoner = this.getSummonerPlayer();
         if (summoner == null) {
             if (getTarget() instanceof Player p) summoner = p;
@@ -728,6 +729,16 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             minionSummonCooldown = 200;
             return;
         }
+        LivingEntity bossTarget = this.getTarget();
+        UUID summonerId = summoner.getUUID();
+        List<Player> nearbyPlayers = level().getEntitiesOfClass(
+                Player.class,
+                this.getBoundingBox().inflate(48),
+                p -> p.isAlive()
+                        && !p.isSpectator()
+                        && !p.isCreative()
+                        && !p.getUUID().equals(summonerId)
+        );
 
         int toSpawn = Math.min(2, MAX_MINIONS - activeMinionUUIDs.size());
 
@@ -739,20 +750,27 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             double z = getZ() + (random.nextInt(5) - 2);
 
             minion.moveTo(x, getY(), z, this.getYRot(), this.getXRot());
-            minion.setSummonerUUID(summoner.getUUID());
-
-            minion.addTag("dark_doppelganger_clone");
-            minion.setCustomName(Component.literal("Doppelganger Minion").withStyle(ChatFormatting.DARK_GRAY));
-            Team team = getTeam();
-            if (team instanceof PlayerTeam playerTeam) {
-                level().getScoreboard().addPlayerToTeam(minion.getScoreboardName(), playerTeam);
-            }
+            minion.setBossMinion(true);
+            minion.setSummonerUUID(null);
+            minion.addTag("dark_doppelganger_minion");
+            minion.setCustomName(Component.literal("Minion").withStyle(ChatFormatting.DARK_GRAY));
+            minion.setCustomNameVisible(true);
             minion.getPersistentData().putBoolean("SpawnWeak", true);
-
             level().addFreshEntity(minion);
             activeMinionUUIDs.add(minion.getUUID());
-        }
 
+            LivingEntity chosenTarget = bossTarget;
+
+            if (chosenTarget == null || !chosenTarget.isAlive()) {
+                if (!nearbyPlayers.isEmpty()) {
+                    chosenTarget = nearbyPlayers.get(i % nearbyPlayers.size());
+                } else {
+                    chosenTarget = summoner;
+                }
+            }
+            minion.setTarget(chosenTarget);
+            minion.setLastHurtByMob(chosenTarget);
+        }
         minionSummonCooldown = 600;
     }
 

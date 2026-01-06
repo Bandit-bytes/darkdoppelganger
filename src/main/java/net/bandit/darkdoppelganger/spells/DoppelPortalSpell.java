@@ -37,10 +37,6 @@ import java.util.Optional;
 @AutoSpellConfig
 public class DoppelPortalSpell extends AbstractSpell {
 
-    // ------------------------------------------------------------
-    // Identity + Config
-    // ------------------------------------------------------------
-
     private final ResourceLocation spellId =
             ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "doppel_portal");
 
@@ -48,7 +44,7 @@ public class DoppelPortalSpell extends AbstractSpell {
             .setMinRarity(SpellRarity.LEGENDARY)
             .setSchoolResource(SchoolRegistry.ENDER_RESOURCE)
             .setMaxLevel(1)
-            .setCooldownSeconds(8) // more “evasion tool” than spam blink
+            .setCooldownSeconds(8)
             .build();
 
     public DoppelPortalSpell() {
@@ -59,7 +55,6 @@ public class DoppelPortalSpell extends AbstractSpell {
         this.baseSpellPower = 1;
         this.spellPowerPerLevel = 0;
 
-        // Faster cast so it works as a dodge
         this.castTime = 14;
     }
 
@@ -113,9 +108,6 @@ public class DoppelPortalSpell extends AbstractSpell {
         return false;
     }
 
-    // ------------------------------------------------------------
-    // Caster-persistent NBT keys (per entity, not per spell singleton)
-    // ------------------------------------------------------------
 
     private static final String NBT_ROOT = "dd_doppel_portal";
     private static final String NBT_LEAVE_SPAWNED = "leaveSpawned";
@@ -124,9 +116,6 @@ public class DoppelPortalSpell extends AbstractSpell {
     private static final String NBT_ORIGIN_Z = "oz";
     private static final String NBT_ORIGIN_YAW = "oyaw";
 
-    // ------------------------------------------------------------
-    // Cast logic
-    // ------------------------------------------------------------
 
     @Override
     public void onCast(Level level, int spellLevel, LivingEntity entity, CastSource castSource, MagicData magicData) {
@@ -164,7 +153,6 @@ public class DoppelPortalSpell extends AbstractSpell {
 
             Vec3 dest = findSafeTeleportLocation(level, entity, maxDistance);
 
-            // Particles for trackers
             Messages.sendToPlayersTrackingEntity(new TeleportParticlesPacket(entity.position(), dest), entity, true);
 
             if (entity.isPassenger()) {
@@ -174,14 +162,11 @@ public class DoppelPortalSpell extends AbstractSpell {
             entity.teleportTo(dest.x, dest.y, dest.z);
             entity.resetFallDistance();
 
-            // Short "evasion window"
             entity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 25, 0, false, false, true));
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 30, 0, false, false, true));
 
-            // Sound
             getCastFinishSound().ifPresent(sound -> entity.playSound(sound, 2.0f, 1.0f));
 
-            // Join portal at destination
             PortalJoinEntity portal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), level);
             portal.setYRot(entity.getYRot());
             portal.yRotO = entity.getYRot();
@@ -195,10 +180,6 @@ public class DoppelPortalSpell extends AbstractSpell {
         }
     }
 
-    // ------------------------------------------------------------
-    // Distance tuning (this is why you were seeing 3–4 blocks)
-    // ------------------------------------------------------------
-
     /**
      * Baseline ~16 blocks, scales up slightly with caster power, hard-clamped.
      * Makes it a legit "blink" for evasion.
@@ -209,10 +190,6 @@ public class DoppelPortalSpell extends AbstractSpell {
         double scaled = base * (0.9 + 0.25 * mult);
         return (float) Math.max(12.0, Math.min(26.0, scaled));
     }
-
-    // ------------------------------------------------------------
-    // Safer destination search
-    // ------------------------------------------------------------
 
     public static Vec3 findSafeTeleportLocation(Level level, LivingEntity entity, float maxDistance) {
         var hit = Utils.getTargetBlock(level, entity, ClipContext.Fluid.NONE, maxDistance);
@@ -289,10 +266,6 @@ public class DoppelPortalSpell extends AbstractSpell {
                 entity
         )).getLocation().add(0, 0.01, 0);
     }
-
-    // ------------------------------------------------------------
-    // UI
-    // ------------------------------------------------------------
 
     @Override
     public List<MutableComponent> getUniqueInfo(int spellLevel, LivingEntity caster) {

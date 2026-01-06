@@ -4,10 +4,11 @@ import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
-import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.SpellBarrageGoal;
+import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
+import io.redspace.ironsspellbooks.spells.NoneSpell;
 import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.minecraft.nbt.CompoundTag;
@@ -16,8 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
@@ -26,7 +26,6 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
@@ -37,13 +36,25 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
+public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implements IAnimatedAttacker {
+
+    private static final String NBT_SUMMONER_UUID = "SummonerUUID";
+    private static final String NBT_IS_BOSS_MINION = "IsBossMinion";
+    private static final String NBT_PLAYER_MINION_UUID = "DarkDoppel_SummonerMinionUUID";
+    private static final String PERSISTED_TAG = "darkdoppelganger";
+    private static final String NBT_WARN_COOLDOWN = "MinionWarnCooldown";
+
 
     private int age;
-    @Nullable private UUID summonerUUID;
+
+    @Nullable
+    private UUID summonerUUID;
+
+    private boolean isBossMinion = false;
 
     public DarkDoppelgangerMinionEntity(EntityType<? extends AbstractSpellCastingMob> type, Level world) {
         super(type, world);
@@ -52,14 +63,33 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         this.moveControl = this.createMoveControl();
     }
 
+    public void setSummonerUUID(UUID uuid) {
+        this.summonerUUID = uuid;
+    }
+
+    public @Nullable UUID getSummonerUUID() {
+        return summonerUUID;
+    }
+
+    public void setBossMinion(boolean bossMinion) {
+        if (this.isBossMinion == bossMinion) return;
+        this.isBossMinion = bossMinion;
+
+        if (!level().isClientSide) {
+            this.goalSelector.removeAllGoals(g -> true);
+            this.targetSelector.removeAllGoals(g -> true);
+            this.registerGoals();
+        }
+    }
+
+    public boolean isBossMinion() {
+        return isBossMinion;
+    }
+
     @Nullable
     public ServerPlayer getSummonerPlayer() {
         if (summonerUUID == null || !(this.level() instanceof ServerLevel serverLevel)) return null;
         return serverLevel.getServer().getPlayerList().getPlayer(summonerUUID);
-    }
-
-    public void setSummonerUUID(UUID uuid) {
-        this.summonerUUID = uuid;
     }
 
     @Override
@@ -76,7 +106,6 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
                 .add(ForgeMod.ENTITY_REACH.get(), 3.0D);
     }
 
-
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
@@ -91,8 +120,10 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
 
     RawAnimation animationToPlay = null;
     private final RawAnimation ANIMATION_SPAWN = RawAnimation.begin().thenPlay("join_1");
-    private final AnimationController<DarkDoppelgangerMinionEntity> meleeController = new AnimationController<>(this, "keeper_animations", 0, this::predicate);
-    private final AnimationController<DarkDoppelgangerMinionEntity> spawnController = new AnimationController<>(this, "spawn_animations", 0, this::spawnPredicate);
+    private final AnimationController<DarkDoppelgangerMinionEntity> meleeController =
+            new AnimationController<>(this, "keeper_animations", 0, this::predicate);
+    private final AnimationController<DarkDoppelgangerMinionEntity> spawnController =
+            new AnimationController<>(this, "spawn_animations", 0, this::spawnPredicate);
 
     @Override
     protected void dropAllDeathLoot(DamageSource source) {
@@ -116,7 +147,9 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
             controller.setAnimation(animationToPlay);
             animationToPlay = null;
         }
-        return spawnController.getAnimationState() == AnimationController.State.STOPPED ? PlayState.CONTINUE : PlayState.STOP;
+        return spawnController.getAnimationState() == AnimationController.State.STOPPED
+                ? PlayState.CONTINUE
+                : PlayState.STOP;
     }
 
     private PlayState spawnPredicate(AnimationState<DarkDoppelgangerMinionEntity> animationEvent) {
@@ -138,20 +171,45 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
 
     @Override
     public boolean isAnimating() {
-        return meleeController.getAnimationState() != AnimationController.State.STOPPED || spawnController.getAnimationState() != AnimationController.State.STOPPED || super.isAnimating();
+        return meleeController.getAnimationState() != AnimationController.State.STOPPED
+                || spawnController.getAnimationState() != AnimationController.State.STOPPED
+                || super.isAnimating();
     }
+
     private List<AbstractSpell> getConfiguredSpells(List<? extends String> ids) {
         return ids.stream()
                 .map(ResourceLocation::new)
                 .map(SpellRegistry::getSpell)
-                .filter(spell -> !(spell instanceof io.redspace.ironsspellbooks.spells.NoneSpell))
+                .filter(spell -> !(spell instanceof NoneSpell))
                 .toList();
     }
+    private List<AbstractSpell> getMinionConfiguredSpells() {
+        return getConfiguredSpells(Config.MINION_SPELLS.get());
+    }
+
+    private List<AbstractSpell> getSpellGroup(List<AbstractSpell> list, int start, int count) {
+        if (start >= list.size()) return List.of();
+        return list.subList(start, Math.min(start + count, list.size()));
+    }
+
+    private AbstractSpell getMinionBarrageSpell() {
+        try {
+            ResourceLocation id = ResourceLocation.tryParse(Config.MINION_BARRAGE_SPELL.get());
+            if (id == null) return SpellRegistry.DEVOUR_SPELL.get();
+
+            AbstractSpell spell = SpellRegistry.getSpell(id);
+            if (spell instanceof NoneSpell) {
+                return SpellRegistry.DEVOUR_SPELL.get();
+            }
+            return spell;
+        } catch (Exception e) {
+            return SpellRegistry.DEVOUR_SPELL.get();
+        }
+    }
+
 
     protected MoveControl createMoveControl() {
         return new MoveControl(this) {
-            //This fixes a bug where a mob tries to path into the block it's already standing, and spins around trying to look "forward"
-            //We nullify our rotation calculation if we are close to block we are trying to get to
             @Override
             protected float rotlerp(float pSourceAngle, float pTargetAngle, float pMaximumChange) {
                 double d0 = this.wantedX - this.mob.getX();
@@ -165,6 +223,43 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         };
     }
 
+    @Override
+    public boolean isAlliedTo(Entity other) {
+        if (other == null) return false;
+        if (isBossMinion) {
+            if (other instanceof DarkDoppelgangerEntity d && !d.isClone) return true;
+            if (other instanceof DarkDoppelgangerMinionEntity m && m.isBossMinion()) return true;
+            return false;
+        }
+        ServerPlayer summoner = getSummonerPlayer();
+        if (summoner != null) {
+            if (other == summoner) return true;
+            if (other.isAlliedTo(summoner)) return true;
+        }
+
+        return super.isAlliedTo(other);
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (target == null) return false;
+        if (isBossMinion) {
+            if (target instanceof DarkDoppelgangerEntity d && !d.isClone) return false;
+            if (target instanceof DarkDoppelgangerMinionEntity m && m.isBossMinion()) return false;
+            return super.canAttack(target);
+        }
+
+        if (target instanceof Player) return false;
+
+        ServerPlayer summoner = getSummonerPlayer();
+        if (summoner != null) {
+            if (target == summoner) return false;
+            if (target.isAlliedTo(summoner)) return false;
+        }
+
+        return super.canAttack(target);
+    }
+
 
     @Override
     public void tick() {
@@ -172,49 +267,129 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         age++;
 
         if (level().isClientSide) return;
-        Player summoner = getSummonerPlayer();
-        if (summoner == null || summoner.isDeadOrDying()) {
+        if (isBossMinion) return;
+        ServerPlayer sp = getSummonerPlayer();
+        if (sp == null || sp.isDeadOrDying()) {
             discard();
             return;
         }
+        Player summoner = sp;
+
+        if (sp != null) {
+            CompoundTag data = sp.getPersistentData().getCompound(PERSISTED_TAG);
+            int cd = data.getInt(NBT_WARN_COOLDOWN);
+            if (cd > 0) {
+                data.putInt(NBT_WARN_COOLDOWN, cd - 1);
+                sp.getPersistentData().put(PERSISTED_TAG, data);
+            }
+        }
+
         if (summoner.level() != this.level()) {
             discard();
             return;
         }
+
+        double distSq = this.distanceToSqr(summoner);
+        if (distSq > 18 * 18) {
+            this.teleportTo(summoner.getX(), summoner.getY(), summoner.getZ());
+        } else if (distSq > 6 * 6) {
+            this.getNavigation().moveTo(summoner, 1.2);
+        }
+        if (this.getTarget() == null) {
+            LivingEntity a = summoner.getLastHurtMob();
+            LivingEntity b = summoner.getLastHurtByMob();
+
+            if (a != null && a.isAlive() && this.canAttack(a)) this.setTarget(a);
+            else if (b != null && b.isAlive() && this.canAttack(b)) this.setTarget(b);
+        }
+        LivingEntity t = this.getTarget();
+        if (t != null && (!t.isAlive() || !this.canAttack(t) || this.distanceToSqr(t) > (32 * 32))) {
+            this.setTarget(null);
+        }
+    }
+    public static boolean playerHasLivingMinion(ServerLevel level, ServerPlayer player) {
+        CompoundTag tag = player.getPersistentData();
+        if (!tag.hasUUID(NBT_PLAYER_MINION_UUID)) return false;
+
+        UUID id = tag.getUUID(NBT_PLAYER_MINION_UUID);
+        Entity e = level.getEntity(id);
+        if (e instanceof DarkDoppelgangerMinionEntity m && m.isAlive() && !m.isBossMinion()) {
+            return true;
+        }
+
+        tag.remove(NBT_PLAYER_MINION_UUID);
+        return false;
+    }
+
+    public static void linkPlayerToMinion(ServerPlayer player, UUID minionId) {
+        player.getPersistentData().putUUID(NBT_PLAYER_MINION_UUID, minionId);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        if (summonerUUID != null) {
-            tag.putUUID("SummonerUUID", summonerUUID);
-        }
+        if (summonerUUID != null) tag.putUUID(NBT_SUMMONER_UUID, summonerUUID);
+        tag.putBoolean(NBT_IS_BOSS_MINION, isBossMinion);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.hasUUID("SummonerUUID")) {
-            this.summonerUUID = tag.getUUID("SummonerUUID");
-        }
+        if (tag.hasUUID(NBT_SUMMONER_UUID)) this.summonerUUID = tag.getUUID(NBT_SUMMONER_UUID);
+        this.isBossMinion = tag.getBoolean(NBT_IS_BOSS_MINION);
     }
+
 
     @Override
     public boolean requiresCustomPersistence() {
         return true;
     }
+
     @Override
     protected void registerGoals() {
         setFirstPhaseGoals();
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+
+        if (isBossMinion) {
+            this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        } else {
+            this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
+                    this,
+                    LivingEntity.class,
+                    6,
+                    true,
+                    true,
+                    (e) -> {
+                        if (!(e instanceof Mob mob)) return false;
+                        if (e instanceof Player) return false;
+                        if (mob.getType().getCategory() != MobCategory.MONSTER) return false;
+                        ServerPlayer summoner = getSummonerPlayer();
+                        if (summoner != null) {
+                            if (e == summoner) return false;
+                            if (e.isAlliedTo(summoner)) return false;
+                        }
+                        return this.canAttack(e);
+                    }
+            ));
+        }
     }
 
     protected void setFirstPhaseGoals() {
         this.goalSelector.getRunningGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
+
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.DEVOUR_SPELL.get(), 3, 6, 100, 250, 1));
+        AbstractSpell barrageSpell = getMinionBarrageSpell();
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, barrageSpell, 3, 6, 100, 250, 1));
+        var allSpells = new java.util.ArrayList<>(getMinionConfiguredSpells());
+        Collections.shuffle(allSpells, new java.util.Random(this.random.nextLong()));
+
+        List<AbstractSpell> group1 = getSpellGroup(allSpells, 0, 3);
+        List<AbstractSpell> group2 = getSpellGroup(allSpells, 3, 3);
+        List<AbstractSpell> group3 = getSpellGroup(allSpells, 6, 2);
+        List<AbstractSpell> group4 = getSpellGroup(allSpells, 8, 4);
+
         this.goalSelector.addGoal(3, new GenericAnimatedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -225,14 +400,39 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
                 .setComboChance(.4f)
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
-                .setSpells(
-                        List.of(SpellRegistry.GUIDING_BOLT_SPELL.get(), SpellRegistry.BLOOD_NEEDLES_SPELL.get(), SpellRegistry.BLOOD_SLASH_SPELL.get()),
-                        List.of(SpellRegistry.FANG_WARD_SPELL.get(), SpellRegistry.GUST_SPELL.get()),
-                        List.of(SpellRegistry.BURNING_DASH_SPELL.get()),
-                        List.of(SpellRegistry.BLIGHT_SPELL.get(), SpellRegistry.INVISIBILITY_SPELL.get())
-                )
+                .setSpells(group1, group2, group3, group4)
         );
+
         this.goalSelector.addGoal(4, new PatrolNearLocationGoal(this, 30, .75f));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+    }
+
+
+    @Override
+    public void die(DamageSource source) {
+        clearPlayerMinionLink();
+        super.die(source);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        clearPlayerMinionLink();
+        super.remove(reason);
+    }
+
+    private void clearPlayerMinionLink() {
+        if (level().isClientSide) return;
+        if (isBossMinion) return;
+
+        ServerPlayer summoner = getSummonerPlayer();
+        if (summoner == null) return;
+
+        CompoundTag tag = summoner.getPersistentData();
+        if (tag.hasUUID(NBT_PLAYER_MINION_UUID)) {
+            UUID stored = tag.getUUID(NBT_PLAYER_MINION_UUID);
+            if (stored.equals(this.getUUID())) {
+                tag.remove(NBT_PLAYER_MINION_UUID);
+            }
+        }
     }
 }

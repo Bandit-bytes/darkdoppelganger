@@ -54,7 +54,8 @@
                 "max": 1.0
               },
               "spells": [
-                "darkdoppelganger:doppel_portal"
+                "darkdoppelganger:doppel_portal",
+                "darkdoppelganger:summon_doppel_minion"
               ]
             }
           ]
