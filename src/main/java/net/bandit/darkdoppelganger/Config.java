@@ -21,6 +21,7 @@ public class Config {
     public static final ModConfigSpec.DoubleValue MINION_ATTACK_DAMAGE;
     public static final ModConfigSpec.DoubleValue MINION_MOVEMENT_SPEED;
     public static final ModConfigSpec.DoubleValue MINION_ARMOR;
+    public static final ModConfigSpec.DoubleValue DOPPELGANGER_SPELL_POWER_MULTIPLIER;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> MINION_SPELLS;
     public static final ModConfigSpec.ConfigValue<String> MINION_BARRAGE_SPELL;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
@@ -196,6 +197,10 @@ public class Config {
                         ),
                         o -> o instanceof String
                 );
+        DOPPELGANGER_SPELL_POWER_MULTIPLIER = BUILDER
+                .comment("Scales all Iron's Spellbooks spell power attributes copied from the summoner. 1.0 = no change.")
+                .defineInRange("doppelgangerSpellPowerMultiplier", 1.0D, 0.0D, 100.0D);
+
 
         BUILDER.pop();
 

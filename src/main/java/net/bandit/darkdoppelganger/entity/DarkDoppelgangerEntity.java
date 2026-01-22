@@ -143,8 +143,10 @@ public void setSummonerPlayer(Player summoner) {
     copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER);
     copyAttribute(AttributeRegistry.ENDER_SPELL_POWER);
     copyAttribute(AttributeRegistry.SPELL_POWER);
+    boostSpellPowerFromConfig();
 
-            if (Config.DOPPELGANGER_HARD_MODE.get()) {
+
+    if (Config.DOPPELGANGER_HARD_MODE.get()) {
                 this.getAttribute(AttributeRegistry.HOLY_SPELL_POWER.getDelegate()).setBaseValue(1.3);
                 this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST.getDelegate()).setBaseValue(1.5f);
                 this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST.getDelegate()).setBaseValue(1.5f);
@@ -156,6 +158,31 @@ public void setSummonerPlayer(Player summoner) {
                 this.getAttribute(AttributeRegistry.SPELL_RESIST.getDelegate()).setBaseValue(1.5f);
             }
         }
+
+    private void boostSpellPowerFromConfig() {
+        double multiplier = Config.DOPPELGANGER_SPELL_POWER_MULTIPLIER.get();
+        if (multiplier <= 0.0 || multiplier == 1.0) {
+            return;
+        }
+
+        scaleSpellPower(AttributeRegistry.HOLY_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.BLOOD_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.NATURE_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.ELDRITCH_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.FIRE_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.ICE_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.LIGHTNING_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.EVOCATION_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.ENDER_SPELL_POWER, multiplier);
+        scaleSpellPower(AttributeRegistry.SPELL_POWER, multiplier);
+    }
+
+    private void scaleSpellPower(Holder<Attribute> attribute, double multiplier) {
+        AttributeInstance inst = this.getAttribute(attribute);
+        if (inst != null) {
+            inst.setBaseValue(inst.getBaseValue() * multiplier);
+        }
+    }
 
     @Override
     protected void registerGoals() {

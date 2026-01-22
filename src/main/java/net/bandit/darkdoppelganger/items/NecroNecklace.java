@@ -1,6 +1,7 @@
 package net.bandit.darkdoppelganger.items;
 
 import io.redspace.ironsspellbooks.item.weapons.AttributeContainer;
+import io.redspace.ironsspellbooks.api.magic.MagicData;
 import net.bandit.darkdoppelganger.curios.CurioNecklaceItem;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
