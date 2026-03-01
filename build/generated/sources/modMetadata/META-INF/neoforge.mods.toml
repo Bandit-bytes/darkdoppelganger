@@ -4,7 +4,7 @@ license = "MIT"
 issueTrackerURL="https://github.com/Bandit-bytes/darkdoppelganger/issues" #optional
 [[mods]]
 modId = "darkdoppelganger"
-version = "3.2.0-1.21.1"
+version = "3.2.2-1.21.1"
 displayName = "DarkDoppelganger"
 displayURL="https://pixeldreamstudios.net/"
 #logoFile="DarkDoppelgangerMod.png" #optional

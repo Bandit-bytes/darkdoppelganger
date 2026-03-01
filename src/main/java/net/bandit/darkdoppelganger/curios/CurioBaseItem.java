@@ -23,14 +23,13 @@ import java.util.function.Function;
 
 public class CurioBaseItem extends Item implements ICurioItem {
 
-    private String attributeSlot = Curios.RING_SLOT; // Default slot type
+    private String attributeSlot = Curios.RING_SLOT;
     private Function<Integer, Multimap<Holder<Attribute>, AttributeModifier>> attributes = index -> ImmutableMultimap.of(); // Default empty attributes
 
     public CurioBaseItem(Item.Properties properties) {
         super(properties);
     }
 
-    // Utility method to check if the curio is equipped by an entity
     public boolean isEquippedBy(@Nullable LivingEntity entity) {
         return entity != null && CuriosApi.getCuriosInventory(entity)
                 .map(inv -> inv.findFirstCurio(this).isPresent())
@@ -45,7 +44,6 @@ public class CurioBaseItem extends Item implements ICurioItem {
 
     @Override
     public Multimap<Holder<Attribute>, AttributeModifier> getAttributeModifiers(SlotContext slotContext, ResourceLocation id, ItemStack stack) {
-        // Apply attributes only if the slot matches
         if (slotContext.identifier().equals(this.attributeSlot)) {
             return attributes.apply(slotContext.index());
         }
