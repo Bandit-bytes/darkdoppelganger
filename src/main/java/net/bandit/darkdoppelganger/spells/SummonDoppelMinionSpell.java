@@ -38,17 +38,18 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
     private static final String NBT_PLAYER_MINION_UUID = "DarkDoppel_SummonerMinionUUID";
     private static final String PERSISTED_TAG = "darkdoppelganger";
     private static final String NBT_WARN_COOLDOWN = "MinionWarnCooldown";
-    private static final int WARN_COOLDOWN_TICKS = 40; // 2s
+    private static final int WARN_COOLDOWN_TICKS = 40;
 
 
     private final ResourceLocation spellId =
             ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "summon_doppel_minion");
 
     private final DefaultConfig defaultConfig = new DefaultConfig()
-            .setMinRarity(SpellRarity.RARE)
+            .setMinRarity(SpellRarity.LEGENDARY)
             .setSchoolResource(SchoolRegistry.ENDER_RESOURCE)
             .setMaxLevel(1)
             .setCooldownSeconds(25)
+            .setAllowCrafting(false)
             .build();
 
     public SummonDoppelMinionSpell() {

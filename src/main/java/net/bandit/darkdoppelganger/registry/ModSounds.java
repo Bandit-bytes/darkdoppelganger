@@ -12,10 +12,9 @@ import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 @Mod.EventBusSubscriber(modid = DarkDoppelgangerMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModSounds {
 
-    // Create the Deferred Register for sound events
+
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, DarkDoppelgangerMod.MOD_ID);
 
-    // Register your custom boss music
     public static final RegistryObject<SoundEvent> BOSS_FIGHT_MUSIC = SOUND_EVENTS.register("boss_fight",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "boss_fight")));
 
@@ -28,7 +27,6 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> BOSS_ROAR = SOUND_EVENTS.register("boss_roar",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(DarkDoppelgangerMod.MOD_ID, "boss_roar")));
 
-    // Method to register sound events
     public static void register(IEventBus eventBus) {
         SOUND_EVENTS.register(eventBus);
     }

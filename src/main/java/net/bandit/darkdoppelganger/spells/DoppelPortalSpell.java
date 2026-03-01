@@ -48,7 +48,6 @@ public class DoppelPortalSpell extends AbstractSpell {
             .build();
 
     public DoppelPortalSpell() {
-        // Feel-good player spell
         this.baseManaCost = 10;
         this.manaCostPerLevel = 0;
 

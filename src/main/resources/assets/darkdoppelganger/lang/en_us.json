@@ -18,6 +18,7 @@
   "spell.darkdoppelganger.doppel_portal": "Portal Jump",
 
   "spell.irons_spellbooks.doppel_portal.guide": "Enter through a portal summoned in front of you to exit through another portal some blocks away.",
+  "spell.irons_spellbooks.summon_doppel_minion.guide": "Able to summon 1 minion to fight at your side from the Dark Doppelgangers dimension.",
 
   "itemGroup.darkdoppelganger.doppelganger_tab": "Dark Doppelganger",
   "orb.tooltip1": "Let it fall...",
