@@ -8,8 +8,10 @@ import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -33,7 +35,6 @@ import static net.bandit.darkdoppelganger.registry.ComponentRegistry.THROWER_UUI
 
 public class ShadowOrbItem extends Item {
 
-    // Entity persistent data keys
     private static final String E_QUEUED   = "DoppelSummonQueued";
     private static final String E_DELAY    = "DoppelSummonDelay";
     private static final String E_ANCHOR_X = "DoppelAnchorX";
@@ -42,17 +43,14 @@ public class ShadowOrbItem extends Item {
     private static final String E_ANGLE    = "DoppelAngle";
     private static final String E_THROWER  = "DoppelThrowerUUID";
 
-    private static final int SUMMON_DELAY_TICKS = 100;  // 5s
-    private static final double VOID_TRIGGER_Y = 30.0;  // your 1.20.1 threshold
+    private static final int SUMMON_DELAY_TICKS = 100;
+    private static final double VOID_TRIGGER_Y = 30.0;
     private static final int NO_PICKUP_DELAY = 700;
 
     public ShadowOrbItem(Properties properties) {
         super(properties);
     }
 
-    // -----
-    // Throw on right click (1.20.1 feature)
-    // -----
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
@@ -84,18 +82,13 @@ public class ShadowOrbItem extends Item {
         return InteractionResultHolder.sidedSuccess(held, level.isClientSide);
     }
 
-    // -----
-    // Tag on craft (you already do this, keep it)
-    // -----
+
     @Override
     public void onCraftedBy(ItemStack stack, Level level, Player player) {
         stack.set(THROWER_UUID.get(), player.getUUID());
         super.onCraftedBy(stack, level, player);
     }
 
-    // -----
-    // Update while it's an ItemEntity (queued hover + summon)
-    // -----
     @Override
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         Level level = entity.level();
@@ -103,12 +96,10 @@ public class ShadowOrbItem extends Item {
 
         entity.setPickUpDelay(NO_PICKUP_DELAY);
 
-        // Ensure we have a thrower UUID if possible
         ensureThrowerOnce(stack, serverLevel, entity);
 
         CompoundTag e = entity.getPersistentData();
 
-        // If queued, do hover/orbit + countdown, then summon
         if (e.getBoolean(E_QUEUED)) {
             entity.setExtendedLifetime();
             entity.setNoGravity(true);
@@ -153,7 +144,6 @@ public class ShadowOrbItem extends Item {
             return false;
         }
 
-        // Trigger once when orb falls into the End void threshold
         if (serverLevel.dimension() == Level.END && entity.getY() < VOID_TRIGGER_Y) {
             UUID throwerId = stack.get(THROWER_UUID.get());
             if (throwerId != null) e.putUUID(E_THROWER, throwerId);
@@ -230,7 +220,6 @@ public class ShadowOrbItem extends Item {
     private static void summonDoppelganger(ServerLevel level, Player player) {
         List<? extends String> banned = Config.DOPPELGANGER_BANNED_ARMOR.get();
 
-        // Spawn behind player like 1.20.1
         Vec3 back = player.getLookAngle().normalize().scale(-2.5);
         Vec3 spawnPos = player.position().add(back).add(0, 0.25, 0);
 
@@ -249,13 +238,20 @@ public class ShadowOrbItem extends Item {
         boss.setSummonerPlayer(player);
         boss.addTag("dark_doppelganger_boss");
 
-        // Copy main hand like 1.20.1
-        boss.setItemSlot(EquipmentSlot.MAINHAND, player.getMainHandItem().copy());
+        ItemStack mainHandToUse;
+        if (Config.DOPPELGANGER_COPY_PLAYER_MAINHAND.get()) {
+            ItemStack playerMainHand = player.getMainHandItem();
+            mainHandToUse = playerMainHand.isEmpty()
+                    ? getConfiguredItem(Config.DOPPELGANGER_DEFAULT_MAINHAND.get())
+                    : playerMainHand.copy();
+        } else {
+            mainHandToUse = getConfiguredItem(Config.DOPPELGANGER_DEFAULT_MAINHAND.get());
+        }
 
-        // Armor copy with banned list + fallback
+        boss.setItemSlot(EquipmentSlot.MAINHAND, mainHandToUse);
+
         setArmorFromPlayer(boss, player, banned);
 
-        // No gear drops
         boss.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         boss.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
         boss.setDropChance(EquipmentSlot.HEAD, 0.0F);
@@ -271,24 +267,48 @@ public class ShadowOrbItem extends Item {
             level.playSound(null, boss.blockPosition(), SoundEvents.ENDERMAN_STARE, SoundSource.HOSTILE, 1.0F, 0.5F);
         }
     }
+    private static ItemStack getConfiguredItem(String id) {
+        ResourceLocation rl = ResourceLocation.tryParse(id);
+        if (rl == null) {
+            return ItemStack.EMPTY;
+        }
+
+        Item item = BuiltInRegistries.ITEM.get(rl);
+        if (item == null || item == net.minecraft.world.item.Items.AIR) {
+            return ItemStack.EMPTY;
+        }
+
+        return new ItemStack(item);
+    }
+
+    private static ItemStack getConfiguredArmorForSlot(EquipmentSlot slot) {
+        return switch (slot) {
+            case HEAD -> getConfiguredItem(Config.DOPPELGANGER_DEFAULT_HELMET.get());
+            case CHEST -> getConfiguredItem(Config.DOPPELGANGER_DEFAULT_CHESTPLATE.get());
+            case LEGS -> getConfiguredItem(Config.DOPPELGANGER_DEFAULT_LEGGINGS.get());
+            case FEET -> getConfiguredItem(Config.DOPPELGANGER_DEFAULT_BOOTS.get());
+            default -> ItemStack.EMPTY;
+        };
+    }
 
     private static void setArmorFromPlayer(DarkDoppelgangerEntity boss, Player player, List<? extends String> banned) {
+        boolean copyPlayerArmor = Config.DOPPELGANGER_COPY_PLAYER_ARMOR.get();
+
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) continue;
 
-            ItemStack playerArmor = player.getItemBySlot(slot);
+            ItemStack equip;
 
-            boolean bannedArmor = isArmorBanned(playerArmor, banned);
+            if (!copyPlayerArmor) {
+                equip = getConfiguredArmorForSlot(slot);
+            } else {
+                ItemStack playerArmor = player.getItemBySlot(slot);
+                boolean bannedArmor = isArmorBanned(playerArmor, banned);
 
-            ItemStack equip = (!playerArmor.isEmpty() && !bannedArmor)
-                    ? playerArmor.copy()
-                    : switch (slot) {
-                case HEAD  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET);
-                case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE);
-                case LEGS  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS);
-                case FEET  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS);
-                default    -> ItemStack.EMPTY;
-            };
+                equip = (!playerArmor.isEmpty() && !bannedArmor)
+                        ? playerArmor.copy()
+                        : getConfiguredArmorForSlot(slot);
+            }
 
             boss.setItemSlot(slot, equip);
         }
@@ -308,7 +328,6 @@ public class ShadowOrbItem extends Item {
         return false;
     }
 
-    // 1.21.1 tooltip signature (your current file uses TooltipContext)
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         tooltipComponents.add(Component.literal("Throw into the void...").withStyle(ChatFormatting.DARK_PURPLE));

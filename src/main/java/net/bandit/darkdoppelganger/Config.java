@@ -24,7 +24,14 @@ public class Config {
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_SPELL_POWER_MULTIPLIER;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> MINION_SPELLS;
     public static final ModConfigSpec.ConfigValue<String> MINION_BARRAGE_SPELL;
+    public static final ModConfigSpec.ConfigValue<String> DOPPELGANGER_DEFAULT_MAINHAND;
+    public static final ModConfigSpec.ConfigValue<String> DOPPELGANGER_DEFAULT_HELMET;
+    public static final ModConfigSpec.ConfigValue<String> DOPPELGANGER_DEFAULT_CHESTPLATE;
+    public static final ModConfigSpec.ConfigValue<String> DOPPELGANGER_DEFAULT_LEGGINGS;
+    public static final ModConfigSpec.ConfigValue<String> DOPPELGANGER_DEFAULT_BOOTS;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
+    public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_ARMOR;
+    public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_MAINHAND;
 
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_A;
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_B;
@@ -77,6 +84,14 @@ public class Config {
         DOPPELGANGER_HARD_MODE = BUILDER
                 .comment("Hard mode of the Dark Doppelganger")
                 .define("hard_mode", false);
+
+        DOPPELGANGER_COPY_PLAYER_ARMOR = BUILDER
+                .comment("If true, the boss will copy the player's armor unless the armor is banned or missing. If false, the boss will always use the configured default armor set.")
+                .define("copy_player_armor", true);
+
+        DOPPELGANGER_COPY_PLAYER_MAINHAND = BUILDER
+                .comment("If true, the boss will copy the player's main hand item. If false, it will always use the configured default main hand item.")
+                .define("copy_player_mainhand", true);
 
         DOPPEL_PHASE1_SPELLS_A = BUILDER.defineListAllowEmpty("phase1.spells_a",
                 List.of(
@@ -183,6 +198,26 @@ public class Config {
                         "irons_spellbooks:blight"
                 ),
                 o -> o instanceof String);
+
+        DOPPELGANGER_DEFAULT_MAINHAND = BUILDER
+                .comment("Default weapon item ID used when the boss should not copy the player's main hand item.")
+                .define("default_mainhand", "minecraft:netherite_sword");
+
+        DOPPELGANGER_DEFAULT_HELMET = BUILDER
+                .comment("Default helmet item ID used when the boss should not copy the player's helmet.")
+                .define("default_helmet", "irons_spellbooks:netherite_mage_helmet");
+
+        DOPPELGANGER_DEFAULT_CHESTPLATE = BUILDER
+                .comment("Default chestplate item ID used when the boss should not copy the player's chestplate.")
+                .define("default_chestplate", "irons_spellbooks:netherite_mage_chestplate");
+
+        DOPPELGANGER_DEFAULT_LEGGINGS = BUILDER
+                .comment("Default leggings item ID used when the boss should not copy the player's leggings.")
+                .define("default_leggings", "irons_spellbooks:netherite_mage_leggings");
+
+        DOPPELGANGER_DEFAULT_BOOTS = BUILDER
+                .comment("Default boots item ID used when the boss should not copy the player's boots.")
+                .define("default_boots", "irons_spellbooks:netherite_mage_boots");
 
 
         DOPPELGANGER_BANNED_ARMOR = BUILDER
