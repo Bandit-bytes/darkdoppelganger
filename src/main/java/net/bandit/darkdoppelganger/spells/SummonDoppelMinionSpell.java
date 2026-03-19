@@ -10,6 +10,7 @@ import io.redspace.ironsspellbooks.api.spells.SpellRarity;
 import io.redspace.ironsspellbooks.api.util.AnimationHolder;
 import io.redspace.ironsspellbooks.api.util.Utils;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEquipmentHelper;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerMinionEntity;
 import net.bandit.darkdoppelganger.entity.EntityRegistry;
 import net.bandit.darkdoppelganger.entity.PortalJoinEntity;
@@ -40,7 +41,6 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
     private static final String NBT_WARN_COOLDOWN = "MinionWarnCooldown";
     private static final int WARN_COOLDOWN_TICKS = 40;
 
-
     private final ResourceLocation spellId =
             ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "summon_doppel_minion");
 
@@ -55,10 +55,8 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
     public SummonDoppelMinionSpell() {
         this.baseManaCost = 35;
         this.manaCostPerLevel = 0;
-
         this.baseSpellPower = 1;
         this.spellPowerPerLevel = 0;
-
         this.castTime = 40;
     }
 
@@ -112,7 +110,6 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
         if (!(level instanceof ServerLevel serverLevel)) return;
         if (!(caster instanceof ServerPlayer player)) return;
 
-
         if (cancelled) {
             magicData.resetCastingState();
             player.stopUsingItem();
@@ -122,10 +119,8 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
 
         if (hasLivingMinion(serverLevel, player)) {
             warnOnce(player, Component.literal("You already have a minion summoned."));
-
             magicData.resetCastingState();
             player.stopUsingItem();
-
             super.onServerCastComplete(level, spellLevel, caster, magicData, true);
             return;
         }
@@ -147,8 +142,12 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
 
         minion.setSummonerUUID(player.getUUID());
         minion.setBossMinion(false);
+        minion.setUseSummonerSkin(true);
+        minion.setSkinPlayerUUID(player.getUUID());
         minion.setCustomName(Component.literal(player.getGameProfile().getName() + "'s Minion"));
         minion.setCustomNameVisible(true);
+
+        DarkDoppelgangerEquipmentHelper.applyPlayerLoadout(minion, player);
 
         serverLevel.addFreshEntity(minion);
         setStoredMinionUUID(player, minion.getUUID());

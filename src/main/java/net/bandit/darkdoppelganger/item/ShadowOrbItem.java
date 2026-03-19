@@ -1,5 +1,6 @@
 package net.bandit.darkdoppelganger.item;
 
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEquipmentHelper;
 import io.redspace.ironsspellbooks.registries.ItemRegistry;
 import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
@@ -33,13 +34,13 @@ public class ShadowOrbItem extends Item {
 
     private static final String TAG_THROWER = "ThrowerUUID";
 
-    private static final String E_QUEUED   = "DoppelSummonQueued";
-    private static final String E_DELAY    = "DoppelSummonDelay";
+    private static final String E_QUEUED = "DoppelSummonQueued";
+    private static final String E_DELAY = "DoppelSummonDelay";
     private static final String E_ANCHOR_X = "DoppelAnchorX";
     private static final String E_ANCHOR_Y = "DoppelAnchorY";
     private static final String E_ANCHOR_Z = "DoppelAnchorZ";
-    private static final String E_ANGLE    = "DoppelAngle";
-    private static final String E_THROWER  = "DoppelThrowerUUID";
+    private static final String E_ANGLE = "DoppelAngle";
+    private static final String E_THROWER = "DoppelThrowerUUID";
 
     private static final int SUMMON_DELAY_TICKS = 100;
     private static final double VOID_TRIGGER_Y = 30.0;
@@ -141,7 +142,6 @@ public class ShadowOrbItem extends Item {
             return false;
         }
 
-        // Trigger once when the orb falls into the End void threshold
         if (serverLevel.dimension() == Level.END && entity.getY() < VOID_TRIGGER_Y) {
             UUID throwerId = getThrowerIdFromStack(stack);
             if (throwerId != null) e.putUUID(E_THROWER, throwerId);
@@ -228,8 +228,6 @@ public class ShadowOrbItem extends Item {
     }
 
     private static void summonDoppelganger(ServerLevel level, Player player) {
-        List<? extends String> banned = Config.DOPPELGANGER_BANNED_ARMOR.get();
-
         Vec3 back = player.getLookAngle().normalize().scale(-2.5);
         Vec3 spawnPos = player.position().add(back).add(0, 0.25, 0);
 
@@ -245,15 +243,8 @@ public class ShadowOrbItem extends Item {
         boss.setCustomNameVisible(true);
         boss.setSummonerPlayer(player);
         boss.addTag("dark_doppelganger_boss");
-        boss.setItemSlot(EquipmentSlot.MAINHAND, player.getMainHandItem().copy());
-        setArmorFromPlayer(boss, player, banned);
 
-        boss.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
-        boss.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
-        boss.setDropChance(EquipmentSlot.HEAD, 0.0F);
-        boss.setDropChance(EquipmentSlot.CHEST, 0.0F);
-        boss.setDropChance(EquipmentSlot.LEGS, 0.0F);
-        boss.setDropChance(EquipmentSlot.FEET, 0.0F);
+        DarkDoppelgangerEquipmentHelper.applyPlayerLoadout(boss, player);
 
         boss.setPersistenceRequired();
 
@@ -262,42 +253,6 @@ public class ShadowOrbItem extends Item {
             level.sendParticles(ParticleTypes.SMOKE, boss.getX(), boss.getY(), boss.getZ(), 30, 0.5, 1.0, 0.5, 0.05);
             level.playSound(null, boss.blockPosition(), SoundEvents.ENDERMAN_STARE, SoundSource.HOSTILE, 1.0F, 0.5F);
         }
-    }
-
-    private static void setArmorFromPlayer(DarkDoppelgangerEntity boss, Player player, List<? extends String> banned) {
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() != EquipmentSlot.Type.ARMOR) continue;
-
-            ItemStack playerArmor = player.getItemBySlot(slot);
-
-            boolean bannedArmor = isArmorBanned(playerArmor, banned);
-
-            ItemStack equip = (!playerArmor.isEmpty() && !bannedArmor)
-                    ? playerArmor.copy()
-                    : switch (slot) {
-                case HEAD  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_HELMET.get());
-                case CHEST -> new ItemStack(ItemRegistry.NETHERITE_MAGE_CHESTPLATE.get());
-                case LEGS  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_LEGGINGS.get());
-                case FEET  -> new ItemStack(ItemRegistry.NETHERITE_MAGE_BOOTS.get());
-                default    -> ItemStack.EMPTY;
-            };
-
-            boss.setItemSlot(slot, equip);
-        }
-    }
-
-    private static boolean isArmorBanned(ItemStack stack, List<? extends String> bannedList) {
-        if (stack.isEmpty()) return false;
-
-        String itemId = stack.getItem().builtInRegistryHolder().key().location().toString();
-        for (String ban : bannedList) {
-            if (ban.endsWith("*")) {
-                if (itemId.startsWith(ban.substring(0, ban.length() - 1))) return true;
-            } else if (itemId.equals(ban)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

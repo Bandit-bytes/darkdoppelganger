@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.network.chat.Component;
@@ -49,6 +50,10 @@ import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 
 import java.util.*;
 
@@ -75,6 +80,19 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private static final int MUSIC_DURATION = 6160;
     private boolean hasFallenIntoVoid = false;
     private int teleportCooldown = 0;
+
+    private static final String NBT_SUMMONER_UUID = "SummonerUUID";
+    private static final String NBT_USE_SUMMONER_SKIN = "UseSummonerSkin";
+    private static final String NBT_SKIN_PLAYER_UUID = "SkinPlayerUUID";
+
+    private static final EntityDataAccessor<Boolean> DATA_USE_SUMMONER_SKIN =
+            SynchedEntityData.defineId(DarkDoppelgangerEntity.class, EntityDataSerializers.BOOLEAN);
+
+    private static final EntityDataAccessor<Optional<UUID>> DATA_SKIN_PLAYER_UUID =
+            SynchedEntityData.defineId(DarkDoppelgangerEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+
+    @Nullable
+    private UUID summonerUUID;
 
 
     public DarkDoppelgangerEntity(EntityType<? extends AbstractSpellCastingMob> type, Level world) {
@@ -121,7 +139,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     public void setSummonerPlayer(Player summoner) {
         this.summonerPlayer = summoner;
+        this.summonerUUID = summoner != null ? summoner.getUUID() : null;
+
         if (summoner != null) {
+            this.setUseSummonerSkin(true);
+            this.setSkinPlayerUUID(summoner.getUUID());
+
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 if (slot == EquipmentSlot.OFFHAND) {
                     continue;
@@ -132,32 +155,37 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 }
             }
             this.setPersistenceRequired();
+        } else {
+            this.setUseSummonerSkin(false);
+            this.setSkinPlayerUUID(null);
         }
 
-        copyAttribute(AttributeRegistry.HOLY_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.NATURE_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.FIRE_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.ICE_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.LIGHTNING_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.ENDER_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.SPELL_POWER.get());
+        if (this.summonerPlayer != null) {
+            copyAttribute(AttributeRegistry.HOLY_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.NATURE_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.FIRE_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.ICE_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.LIGHTNING_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.ENDER_SPELL_POWER.get());
+            copyAttribute(AttributeRegistry.SPELL_POWER.get());
 
-        boostSpellPowerFromConfig();
+            boostSpellPowerFromConfig();
 
-        if (Config.DOPPLEGANGER_HARD_MODE.get()) {
-            this.getAttribute(AttributeRegistry.HOLY_MAGIC_RESIST.get()).setBaseValue(1.3f);
-            this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST.get()).setBaseValue(1.5f);
-            this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST.get()).setBaseValue(1.5f);
-            this.getAttribute(AttributeRegistry.NATURE_MAGIC_RESIST.get()).setBaseValue(1.4f);
-            this.getAttribute(AttributeRegistry.ELDRITCH_MAGIC_RESIST.get()).setBaseValue(1.6f);
-            this.getAttribute(AttributeRegistry.ICE_MAGIC_RESIST.get()).setBaseValue(1.4f);
-            this.getAttribute(AttributeRegistry.LIGHTNING_MAGIC_RESIST.get()).setBaseValue(1.4f);
-            this.getAttribute(AttributeRegistry.EVOCATION_MAGIC_RESIST.get()).setBaseValue(1.3f);
-            this.getAttribute(AttributeRegistry.ENDER_MAGIC_RESIST.get()).setBaseValue(1.4f);
-            this.getAttribute(AttributeRegistry.SPELL_RESIST.get()).setBaseValue(1.5f);
+            if (Config.DOPPLEGANGER_HARD_MODE.get()) {
+                this.getAttribute(AttributeRegistry.HOLY_MAGIC_RESIST.get()).setBaseValue(1.3f);
+                this.getAttribute(AttributeRegistry.FIRE_MAGIC_RESIST.get()).setBaseValue(1.5f);
+                this.getAttribute(AttributeRegistry.BLOOD_MAGIC_RESIST.get()).setBaseValue(1.5f);
+                this.getAttribute(AttributeRegistry.NATURE_MAGIC_RESIST.get()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.ELDRITCH_MAGIC_RESIST.get()).setBaseValue(1.6f);
+                this.getAttribute(AttributeRegistry.ICE_MAGIC_RESIST.get()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.LIGHTNING_MAGIC_RESIST.get()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.EVOCATION_MAGIC_RESIST.get()).setBaseValue(1.3f);
+                this.getAttribute(AttributeRegistry.ENDER_MAGIC_RESIST.get()).setBaseValue(1.4f);
+                this.getAttribute(AttributeRegistry.SPELL_RESIST.get()).setBaseValue(1.5f);
+            }
         }
     }
 
@@ -288,6 +316,27 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         return list.subList(start, Math.min(start + count, list.size()));
     }
 
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_USE_SUMMONER_SKIN, false);
+        this.entityData.define(DATA_SKIN_PLAYER_UUID, Optional.empty());
+    }
+    public void setUseSummonerSkin(boolean value) {
+        this.entityData.set(DATA_USE_SUMMONER_SKIN, value);
+    }
+
+    public boolean usesSummonerSkin() {
+        return this.entityData.get(DATA_USE_SUMMONER_SKIN);
+    }
+
+    public void setSkinPlayerUUID(@Nullable UUID uuid) {
+        this.entityData.set(DATA_SKIN_PLAYER_UUID, Optional.ofNullable(uuid));
+    }
+
+    public @Nullable UUID getSkinPlayerUUID() {
+        return this.entityData.get(DATA_SKIN_PLAYER_UUID).orElse(null);
+    }
 
     @Override
     public void onAddedToWorld() {
@@ -308,6 +357,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
         } else {
             spawnSummoningParticles();
+        }
+        if (this.isClone) {
+            this.setUseSummonerSkin(false);
+            this.setSkinPlayerUUID(null);
         }
 
 
@@ -599,9 +652,17 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     @Nullable
     public Player getSummonerPlayer() {
-        return summonerPlayer;
-    }
+        if (summonerPlayer != null && summonerPlayer.isAlive()) {
+            return summonerPlayer;
+        }
 
+        if (summonerUUID != null && this.level() instanceof ServerLevel serverLevel) {
+            summonerPlayer = serverLevel.getServer().getPlayerList().getPlayer(summonerUUID);
+            return summonerPlayer;
+        }
+
+        return null;
+    }
 
     @Override
     public boolean addEffect(MobEffectInstance p_147208_, @Nullable Entity p_147209_) {
@@ -751,6 +812,21 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             minion.moveTo(x, getY(), z, this.getYRot(), this.getXRot());
             minion.setBossMinion(true);
             minion.setSummonerUUID(null);
+
+            Player skinSource = this.getSummonerPlayer();
+            if (skinSource != null) {
+                minion.setUseSummonerSkin(true);
+                minion.setSkinPlayerUUID(skinSource.getUUID());
+            } else {
+                minion.setUseSummonerSkin(false);
+                minion.setSkinPlayerUUID(null);
+            }
+
+            minion.addTag("dark_doppelganger_minion");
+            minion.setCustomName(Component.literal("Minion").withStyle(ChatFormatting.DARK_GRAY));
+            minion.setCustomNameVisible(true);
+            minion.getPersistentData().putBoolean("SpawnWeak", true);
+            level().addFreshEntity(minion);
             minion.addTag("dark_doppelganger_minion");
             minion.setCustomName(Component.literal("Minion").withStyle(ChatFormatting.DARK_GRAY));
             minion.setCustomNameVisible(true);
@@ -949,5 +1025,37 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .map(SpellRegistry::getSpell)
                 .filter(spell -> !(spell instanceof io.redspace.ironsspellbooks.spells.NoneSpell))
                 .toList();
+    }
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+
+        if (summonerUUID != null) {
+            tag.putUUID(NBT_SUMMONER_UUID, summonerUUID);
+        }
+
+        tag.putBoolean(NBT_USE_SUMMONER_SKIN, this.usesSummonerSkin());
+
+        UUID skinUuid = this.getSkinPlayerUUID();
+        if (skinUuid != null) {
+            tag.putUUID(NBT_SKIN_PLAYER_UUID, skinUuid);
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+
+        if (tag.hasUUID(NBT_SUMMONER_UUID)) {
+            this.summonerUUID = tag.getUUID(NBT_SUMMONER_UUID);
+        }
+
+        this.setUseSummonerSkin(tag.getBoolean(NBT_USE_SUMMONER_SKIN));
+
+        if (tag.hasUUID(NBT_SKIN_PLAYER_UUID)) {
+            this.setSkinPlayerUUID(tag.getUUID(NBT_SKIN_PLAYER_UUID));
+        } else {
+            this.setSkinPlayerUUID(null);
+        }
     }
 }

@@ -18,6 +18,8 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_FINAL_PHASE_SPELLS;
 
+    public static ForgeConfigSpec.DoubleValue SPELL_MINION_HEALTH;
+
     public static ForgeConfigSpec.DoubleValue MINION_HEALTH;
     public static ForgeConfigSpec.DoubleValue MINION_ATTACK_DAMAGE;
     public static ForgeConfigSpec.DoubleValue MINION_MOVEMENT_SPEED;
@@ -99,7 +101,9 @@ public class Config {
                         () -> List.of(
                                 "irons_spellbooks:eldritch_blast",
                                 "irons_spellbooks:ray_of_frost",
+                                "irons_spellbooks:oakskin",
                                 "traveloptics:tidal_grasp",
+                                "traveloptics:spectral_blink",
                                 "irons_spellbooks:abyssal_shroud",
                                 "traveloptics:shadowed_miasma"
                         ),
@@ -111,10 +115,11 @@ public class Config {
         // Minion Settings
         builder.comment("Minion Configuration").push("minion");
 
-        MINION_HEALTH = builder.defineInRange("health", 40.0, 1.0, 1000.0);
-        MINION_ATTACK_DAMAGE = builder.defineInRange("attack_damage", 6.0, 0.1, 100.0);
+        MINION_HEALTH = builder.defineInRange("health", 100.0, 1.0, 1000.0);
+        SPELL_MINION_HEALTH = builder.comment("Health of spell-created minion summon").defineInRange("spell_minion_health", 200.0, 1.0, 1000.0);
+        MINION_ATTACK_DAMAGE = builder.defineInRange("attack_damage", 8.0, 0.1, 100.0);
         MINION_MOVEMENT_SPEED = builder.defineInRange("movement_speed", 0.28, 0.01, 1.0);
-        MINION_ARMOR = builder.defineInRange("armor", 4.0, 0.0, 100.0);
+        MINION_ARMOR = builder.defineInRange("armor", 5.0, 0.0, 100.0);
         MINION_BARRAGE_SPELL = builder
                 .comment("Spell used for the minion's SpellBarrageGoal (string id)")
                 .define("barrage_spell", "irons_spellbooks:devour");
@@ -127,13 +132,11 @@ public class Config {
                 .defineListAllowEmpty(
                         "spells",
                         () -> List.of(
-                                "irons_spellbooks:guiding_bolt",
-                                "irons_spellbooks:blood_needles",
-                                "irons_spellbooks:blood_slash",
-                                "irons_spellbooks:fang_ward",
-                                "irons_spellbooks:gust",
+                                "traveloptics:spectral_blink",
                                 "irons_spellbooks:burning_dash",
-                                "irons_spellbooks:blight",
+                                "irons_spellbooks:charge",
+                                "irons_spellbooks:oakskin",
+                                "irons_spellbooks:shadow_slash",
                                 "irons_spellbooks:invisibility"
                         ),
                         obj -> obj instanceof String
