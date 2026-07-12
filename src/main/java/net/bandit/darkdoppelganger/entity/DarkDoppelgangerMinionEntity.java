@@ -4,10 +4,7 @@ import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
 import io.redspace.ironsspellbooks.entity.mobs.abstract_spell_casting_mob.AbstractSpellCastingMob;
-import io.redspace.ironsspellbooks.entity.mobs.goals.PatrolNearLocationGoal;
 import io.redspace.ironsspellbooks.entity.mobs.goals.SpellBarrageGoal;
-import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
-import io.redspace.ironsspellbooks.entity.mobs.wizards.GenericAnimatedWarlockAttackGoal;
 import io.redspace.ironsspellbooks.spells.NoneSpell;
 import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
@@ -20,17 +17,23 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -40,6 +43,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,8 +60,6 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
     private static final String NBT_SKIN_PLAYER_UUID = "SkinPlayerUUID";
 
     private static final int LOADOUT_SYNC_INTERVAL = 20;
-    private int lastSeenOwnerAttackTimestamp = -1;
-    private int lastSeenOwnerHurtTimestamp = -1;
 
     private static final EntityDataAccessor<Boolean> DATA_USE_SUMMONER_SKIN =
             SynchedEntityData.defineId(DarkDoppelgangerMinionEntity.class, EntityDataSerializers.BOOLEAN);
@@ -143,7 +145,7 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
                 .add(Attributes.MAX_HEALTH, 200.0)
                 .add(Attributes.ATTACK_DAMAGE, 8.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
-                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.FOLLOW_RANGE, 48.0)
                 .add(Attributes.ARMOR, 0.0D)
                 .add(ForgeMod.ENTITY_REACH.get(), 3.0D);
     }
@@ -180,7 +182,7 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         }
     }
 
-    RawAnimation animationToPlay = null;
+    private RawAnimation animationToPlay = null;
     private final RawAnimation ANIMATION_SPAWN = RawAnimation.begin().thenPlay("join_1");
     private final AnimationController<DarkDoppelgangerMinionEntity> meleeController =
             new AnimationController<>(this, "keeper_animations", 0, this::predicate);
@@ -249,9 +251,11 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         return getConfiguredSpells(Config.MINION_SPELLS.get());
     }
 
-    private List<AbstractSpell> getSpellGroup(List<AbstractSpell> list, int start, int count) {
-        if (start >= list.size()) return List.of();
-        return list.subList(start, Math.min(start + count, list.size()));
+    @Nullable
+    private AbstractSpell getRandomConfiguredSpell() {
+        List<AbstractSpell> spells = getMinionConfiguredSpells();
+        if (spells.isEmpty()) return null;
+        return spells.get(this.random.nextInt(spells.size()));
     }
 
     private AbstractSpell getMinionBarrageSpell() {
@@ -277,6 +281,10 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         if (summoner == null) return;
 
         DarkDoppelgangerEquipmentHelper.applyPlayerLoadout(this, summoner);
+
+        // Optional:
+        // If you want this to feel even more like a pure caster, clear or override mainhand here.
+        // this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
     }
 
     protected MoveControl createMoveControl() {
@@ -362,24 +370,32 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
             return;
         }
 
-        double distSq = this.distanceToSqr(sp);
-        if (distSq > 18 * 18) {
-            this.teleportTo(sp.getX(), sp.getY(), sp.getZ());
-        } else if (distSq > 6 * 6) {
-            this.getNavigation().moveTo(sp, 1.2);
-        }
-
         if (this.getTarget() == null) {
             LivingEntity a = sp.getLastHurtMob();
             LivingEntity b = sp.getLastHurtByMob();
 
-            if (a != null && a.isAlive() && this.canAttack(a)) this.setTarget(a);
-            else if (b != null && b.isAlive() && this.canAttack(b)) this.setTarget(b);
+            if (a != null && a.isAlive() && this.canAttack(a)) {
+                this.setTarget(a);
+            } else if (b != null && b.isAlive() && this.canAttack(b)) {
+                this.setTarget(b);
+            }
         }
 
         LivingEntity t = this.getTarget();
-        if (t != null && (!t.isAlive() || !this.canAttack(t) || this.distanceToSqr(t) > (32 * 32))) {
+        if (t != null && (!t.isAlive() || !this.canAttack(t) || this.distanceToSqr(t) > (40 * 40))) {
             this.setTarget(null);
+            t = null;
+        }
+
+        // Only follow summoner when not actively fighting.
+        if (t == null) {
+            double distSqToSummoner = this.distanceToSqr(sp);
+
+            if (distSqToSummoner > 18 * 18) {
+                this.teleportTo(sp.getX(), sp.getY(), sp.getZ());
+            } else if (distSqToSummoner > 6 * 6) {
+                this.getNavigation().moveTo(sp, 1.0D);
+            }
         }
     }
 
@@ -457,33 +473,15 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
 
     protected void setFirstPhaseGoals() {
         this.goalSelector.getRunningGoals().forEach(WrappedGoal::stop);
-        this.goalSelector.removeAllGoals((x) -> true);
+        this.goalSelector.removeAllGoals(x -> true);
 
         this.goalSelector.addGoal(1, new FloatGoal(this));
 
         AbstractSpell barrageSpell = getMinionBarrageSpell();
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, barrageSpell, 4, 8, 80, 180, 1));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, barrageSpell, 4, 8, 35, 70, 1));
 
-        var allSpells = new java.util.ArrayList<>(getMinionConfiguredSpells());
-        Collections.shuffle(allSpells, new java.util.Random(this.random.nextLong()));
+        this.goalSelector.addGoal(4, new RangedSpellcasterGoal(this, 0.9D, 6.5F, 8.0F, 14.0F));
 
-        List<AbstractSpell> group1 = getSpellGroup(allSpells, 0, 3);
-        List<AbstractSpell> group2 = getSpellGroup(allSpells, 3, 3);
-        List<AbstractSpell> group3 = getSpellGroup(allSpells, 6, 3);
-        List<AbstractSpell> group4 = getSpellGroup(allSpells, 9, 3);
-
-        this.goalSelector.addGoal(4, new GenericAnimatedWarlockAttackGoal<>(this, 1.0f, 70, 110)
-                .setMoveset(List.of(
-                        new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
-                        new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
-                ))
-                .setComboChance(.10f)
-                .setMeleeAttackInverval(45, 80)
-                .setMeleeMovespeedModifier(1.05f)
-                .setSpells(group1, group2, group3, group4)
-        );
-
-        this.goalSelector.addGoal(6, new PatrolNearLocationGoal(this, 30, .75f));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
     }
 
@@ -511,6 +509,103 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
             UUID stored = tag.getUUID(NBT_PLAYER_MINION_UUID);
             if (stored.equals(this.getUUID())) {
                 tag.remove(NBT_PLAYER_MINION_UUID);
+            }
+        }
+    }
+
+    private class RangedSpellcasterGoal extends Goal {
+        private final DarkDoppelgangerMinionEntity mob;
+        private final double moveSpeed;
+        private final float retreatRange;
+        private final float castMinRange;
+        private final float castMaxRange;
+        private int spellCooldown = 0;
+
+        public RangedSpellcasterGoal(DarkDoppelgangerMinionEntity mob, double moveSpeed, float retreatRange, float castMinRange, float castMaxRange) {
+            this.mob = mob;
+            this.moveSpeed = moveSpeed;
+            this.retreatRange = retreatRange;
+            this.castMinRange = castMinRange;
+            this.castMaxRange = castMaxRange;
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            LivingEntity target = mob.getTarget();
+            return target != null && target.isAlive();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            LivingEntity target = mob.getTarget();
+            return target != null && target.isAlive() && mob.canAttack(target);
+        }
+
+        @Override
+        public void stop() {
+            mob.getNavigation().stop();
+        }
+
+        @Override
+        public void tick() {
+            LivingEntity target = mob.getTarget();
+            if (target == null) return;
+
+            mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+
+            if (spellCooldown > 0) {
+                spellCooldown--;
+            }
+
+            if (mob.isCasting()) {
+                mob.getNavigation().stop();
+                return;
+            }
+
+            double distSq = mob.distanceToSqr(target);
+            boolean hasLOS = mob.hasLineOfSight(target);
+
+            double retreatSq = retreatRange * retreatRange;
+            double minSq = castMinRange * castMinRange;
+            double maxSq = castMaxRange * castMaxRange;
+
+            if (distSq < retreatSq) {
+                Vec3 away = mob.position().subtract(target.position());
+                if (away.lengthSqr() < 0.001D) {
+                    away = new Vec3(
+                            mob.random.nextDouble() - 0.5D,
+                            0.0D,
+                            mob.random.nextDouble() - 0.5D
+                    );
+                }
+
+                away = away.normalize().scale(5.0D);
+                Vec3 retreatPos = mob.position().add(away.x, 0.0D, away.z);
+                mob.getNavigation().moveTo(retreatPos.x, retreatPos.y, retreatPos.z, 1.15D);
+                return;
+            }
+
+            if (distSq > maxSq || !hasLOS) {
+                mob.getNavigation().moveTo(target, moveSpeed);
+                return;
+            }
+
+            if (distSq >= minSq && distSq <= maxSq) {
+                mob.getNavigation().stop();
+
+                if (spellCooldown <= 0) {
+                    AbstractSpell spell = mob.getRandomConfiguredSpell();
+                    if (spell != null) {
+                        mob.initiateCastSpell(spell, 1);
+
+                        if (!mob.isCasting()) {
+                            spellCooldown = 10;
+                        } else {
+                            spellCooldown = 25 + mob.random.nextInt(15);
+                        }
+                    }
+                }
             }
         }
     }

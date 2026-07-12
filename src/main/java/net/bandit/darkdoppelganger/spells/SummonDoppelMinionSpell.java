@@ -97,7 +97,7 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
 
     @Override
     public boolean allowCrafting() {
-        return true;
+        return false;
     }
 
     @Override

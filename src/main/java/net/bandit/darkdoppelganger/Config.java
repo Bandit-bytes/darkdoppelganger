@@ -100,11 +100,10 @@ public class Config {
                         "final_phase_spells",
                         () -> List.of(
                                 "irons_spellbooks:eldritch_blast",
-                                "irons_spellbooks:ray_of_frost",
+                                "irons_spellbooks:shadow_slash",
                                 "irons_spellbooks:oakskin",
                                 "traveloptics:tidal_grasp",
                                 "traveloptics:spectral_blink",
-                                "irons_spellbooks:abyssal_shroud",
                                 "traveloptics:shadowed_miasma"
                         ),
                         obj -> obj instanceof String
