@@ -1,10 +1,10 @@
 modLoader = "javafml" #mandatory
 loaderVersion = "[4,)" #mandatory
-license = "ARR"
+license = "All Rights Reserved"
 issueTrackerURL="https://github.com/Bandit-bytes/darkdoppelganger/issues" #optional
 [[mods]]
 modId = "darkdoppelganger"
-version = "3.3.0-1.21.1"
+version = "3.4.0-1.21.1"
 displayName = "DarkDoppelganger"
 displayURL="https://pixeldreamstudios.net/"
 #logoFile="DarkDoppelgangerMod.png" #optional

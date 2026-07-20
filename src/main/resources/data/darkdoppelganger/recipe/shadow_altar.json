@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OEO",
+    "CLC",
+    "OEO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "C": {
+      "item": "minecraft:crying_obsidian"
+    },
+    "L": {
+      "item": "minecraft:lodestone"
+    }
+  },
+  "result": {
+    "id": "darkdoppelganger:shadow_altar",
+    "count": 1
+  }
+}

@@ -120,6 +120,7 @@ dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     //ISS *********************************************************************************************************
     implementation "io.redspace:irons_spellbooks:${irons_spells_version}"
+    implementation "curse.maven:irons-lib-1492763:8364894"
     //CAELUS ******************************************************************************************************
     dependencies {
         runtimeOnly "com.illusivesoulworks.caelus:caelus-neoforge:${caelus_version}"

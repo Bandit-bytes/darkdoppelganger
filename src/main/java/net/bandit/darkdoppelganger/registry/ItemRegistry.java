@@ -8,6 +8,7 @@ import net.bandit.darkdoppelganger.items.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.bus.api.IEventBus;
@@ -21,6 +22,8 @@ public class ItemRegistry {
             () -> new SummonScrollItem(new Item.Properties().stacksTo(1)));
     public static final DeferredHolder<Item, Item> SHADOW_ORB = ITEMS.register("shadow_orb",
             () -> new ShadowOrbItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
+    public static final DeferredHolder<Item, Item> SHADOW_ALTAR = ITEMS.register("shadow_altar",
+            () -> new BlockItem(ModBlocks.SHADOW_ALTAR.get(), new Item.Properties().rarity(Rarity.EPIC)));
 
     public static final  DeferredHolder<Item, Item> DOPPELGANGER_RING = ITEMS.register("doppelganger_ring",
             () -> new DoppelgangerRingItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)).withAttributes(

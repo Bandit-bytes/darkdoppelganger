@@ -32,6 +32,7 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_ARMOR;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_MAINHAND;
+    public static final ModConfigSpec.BooleanValue ALTAR_END_ONLY;
 
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_A;
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_B;
@@ -236,6 +237,14 @@ public class Config {
                 .comment("Scales all Iron's Spellbooks spell power attributes copied from the summoner. 1.0 = no change.")
                 .defineInRange("doppelgangerSpellPowerMultiplier", 1.0D, 0.0D, 100.0D);
 
+
+        BUILDER.pop();
+
+        BUILDER.comment("Summoning Configuration").push("summoning");
+
+        ALTAR_END_ONLY = BUILDER
+                .comment("When true, the Shadow Altar can only summon the Dark Doppelganger in The End")
+                .define("altar_end_only", true);
 
         BUILDER.pop();
 

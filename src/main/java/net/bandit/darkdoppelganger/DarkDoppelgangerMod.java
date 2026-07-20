@@ -2,6 +2,7 @@ package net.bandit.darkdoppelganger;
 
 import com.mojang.logging.LogUtils;
 import net.bandit.darkdoppelganger.command.ModCommands;
+import net.bandit.darkdoppelganger.client.renderer.ShadowAltarRenderer;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerMinionEntity;
 import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerMinionRenderer;
@@ -19,6 +20,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.slf4j.Logger;
@@ -34,6 +36,8 @@ public class DarkDoppelgangerMod {
         modEventBus.addListener(this::onEntityAttributeCreation);
 
         SoundRegistry.register(modEventBus);
+        ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
         EntityRegistry.register(modEventBus);
         SpellRegistry.register(modEventBus);
         ItemRegistry.register(modEventBus);
@@ -59,6 +63,11 @@ public class DarkDoppelgangerMod {
             EntityRenderers.register(EntityRegistry.PORTAL_JOIN_ENTITY.get(), PortalJoinRenderer::new);
             EntityRenderers.register(EntityRegistry.PORTAL_LEAVE_ENTITY.get(), PortalLeaveRenderer::new);
             LOGGER.info("Client setup for Dark Doppelganger Mod");
+        }
+
+        @SubscribeEvent
+        public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(ModBlockEntities.SHADOW_ALTAR.get(), ShadowAltarRenderer::new);
         }
     }
     @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.GAME)
