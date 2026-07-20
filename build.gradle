@@ -190,6 +190,7 @@ dependencies {
 
     // IRONS SPELLS N SPELLBOOKS **********************************************************************************
     implementation fg.deobf("io.redspace:irons_spellbooks:${irons_spells_version}")
+    implementation fg.deobf("curse.maven:irons-lib-1492763:8364892")
 
     // GECKOLIB ***************************************************************************************************
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}")

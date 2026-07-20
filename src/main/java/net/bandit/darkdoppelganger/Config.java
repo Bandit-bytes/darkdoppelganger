@@ -28,6 +28,7 @@ public class Config {
     public static ForgeConfigSpec.ConfigValue<String> MINION_BARRAGE_SPELL;
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_DAMAGE_CAP;
     public static ForgeConfigSpec.DoubleValue DOPPELGANGER_SPELL_POWER_MULTIPLIER;
+    public static ForgeConfigSpec.BooleanValue ALTAR_END_ONLY;
 
 
     static {
@@ -108,6 +109,14 @@ public class Config {
                         ),
                         obj -> obj instanceof String
                 );
+
+        builder.pop();
+
+        builder.comment("Summoning Configuration").push("summoning");
+
+        ALTAR_END_ONLY = builder
+                .comment("When true, the Shadow Altar can only summon the Dark Doppelganger in The End")
+                .define("altar_end_only", true);
 
         builder.pop();
 

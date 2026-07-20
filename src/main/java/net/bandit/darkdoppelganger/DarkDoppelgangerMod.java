@@ -9,6 +9,8 @@ import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerMinionRendere
 import net.bandit.darkdoppelganger.entity.renderer.PortalJoinRenderer;
 import net.bandit.darkdoppelganger.entity.renderer.PortalLeaveRenderer;
 import net.bandit.darkdoppelganger.registry.ItemRegistry;
+import net.bandit.darkdoppelganger.registry.ModBlockEntities;
+import net.bandit.darkdoppelganger.registry.ModBlocks;
 import net.bandit.darkdoppelganger.registry.ModSounds;
 import net.bandit.darkdoppelganger.registry.SpellRegistry;
 import net.bandit.darkdoppelganger.registry.TabRegistry;
@@ -31,7 +33,11 @@ import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.entity.renderer.DarkDoppelgangerRenderer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.bandit.darkdoppelganger.client.renderer.ShadowAltarRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
@@ -72,6 +78,8 @@ public class DarkDoppelgangerMod {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::onEntityAttributeCreation);
 
+        ModBlocks.BLOCKS.register(modEventBus);
+        ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
         ItemRegistry.ITEMS.register(modEventBus);
         TabRegistry.register(modEventBus);
         ENTITY_TYPES.register(modEventBus);
@@ -96,6 +104,10 @@ public class DarkDoppelgangerMod {
             EntityRenderers.register(DARK_DOPPELGANGER_MINION.get(), DarkDoppelgangerMinionRenderer::new);
             EntityRenderers.register(PORTAL_JOIN_ENTITY.get(), PortalJoinRenderer::new);
             EntityRenderers.register(PORTAL_LEAVE_ENTITY.get(), PortalLeaveRenderer::new);
+            BlockEntityRenderers.register(ModBlockEntities.SHADOW_ALTAR.get(), ShadowAltarRenderer::new);
+            event.enqueueWork(() ->
+                    ItemBlockRenderTypes.setRenderLayer(ModBlocks.SHADOW_ALTAR.get(), RenderType.cutout())
+            );
         }
     }
     @Mod.EventBusSubscriber(modid = DarkDoppelgangerMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
