@@ -48,6 +48,7 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
 
     private static final String NBT_SUMMONER_UUID = "SummonerUUID";
     private static final String NBT_IS_BOSS_MINION = "IsBossMinion";
+    private static final String NBT_BOSS_OWNER_UUID = "BossOwnerUUID";
     private static final String NBT_PLAYER_MINION_UUID = "DarkDoppel_SummonerMinionUUID";
     private static final String PERSISTED_TAG = "darkdoppelganger";
     private static final String NBT_WARN_COOLDOWN = "MinionWarnCooldown";
@@ -58,6 +59,10 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
     private UUID summonerUUID;
 
     private boolean isBossMinion = false;
+
+    @Nullable
+    private UUID bossOwnerUUID;
+    private int bossOwnerMissingTicks = 0;
 
     public DarkDoppelgangerMinionEntity(EntityType<? extends AbstractSpellCastingMob> type, Level level) {
         super(type, level);
@@ -87,6 +92,15 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
 
     public boolean isBossMinion() {
         return isBossMinion;
+    }
+
+    public void setBossOwnerUUID(@Nullable UUID uuid) {
+        this.bossOwnerUUID = uuid;
+        this.bossOwnerMissingTicks = 0;
+    }
+
+    public @Nullable UUID getBossOwnerUUID() {
+        return bossOwnerUUID;
     }
 
     @Nullable
@@ -334,7 +348,10 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
         age++;
 
         if (level().isClientSide) return;
-        if (isBossMinion) return;
+        if (isBossMinion) {
+            tickBossMinionLifecycle();
+            return;
+        }
 
         ServerPlayer sp = getSummonerPlayer();
         if (sp == null || sp.isDeadOrDying()) {
@@ -376,6 +393,31 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
     }
 
 
+
+    private void tickBossMinionLifecycle() {
+        if (!(level() instanceof ServerLevel serverLevel)) return;
+
+        if (bossOwnerUUID == null) {
+            if (++bossOwnerMissingTicks > 100) discard();
+            return;
+        }
+
+        Entity owner = serverLevel.getEntity(bossOwnerUUID);
+        if (owner instanceof DarkDoppelgangerEntity boss && boss.isAlive() && !boss.isClone) {
+            bossOwnerMissingTicks = 0;
+            LivingEntity bossTarget = boss.getTarget();
+            if (bossTarget != null && bossTarget.isAlive() && this.canAttack(bossTarget)) {
+                this.setTarget(bossTarget);
+            }
+            return;
+        }
+
+        // Give chunk/entity load order a few seconds before deciding the owner is truly gone.
+        if (++bossOwnerMissingTicks > 100) {
+            discard();
+        }
+    }
+
     public static boolean playerHasLivingMinion(ServerLevel level, ServerPlayer player) {
         CompoundTag tag = player.getPersistentData();
         if (!tag.hasUUID(NBT_PLAYER_MINION_UUID)) return false;
@@ -398,6 +440,7 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         if (summonerUUID != null) tag.putUUID(NBT_SUMMONER_UUID, summonerUUID);
+        if (bossOwnerUUID != null) tag.putUUID(NBT_BOSS_OWNER_UUID, bossOwnerUUID);
         tag.putBoolean(NBT_IS_BOSS_MINION, isBossMinion);
     }
 
@@ -405,6 +448,7 @@ public class DarkDoppelgangerMinionEntity extends AbstractSpellCastingMob implem
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.hasUUID(NBT_SUMMONER_UUID)) this.summonerUUID = tag.getUUID(NBT_SUMMONER_UUID);
+        if (tag.hasUUID(NBT_BOSS_OWNER_UUID)) this.bossOwnerUUID = tag.getUUID(NBT_BOSS_OWNER_UUID);
         this.isBossMinion = tag.getBoolean(NBT_IS_BOSS_MINION);
     }
 }
