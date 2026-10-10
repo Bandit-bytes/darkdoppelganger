@@ -59,3 +59,11 @@ side = "BOTH"
 # stop your mod loading on the server for example.
 #[features."${mod_id}"]
 #openGLVersion="[3.2,)"
+
+# AzureLib is optional; its 3.1 API is used only by the client armor bridge.
+[[dependencies."${mod_id}"]]
+modId = "azurelib"
+type = "optional"
+versionRange = "[3.1.0,4.0.0)"
+ordering = "AFTER"
+side = "CLIENT"

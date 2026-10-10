@@ -4,7 +4,7 @@ license = "All Rights Reserved"
 issueTrackerURL="https://github.com/Bandit-bytes/darkdoppelganger/issues" #optional
 [[mods]]
 modId = "darkdoppelganger"
-version = "3.4.0-1.21.1"
+version = "4.1.0-1.21.1"
 displayName = "DarkDoppelganger"
 displayURL="https://pixeldreamstudios.net/"
 #logoFile="DarkDoppelgangerMod.png" #optional
@@ -59,3 +59,11 @@ side = "BOTH"
 # stop your mod loading on the server for example.
 #[features."darkdoppelganger"]
 #openGLVersion="[3.2,)"
+
+# AzureLib is optional; its 3.1 API is used only by the client armor bridge.
+[[dependencies."darkdoppelganger"]]
+modId = "azurelib"
+type = "optional"
+versionRange = "[3.1.0,4.0.0)"
+ordering = "AFTER"
+side = "CLIENT"

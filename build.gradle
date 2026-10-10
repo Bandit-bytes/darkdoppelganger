@@ -9,6 +9,11 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    maven {
+        name = "AzureDoom"
+        url = "https://maven.azuredoom.com/mods"
+        content { includeGroup("mod.azure.azurelib") }
+    }
     mavenLocal()
     maven {
         name = "Iron's Maven - Release"
@@ -116,6 +121,11 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
+    // Optional client armor integration; not bundled or required for normal gameplay.
+    compileOnly "mod.azure.azurelib:azurelib-neo-${minecraft_version}:${azurelib_version}"
+    if (providers.gradleProperty('azurelib_dev_runtime').getOrElse('false').toBoolean()) {
+        runtimeOnly "mod.azure.azurelib:azurelib-neo-${minecraft_version}:${azurelib_version}"
+    }
     // GECKOLIB *******************************************************************************************************
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     //ISS *********************************************************************************************************
