@@ -62,6 +62,13 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
         return defaultConfig;
     }
 
+    // Only the Dark Doppelganger drops this spell. Its loot table names the spell,
+    // and Iron's Spells allows a named spell even when allowLooting is false.
+    @Override
+    public boolean allowLooting() {
+        return false;
+    }
+
     @Override
     public CastType getCastType() {
         return CastType.LONG;
