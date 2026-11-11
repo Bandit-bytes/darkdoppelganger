@@ -1,11 +1,13 @@
 package net.bandit.darkdoppelganger.items;
 
-import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
-import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
+import net.bandit.darkdoppelganger.summoning.DelayedTasks;
+import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -18,17 +20,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class SummonScrollItem extends Item {
-
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private static final int SUMMON_DELAY_TICKS = 100;
 
     public SummonScrollItem(Properties properties) {
         super(properties);
@@ -40,11 +37,14 @@ public class SummonScrollItem extends Item {
         Player player = context.getPlayer();
         ItemStack itemStack = context.getItemInHand();
 
-        if (!world.isClientSide && player != null) {
+        if (!world.isClientSide && player instanceof ServerPlayer serverPlayer) {
             player.sendSystemMessage(Component.literal("Dark Doppelganger will spawn in 5 seconds!"));
 
             ServerLevel serverWorld = (ServerLevel) world;
-            scheduler.schedule(() -> serverWorld.getServer().execute(() -> summonDoppelganger(serverWorld, player)), 5, TimeUnit.SECONDS);
+            BlockPos ritualPos = context.getClickedPos();
+            boolean refund = !player.isCreative();
+            DelayedTasks.schedule(serverWorld.getServer(), SUMMON_DELAY_TICKS,
+                    () -> summonDoppelganger(serverWorld, serverPlayer, ritualPos, refund));
 
             if (!player.isCreative()) {
                 itemStack.shrink(1);
@@ -68,24 +68,23 @@ public class SummonScrollItem extends Item {
         }
     }
 
-    private void summonDoppelganger(ServerLevel serverWorld, Player player) {
-        Vec3 lookVector = player.getLookAngle();
-        Vec3 spawnPosition = player.position().add(lookVector.scale(4));
-
-        DarkDoppelgangerEntity entity = new DarkDoppelgangerEntity(EntityRegistry.DARK_DOPPELGANGER.get(), serverWorld);
-        entity.setPos(spawnPosition.x, player.getY(), spawnPosition.z);
-        entity.setYRot(-player.getYRot());
-        entity.setSummonerPlayer(player);
-        entity.addTag("dark_doppelganger_boss");
-        entity.setCustomName(Component.literal(player.getName().getString()));
-        entity.setCustomNameVisible(true);
+    private void summonDoppelganger(ServerLevel serverWorld, ServerPlayer player, BlockPos ritualPos, boolean refund) {
+        if (!player.isAlive() || player.isRemoved() || player.level() != serverWorld) {
+            return;
+        }
 
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
         serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
 
-        serverWorld.addFreshEntity(entity);
+        if (!DoppelgangerSummoning.summon(serverWorld, player, ritualPos)) {
+            player.displayClientMessage(Component.literal("No room for the Dark Doppelganger here."), true);
+            if (refund) {
+                player.getInventory().placeItemBackInInventory(new ItemStack(this));
+            }
+        }
     }
+
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         tooltipComponents.add(Component.literal("§dRight-click to summon the Dark Doppelganger after a 5-second countdown!"));

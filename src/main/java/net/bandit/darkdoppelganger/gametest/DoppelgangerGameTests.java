@@ -4,7 +4,9 @@ import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
+import net.bandit.darkdoppelganger.event.SummonDoppelganger;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
@@ -18,6 +20,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -185,14 +189,17 @@ public class DoppelgangerGameTests {
         IronGolem target = spawnDummy(helper, new BlockPos(20, 2, 12));
         boss.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
         boss.setTarget(target);
+        boolean[] sawDraw = {false};
 
         helper.succeedWhen(() -> {
             boss.setTarget(target);
+            sawDraw[0] |= boss.isUsingItem() && boss.getUseItem().is(Items.BOW);
             boolean arrowInFlight = !helper.getLevel().getEntitiesOfClass(AbstractArrow.class, helper.getBounds().inflate(32),
                     a -> a.getOwner() == boss).isEmpty();
             DamageSource last = target.getLastDamageSource();
             boolean hitByArrow = last != null && last.is(DamageTypes.ARROW) && last.getEntity() == boss;
             if (!arrowInFlight && !hitByArrow) helper.fail("No arrow fired by the boss yet" + describe(boss));
+            check(helper, sawDraw[0], "Boss fired without visibly drawing the bow");
             cleanupAndSucceed(helper);
         });
     }
@@ -241,35 +248,151 @@ public class DoppelgangerGameTests {
         cleanupAndSucceed(helper, p1, p2);
     }
 
-    @GameTest(template = ARENA, batch = "doppel_phases", timeoutTicks = 200)
+    @GameTest(template = ARENA, batch = "doppel_phases", timeoutTicks = 400)
     public static void phasesRefillSpawnReflectionsAndAllowDeath(GameTestHelper helper) {
         ServerPlayer watcher = mockPlayerAt(helper, new BlockPos(2, 2, 2)); // receives title/darkness packets
         IronGolem attacker = spawnDummy(helper, new BlockPos(22, 2, 2));
         DarkDoppelgangerEntity boss = spawnBoss(helper, CENTER);
         float max = boss.getMaxHealth();
         float effective = boss.getEffectiveMaxHealth(); // damage is scaled when health exceeds the cap
+        int settle = DarkDoppelgangerEntity.PHASE_TRANSITION_TICKS + 2;
 
-        // Below 40% -> phase 2: full refill and three "Reflection" clones
-        boss.hurt(mobHit(helper, attacker), effective * 0.7F);
-        check(helper, boss.getHealth() == max, "Phase 2 did not refill health: " + boss.getHealth());
+        // Below 40% -> phase 2: three "Reflection" clones, then a window where it cannot be hurt and refills
+        boss.setHealth(max * 0.45F);
+        float before = boss.getHealth();
+        boss.hurt(mobHit(helper, attacker), effective * 0.1F);
+        check(helper, boss.isPhaseTransitioning(), "Phase 2 did not start a transition");
+        check(helper, boss.getHealth() == before, "The hit that crossed into phase 2 still dealt damage");
         long reflections = doppelsAround(helper).stream()
                 .filter(d -> d.isClone && d.getCustomName() != null && d.getCustomName().getString().equals("Reflection"))
                 .count();
         check(helper, reflections == 3, "Expected 3 Reflection clones, found " + reflections);
         check(helper, watcher.hasEffect(MobEffects.DARKNESS), "Phase 2 did not apply Darkness to nearby players");
         check(helper, !watcher.hasEffect(MobEffects.BLINDNESS), "Phase 2 still applies Blindness");
-
-        // Not killable before phase 3
         boss.invulnerableTime = 0;
-        boss.hurt(mobHit(helper, attacker), effective * 0.85F);
-        check(helper, boss.getHealth() == max, "Phase 3 did not refill health: " + boss.getHealth());
+        check(helper, !boss.hurt(mobHit(helper, attacker), 50.0F), "Boss took damage during the phase transition");
 
-        // Phase 3 -> lethal damage now kills it
+        helper.runAfterDelay(DarkDoppelgangerEntity.PHASE_TRANSITION_TICKS / 2, () -> {
+            float mid = boss.getHealth();
+            check(helper, mid > before && mid < max, "Health did not refill gradually: " + mid);
+        });
+        helper.runAfterDelay(settle, () -> {
+            check(helper, !boss.isPhaseTransitioning(), "Phase 2 transition did not end");
+            check(helper, boss.getHealth() == max, "Phase 2 did not refill health: " + boss.getHealth());
+            check(helper, !boss.isNoGravity(), "Gravity was not restored after the transition");
+
+            // Not killable before phase 3
+            boss.invulnerableTime = 0;
+            boss.hurt(mobHit(helper, attacker), effective * 0.85F);
+            check(helper, boss.isPhaseTransitioning(), "Phase 3 did not start a transition");
+            helper.runAfterDelay(settle, () -> {
+                check(helper, boss.getHealth() == max, "Phase 3 did not refill health: " + boss.getHealth());
+
+                // Phase 3 -> lethal damage now kills it, and its Reflections break with it
+                boss.invulnerableTime = 0;
+                boss.hurt(mobHit(helper, attacker), effective * 2.0F);
+                helper.runAfterDelay(2, () -> {
+                    check(helper, boss.isDeadOrDying() || boss.isRemoved(), "Boss survived lethal damage in phase 3");
+                    long clonesLeft = doppelsAround(helper).stream().filter(d -> d.isClone).count();
+                    check(helper, clonesLeft == 0, clonesLeft + " clones outlived the boss");
+                    cleanupAndSucceed(helper, watcher);
+                });
+            });
+        });
+    }
+
+    @GameTest(template = ARENA, batch = "doppel_retarget", timeoutTicks = 100)
+    public static void onlyRetaliatesAgainstPlayersAndTheirPets(GameTestHelper helper) {
+        ServerPlayer owner = mockPlayerAt(helper, new BlockPos(2, 2, 2));
+        IronGolem stray = spawnDummy(helper, new BlockPos(4, 2, 12));
+        Wolf pet = helper.spawn(EntityType.WOLF, new BlockPos(20, 2, 12));
+        pet.setNoAi(true);
+        pet.setTame(true, false);
+        pet.setOwnerUUID(owner.getUUID());
+        DarkDoppelgangerEntity boss = spawnBoss(helper, CENTER);
+
+        boss.hurt(mobHit(helper, stray), 5.0F);
+        check(helper, boss.getTarget() != stray, "Boss turned on an unowned mob that hit it");
         boss.invulnerableTime = 0;
-        boss.hurt(mobHit(helper, attacker), effective * 2.0F);
-        helper.runAfterDelay(2, () -> {
-            check(helper, boss.isDeadOrDying() || boss.isRemoved(), "Boss survived lethal damage in phase 3");
-            cleanupAndSucceed(helper, watcher);
+        boss.hurt(helper.getLevel().damageSources().mobAttack(pet), 5.0F);
+        check(helper, boss.getTarget() == pet, "Boss ignored a player's pet that hit it");
+        cleanupAndSucceed(helper, owner);
+    }
+
+    @GameTest(template = ARENA, batch = "doppel_theft", timeoutTicks = 600)
+    public static void mirrorTheftCapsResistanceAndSkipsEvasion(GameTestHelper helper) {
+        ServerPlayer player = mockPlayerAt(helper, new BlockPos(6, 2, 12));
+        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 6000, 4));
+        player.addEffect(new MobEffectInstance(io.redspace.ironsspellbooks.registries.MobEffectRegistry.EVASION, 6000, 2));
+        IronGolem golem = spawnDummy(helper, new BlockPos(22, 2, 2));
+        DarkDoppelgangerEntity boss = spawnBoss(helper, new BlockPos(18, 2, 12));
+        boss.setNoAi(true); // mechanics run in tick(); no AI keeps spells from touching the player
+        boss.setHealth(boss.getMaxHealth() * 0.45F);
+        boss.hurt(mobHit(helper, golem), boss.getEffectiveMaxHealth() * 0.1F); // into phase 2, where theft starts
+
+        helper.succeedWhen(() -> {
+            boss.setTarget(player);
+            MobEffectInstance stolen = boss.getEffect(MobEffects.DAMAGE_RESISTANCE);
+            if (stolen == null) helper.fail("No Resistance stolen yet");
+            check(helper, stolen.getAmplifier() <= 1, "Stolen Resistance not capped: amplifier " + stolen.getAmplifier());
+            check(helper, !player.hasEffect(MobEffects.DAMAGE_RESISTANCE), "Player kept the stolen Resistance");
+            check(helper, player.hasEffect(io.redspace.ironsspellbooks.registries.MobEffectRegistry.EVASION), "Evasion was stolen");
+            check(helper, !boss.hasEffect(io.redspace.ironsspellbooks.registries.MobEffectRegistry.EVASION), "Boss has Evasion");
+            cleanupAndSucceed(helper, player);
+        });
+    }
+
+    @GameTest(template = ARENA, batch = "doppel_boat", timeoutTicks = 100)
+    public static void cannotBeTrappedInABoat(GameTestHelper helper) {
+        Boat boat = helper.spawn(EntityType.BOAT, new BlockPos(12, 2, 8));
+        DarkDoppelgangerEntity boss = spawnBoss(helper, CENTER);
+        check(helper, !boss.startRiding(boat), "Boss boarded a boat");
+        cleanupAndSucceed(helper);
+    }
+
+    @GameTest(template = ARENA, batch = "doppel_void", timeoutTicks = 200)
+    public static void returnsFromTheVoidWhileTargetingAMob(GameTestHelper helper) {
+        ServerPlayer player = mockPlayerAt(helper, new BlockPos(4, 2, 4));
+        IronGolem golem = spawnDummy(helper, new BlockPos(20, 2, 20));
+        DarkDoppelgangerEntity boss = spawnBoss(helper, CENTER);
+        // Keep the target on the golem, so the rescue has to find the player on its own
+        boss.targetSelector.removeAllGoals(goal -> true);
+        boss.setTarget(golem);
+        double voidY = helper.getLevel().getMinBuildHeight() - 20;
+        boolean[] dropped = {false};
+        helper.runAfterDelay(5, () -> {
+            boss.teleportTo(boss.getX(), voidY, boss.getZ());
+            dropped[0] = true;
+        });
+        helper.succeedWhen(() -> {
+            if (!dropped[0]) helper.fail("Boss not dropped yet");
+            if (boss.getY() < helper.getLevel().getMinBuildHeight()) helper.fail("Boss still in the void at y=" + boss.getY());
+            check(helper, boss.distanceToSqr(player) < 8.0 * 8.0, "Boss returned far from the player: " + boss.blockPosition());
+            check(helper, !helper.getLevel().noCollision(boss.getBoundingBox().move(0.0, -1.0, 0.0)),
+                    "Boss returned with no ground under it at " + boss.blockPosition());
+            cleanupAndSucceed(helper, player);
+        });
+    }
+
+    @GameTest(template = ARENA, batch = "doppel_command", timeoutTicks = 200)
+    public static void summonCommandWaitsWithoutBlockingTheServer(GameTestHelper helper) {
+        ServerPlayer player = mockPlayerAt(helper, new BlockPos(6, 2, 6));
+        CommandSourceStack source = helper.getLevel().getServer().createCommandSourceStack()
+                .withLevel(helper.getLevel())
+                .withPosition(helper.absoluteVec(CENTER.getCenter()))
+                .withSuppressedOutput();
+
+        long start = System.nanoTime();
+        int result = SummonDoppelganger.summonDoppelganger(source);
+        long elapsedMs = (System.nanoTime() - start) / 1_000_000L;
+        check(helper, result == 1, "Command failed");
+        check(helper, elapsedMs < 1000, "Command blocked the server thread for " + elapsedMs + " ms");
+        check(helper, doppelsAround(helper).isEmpty(), "Boss spawned before the countdown ended");
+
+        helper.runAfterDelay(110, () -> {
+            check(helper, doppelsAround(helper).stream().anyMatch(d -> !d.isClone),
+                    "Boss did not spawn after the countdown");
+            cleanupAndSucceed(helper, player);
         });
     }
 
@@ -290,17 +413,25 @@ public class DoppelgangerGameTests {
         });
     }
 
-    @GameTest(template = ARENA, batch = "doppel_adapt", timeoutTicks = 200)
+    @GameTest(template = ARENA, batch = "doppel_adapt", timeoutTicks = 300)
     public static void learnedWeaponAttacksAreResistedGently(GameTestHelper helper) {
         ServerPlayer player = mockPlayerAt(helper, new BlockPos(2, 2, 2));
         IronGolem golem = spawnDummy(helper, new BlockPos(22, 2, 2));
         DarkDoppelgangerEntity melee = spawnBoss(helper, new BlockPos(6, 2, 12));
         DarkDoppelgangerEntity magic = spawnBoss(helper, new BlockPos(18, 2, 12));
+        // Only the damage maths is under test; spells and buffs cast during the wait would add noise
+        melee.setNoAi(true);
+        magic.setNoAi(true);
 
         // Learning only happens from phase 2 onward
         melee.hurt(mobHit(helper, golem), melee.getEffectiveMaxHealth() * 0.7F);
         magic.hurt(mobHit(helper, golem), magic.getEffectiveMaxHealth() * 0.7F);
+        helper.runAfterDelay(DarkDoppelgangerEntity.PHASE_TRANSITION_TICKS + 2,
+                () -> checkLearnedResistance(helper, player, melee, magic));
+    }
 
+    private static void checkLearnedResistance(GameTestHelper helper, ServerPlayer player,
+                                               DarkDoppelgangerEntity melee, DarkDoppelgangerEntity magic) {
         DamageSource sword = helper.getLevel().damageSources().playerAttack(player);
         float first = damage(melee, sword, 40.0F);
         damage(melee, sword, 40.0F);
