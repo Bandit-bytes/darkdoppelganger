@@ -33,6 +33,8 @@ public class Config {
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_ARMOR;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_MAINHAND;
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_BOW_DAMAGE_MULTIPLIER;
+    public static final ModConfigSpec.DoubleValue DOPPELGANGER_HEALTH_PER_EXTRA_PLAYER;
+    public static final ModConfigSpec.DoubleValue DOPPELGANGER_MAX_COPIED_SPELL_POWER;
     public static final ModConfigSpec.BooleanValue ALTAR_END_ONLY;
 
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_A;
@@ -98,6 +100,16 @@ public class Config {
         DOPPELGANGER_BOW_DAMAGE_MULTIPLIER = BUILDER
                 .comment("Damage multiplier for arrows the boss fires when it holds a bow or crossbow. A fully drawn shot at 1.0 deals about as much as a player's fully drawn bow.")
                 .defineInRange("bow_damage_multiplier", 2.0, 0.0, 100.0);
+
+        DOPPELGANGER_HEALTH_PER_EXTRA_PLAYER = BUILDER
+                .comment("Extra health per additional player within 48 blocks when the boss is summoned, as a fraction of base health. 0.5 = +50% per extra player. 0 disables scaling.")
+                .defineInRange("health_per_extra_player", 0.5, 0.0, 10.0);
+
+        DOPPELGANGER_MAX_COPIED_SPELL_POWER = BUILDER
+                .comment("Cap on each spell power attribute the boss copies from the summoner (before doppelgangerSpellPowerMultiplier).",
+                        "Global and school spell power multiply together, so 1.3 allows up to about 1.7x spell damage.",
+                        "Stops high spell power mage builds from facing a boss that one-shots them. 0 disables the cap.")
+                .defineInRange("max_copied_spell_power", 1.3, 0.0, 100.0);
 
         // Spell lists per phase: a = attack, b = defense (favoured while projectiles fly at the boss,
         // so avoid dodge/shield spells that make archers miss), c = movement, d = support/buffs.

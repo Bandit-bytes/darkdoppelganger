@@ -1,6 +1,7 @@
 package net.bandit.darkdoppelganger.entity;
 
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
+import io.redspace.ironsspellbooks.api.magic.MagicData;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
@@ -22,6 +23,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
@@ -55,6 +60,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -102,6 +108,14 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private int shadowstepCooldown = 180;
     /** Counts down the warning before a shadowstep; 0 when no shadowstep is pending. */
     private int shadowstepWindup = 0;
+    /** The current phase's signature barrage; finishing it leaves the boss briefly exposed. */
+    @Nullable
+    private AbstractSpell signatureSpell = null;
+    private boolean castingSignature = false;
+    /** Ticks left in the exposed window after a signature spell; the boss takes extra damage. */
+    private int exposedTicks = 0;
+    private static final int EXPOSED_DURATION = 60;
+    private static final float EXPOSED_DAMAGE_BONUS = 1.25F;
     private static final int SHADOWSTEP_WINDUP_TICKS = 25;
     private int mirrorCloneCooldown = 360;
     private int echoCooldown = 260;
@@ -237,7 +251,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.MAGIC_ARROW_SPELL.get(), 3, 5, 120, 260, 1));
+        signatureSpell = SpellRegistry.MAGIC_ARROW_SPELL.get();
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, signatureSpell, 3, 5, 120, 260, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -266,7 +281,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.ARROW_VOLLEY_SPELL.get(), 3, 5, 120, 240, 1));
+        signatureSpell = SpellRegistry.ARROW_VOLLEY_SPELL.get();
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, signatureSpell, 3, 5, 120, 240, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -295,7 +311,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.STARFALL_SPELL.get(), 4, 6, 140, 260, 1));
+        signatureSpell = SpellRegistry.STARFALL_SPELL.get();
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, signatureSpell, 4, 6, 140, 260, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -324,7 +341,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.STARFALL_SPELL.get(), 6, 8, 100, 180, 1));
+        signatureSpell = SpellRegistry.STARFALL_SPELL.get();
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, signatureSpell, 6, 8, 100, 180, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.4f, 30, 50)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -434,7 +452,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     private void adjustAttributesFromConfig() {
         if (Config.DOPPELGANGER_HEALTH != null) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Config.DOPPELGANGER_HEALTH.get());
+            double health = Config.DOPPELGANGER_HEALTH.get();
+            int players = level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(48.0),
+                    p -> p.isAlive() && !p.isSpectator()).size();
+            if (players > 1) {
+                health *= 1.0 + Config.DOPPELGANGER_HEALTH_PER_EXTRA_PLAYER.get() * (players - 1);
+            }
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Math.min(health, 1024.0 * 1024.0));
         }
         if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
@@ -533,6 +557,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         if (!level().isClientSide) {
             tickDoppelgangerIdentity();
+            tickSignatureExposure();
         }
 
         if (thirdPhaseTriggered) {
@@ -571,10 +596,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         spawnMirrorClones(3, 260);
 
+        level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+        playPhaseShatter(
+                Component.literal("REFLECTION BROKEN").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD),
+                Component.literal("The mirror shatters... and multiplies").withStyle(ChatFormatting.GRAY));
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
-            player.sendSystemMessage(Component.literal("The Dark Doppelganger has entered its Second Phase!").withStyle(ChatFormatting.DARK_PURPLE));
-            level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
-            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0));
+            // Darkness pulses but leaves the boss visible, unlike Blindness, so ranged players can still aim.
+            player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 80, 0));
         }
 
         level().explode(null, getX(), getY(), getZ(), 0.0F, Level.ExplosionInteraction.NONE);
@@ -599,10 +627,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         shadowstepCooldown = 40;
         echoCooldown = 80;
 
-        for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
-            level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
-            player.displayClientMessage(Component.literal("Final Form! Prepare yourself!").withStyle(ChatFormatting.RED), true);
-        }
+        level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+        playPhaseShatter(
+                Component.literal("SHADOWFALL").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
+                Component.literal("Final Form - prepare yourself").withStyle(ChatFormatting.RED));
 
         for (Player player : level().players()) {
             player.getCooldowns().addCooldown(Items.TOTEM_OF_UNDYING, 60);
@@ -632,10 +660,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return super.hurt(source, amount);
         }
 
+        if (exposedTicks > 0) {
+            amount *= EXPOSED_DAMAGE_BONUS;
+        }
+
         String damageSignature = source.getMsgId();
         if (secondPhaseTriggered && adaptationTicks > 0 && adaptationSignature.equals(damageSignature)) {
-            // Archers cannot easily switch damage types, so learned projectiles are resisted less.
-            if (source.is(DamageTypeTags.IS_PROJECTILE)) {
+            // Archers and melee fighters have one main damage type and cannot easily switch,
+            // so learned weapon attacks are resisted less than learned spell schools.
+            if (isWeaponDamage(source)) {
                 amount *= thirdPhaseTriggered ? 0.7F : 0.8F;
             } else {
                 amount *= thirdPhaseTriggered ? 0.45F : 0.65F;
@@ -792,10 +825,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             musicTimer = 0;
         }
         if (!this.level().isClientSide) {
-            if (cause.getEntity() instanceof ServerPlayer serverPlayer) {
-                if (serverPlayer.getServer() != null) {
-                    serverPlayer.sendSystemMessage(Component.literal("You have slain the Dark Doppelganger!"));
-                }
+            if (level().getServer() != null) {
+                Component message = cause.getEntity() instanceof Player killer
+                        ? Component.empty()
+                                .append(killer.getDisplayName())
+                                .append(Component.literal(" has shattered their reflection. The Dark Doppelganger is slain!"))
+                        : Component.literal("The Dark Doppelganger has been slain!");
+                level().getServer().getPlayerList().broadcastSystemMessage(message.copy().withStyle(ChatFormatting.LIGHT_PURPLE), false);
             }
             this.level().addFreshEntity(new ExperienceOrb(this.level(), this.getX(), this.getY(), this.getZ(), 2500));
         }
@@ -1022,6 +1058,100 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         level().addFreshEntity(arrow);
     }
 
+    private static boolean isWeaponDamage(DamageSource source) {
+        return source.is(DamageTypeTags.IS_PROJECTILE)
+                || source.is(DamageTypes.PLAYER_ATTACK)
+                || source.is(DamageTypes.MOB_ATTACK);
+    }
+
+    private static String describeDamage(DamageSource source) {
+        if (source.is(DamageTypeTags.IS_PROJECTILE)) return "arrows";
+        if (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)) return "melee strikes";
+        String id = source.getMsgId();
+        int dot = id.lastIndexOf('.');
+        return (dot >= 0 ? id.substring(dot + 1) : id).replace('_', ' ');
+    }
+
+    /** Big phase-change moment: title card, glass-shatter burst and a shove away from the boss. */
+    private void playPhaseShatter(Component title, Component subtitle) {
+        if (!(level() instanceof ServerLevel serverLevel)) return;
+
+        serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.PURPLE_STAINED_GLASS.defaultBlockState()),
+                getX(), getY() + 1.2, getZ(), 160, 1.2, 1.2, 1.2, 0.4);
+        serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 1.0, getZ(), 80, 1.0, 1.0, 1.0, 0.2);
+        level().playSound(null, getX(), getY(), getZ(), SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 2.0F, 0.6F);
+
+        for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
+            player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 50, 20));
+            player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
+            player.connection.send(new ClientboundSetTitleTextPacket(title));
+
+            if (player.distanceToSqr(this) < 7.0 * 7.0) {
+                player.knockback(1.6, getX() - player.getX(), getZ() - player.getZ());
+                player.hurtMarked = true;
+            }
+        }
+    }
+
+    /**
+     * After the boss finishes its phase signature spell it is exposed for a few seconds:
+     * glowing, slowed and taking extra damage. Rewards dodging the big attack in any fight style.
+     */
+    private void tickSignatureExposure() {
+        if (exposedTicks > 0) exposedTicks--;
+        if (signatureSpell == null) return;
+
+        if (isCasting()) {
+            var casting = MagicData.getPlayerMagicData(this).getCastingSpell();
+            if (casting != null && casting.getSpell() == signatureSpell) castingSignature = true;
+        } else if (castingSignature) {
+            castingSignature = false;
+            exposedTicks = EXPOSED_DURATION;
+            addEffect(new MobEffectInstance(MobEffects.GLOWING, EXPOSED_DURATION, 0, false, false));
+            addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EXPOSED_DURATION, 2, false, false));
+            if (level() instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(ParticleTypes.ENCHANTED_HIT, getX(), getY() + 1.2, getZ(), 30, 0.5, 0.8, 0.5, 0.2);
+            }
+            level().playSound(null, getX(), getY(), getZ(), SoundEvents.BEACON_DEACTIVATE, SoundSource.HOSTILE, 1.5F, 0.7F);
+            for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(50))) {
+                player.displayClientMessage(Component.literal("The Doppelganger is spent - strike now!").withStyle(ChatFormatting.GOLD), true);
+            }
+        }
+    }
+
+    /**
+     * Caps copied spell power so a high spell power mage is not punished for their build.
+     * Iron's Spellbooks reads spell power through this method, so equipment bonuses are capped too.
+     */
+    @Override
+    public double getAttributeValue(Holder<Attribute> attribute) {
+        double value = super.getAttributeValue(attribute);
+        if (!isSpellPowerAttribute(attribute)) return value;
+        double cap = Config.DOPPELGANGER_MAX_COPIED_SPELL_POWER.get();
+        if (cap > 0.0) {
+            double multiplier = Config.DOPPELGANGER_SPELL_POWER_MULTIPLIER.get();
+            if (multiplier > 0.0) cap *= multiplier;
+            if (attribute.is(AttributeRegistry.HOLY_SPELL_POWER) && Config.DOPPELGANGER_HARD_MODE.get()) {
+                cap = Math.max(cap, 1.3);
+            }
+            return Math.min(value, cap);
+        }
+        return value;
+    }
+
+    private static boolean isSpellPowerAttribute(Holder<Attribute> attribute) {
+        return attribute.is(AttributeRegistry.SPELL_POWER)
+                || attribute.is(AttributeRegistry.HOLY_SPELL_POWER)
+                || attribute.is(AttributeRegistry.BLOOD_SPELL_POWER)
+                || attribute.is(AttributeRegistry.NATURE_SPELL_POWER)
+                || attribute.is(AttributeRegistry.ELDRITCH_SPELL_POWER)
+                || attribute.is(AttributeRegistry.FIRE_SPELL_POWER)
+                || attribute.is(AttributeRegistry.ICE_SPELL_POWER)
+                || attribute.is(AttributeRegistry.LIGHTNING_SPELL_POWER)
+                || attribute.is(AttributeRegistry.EVOCATION_SPELL_POWER)
+                || attribute.is(AttributeRegistry.ENDER_SPELL_POWER);
+    }
+
     private boolean tryMirrorTheft(Player target) {
         List<Holder<MobEffect>> candidates = new ArrayList<>();
         candidates.add(MobEffects.MOVEMENT_SPEED);
@@ -1116,8 +1246,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             clone.cloneLifetime = lifetime + random.nextInt(40);
             clone.summonerUUID = this.summonerUUID;
             if (copiedPlayer != null) clone.setSummonerPlayer(copiedPlayer);
-            clone.setCustomName(getCustomName());
-            clone.setCustomNameVisible(isCustomNameVisible());
+            clone.setCustomName(Component.literal("Reflection").withStyle(ChatFormatting.DARK_GRAY));
+            clone.setCustomNameVisible(false);
 
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 clone.setItemSlot(slot, getItemBySlot(slot).copy());
@@ -1175,7 +1305,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             discard();
             return;
         }
-        if (!isEchoClone) return;
+        if (!isEchoClone) {
+            // Subtle tell: reflections trail smoke, the real boss does not.
+            if (tickCount % 4 == 0 && level() instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, getX(), getY() + 1.0, getZ(), 2, 0.25, 0.5, 0.25, 0.01);
+            }
+            return;
+        }
 
         if (echoPath.isEmpty() || echoPathIndex >= echoPath.size()) {
             discard();
@@ -1212,7 +1348,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         adaptationSignature = signature;
         adaptationTicks = thirdPhaseTriggered ? 220 : 160;
         repeatedDamageCount = 0;
-        player.displayClientMessage(Component.literal("The Doppelganger has learned that attack. Change tactics.").withStyle(ChatFormatting.RED), true);
+        player.displayClientMessage(Component.literal("The Doppelganger has learned your " + describeDamage(source)
+                + (isWeaponDamage(source) ? ". It resists them for a while." : ". Change tactics.")).withStyle(ChatFormatting.RED), true);
         if (level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.ENCHANT, getX(), getY() + 1.1, getZ(), 30, 0.5, 0.8, 0.5, 0.08);
         }
