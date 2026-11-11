@@ -237,7 +237,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.DEVOUR_SPELL.get(), 3, 6, 100, 250, 1));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.MAGIC_ARROW_SPELL.get(), 3, 5, 120, 260, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -249,6 +249,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .setBowTiming(20, 25, 40)
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
+                .setSpellQuality(0.3f, 0.5f)
                 .setSpells(
                         spellsFromConfig(Config.DOPPEL_PHASE1_SPELLS_A.get()),
                         spellsFromConfig(Config.DOPPEL_PHASE1_SPELLS_B.get()),
@@ -265,7 +266,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.FIREBALL_SPELL.get(), 3, 5, 100, 250, 1));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.ARROW_VOLLEY_SPELL.get(), 3, 5, 120, 240, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -277,6 +278,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .setBowTiming(18, 20, 35)
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
+                .setSpellQuality(0.4f, 0.6f)
                 .setSpells(
                         spellsFromConfig(Config.DOPPEL_PHASE2_SPELLS_A.get()),
                         spellsFromConfig(Config.DOPPEL_PHASE2_SPELLS_B.get()),
@@ -293,7 +295,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.RAY_OF_FROST_SPELL.get(), 3, 5, 100, 250, 1));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.STARFALL_SPELL.get(), 4, 6, 140, 260, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.25f, 50, 75)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -305,6 +307,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .setBowTiming(15, 15, 30)
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
+                .setSpellQuality(0.5f, 0.7f)
                 .setSpells(
                         spellsFromConfig(Config.DOPPEL_PHASE3_SPELLS_A.get()),
                         spellsFromConfig(Config.DOPPEL_PHASE3_SPELLS_B.get()),
@@ -321,7 +324,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         this.goalSelector.getAvailableGoals().forEach(WrappedGoal::stop);
         this.goalSelector.removeAllGoals((x) -> true);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.SCULK_TENTACLES_SPELL.get(), 3, 4, 100, 160, 1));
+        this.goalSelector.addGoal(2, new SpellBarrageGoal(this, SpellRegistry.STARFALL_SPELL.get(), 6, 8, 100, 180, 1));
         this.goalSelector.addGoal(3, new PatchedWarlockAttackGoal<>(this, 1.4f, 30, 50)
                 .setMoveset(List.of(
                         new AttackAnimationData(9, "simple_sword_upward_swipe", 5),
@@ -333,6 +336,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 .setBowTiming(12, 10, 20)
                 .setMeleeAttackInverval(10, 20)
                 .setMeleeMovespeedModifier(1.7f)
+                .setSpellQuality(0.6f, 0.85f)
                 .setSpells(
                         spellsFromConfig(Config.DOPPEL_FINAL_SPELLS_A.get()),
                         spellsFromConfig(Config.DOPPEL_FINAL_SPELLS_B.get()),

@@ -99,109 +99,139 @@ public class Config {
                 .comment("Damage multiplier for arrows the boss fires when it holds a bow or crossbow. A fully drawn shot at 1.0 deals about as much as a player's fully drawn bow.")
                 .defineInRange("bow_damage_multiplier", 2.0, 0.0, 100.0);
 
+        // Spell lists per phase: a = attack, b = defense (favoured while projectiles fly at the boss,
+        // so avoid dodge/shield spells that make archers miss), c = movement, d = support/buffs.
+        // Repeat an entry to make it more likely. Hard mode uses phase1 -> phase3 -> final.
         DOPPEL_PHASE1_SPELLS_A = BUILDER.defineListAllowEmpty("phase1.spells_a",
                 List.of(
-                        "irons_spellbooks:guiding_bolt",
-                        "irons_spellbooks:blood_needles",
-                        "irons_spellbooks:blood_slash"
+                        "irons_spellbooks:magic_missile",
+                        "irons_spellbooks:magic_missile",
+                        "irons_spellbooks:firebolt",
+                        "irons_spellbooks:icicle",
+                        "irons_spellbooks:blood_slash",
+                        "irons_spellbooks:fang_strike"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE1_SPELLS_B = BUILDER.defineListAllowEmpty("phase1.spells_b",
                 List.of(
                         "irons_spellbooks:fang_ward",
-                        "irons_spellbooks:gust"
+                        "irons_spellbooks:gust",
+                        "irons_spellbooks:blood_step"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE1_SPELLS_C = BUILDER.defineListAllowEmpty("phase1.spells_c",
-                List.of("irons_spellbooks:burning_dash"),
+                List.of(
+                        "irons_spellbooks:blood_step",
+                        "irons_spellbooks:burning_dash"
+                ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE1_SPELLS_D = BUILDER.defineListAllowEmpty("phase1.spells_d",
                 List.of(
                         "irons_spellbooks:blight",
-                        "irons_spellbooks:invisibility"
+                        "irons_spellbooks:haste"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE2_SPELLS_A = BUILDER.defineListAllowEmpty("phase2.spells_a",
                 List.of(
-                        "irons_spellbooks:magic_arrow",
-                        "irons_spellbooks:poison_arrow",
-                        "irons_spellbooks:magma_bomb"
+                        "irons_spellbooks:ice_spikes",
+                        "irons_spellbooks:ice_spikes",
+                        "irons_spellbooks:icicle",
+                        "irons_spellbooks:chain_lightning",
+                        "irons_spellbooks:ball_lightning",
+                        "irons_spellbooks:lightning_lance"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE2_SPELLS_B = BUILDER.defineListAllowEmpty("phase2.spells_b",
                 List.of(
-                        "irons_spellbooks:heat_surge",
-                        "irons_spellbooks:flaming_strike"
+                        "irons_spellbooks:frostwave",
+                        "irons_spellbooks:shockwave",
+                        "irons_spellbooks:frost_step"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE2_SPELLS_C = BUILDER.defineListAllowEmpty("phase2.spells_c",
-                List.of("irons_spellbooks:frost_step"),
+                List.of(
+                        "irons_spellbooks:frost_step",
+                        "irons_spellbooks:thunder_step"
+                ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE2_SPELLS_D = BUILDER.defineListAllowEmpty("phase2.spells_d",
                 List.of(
-                        "irons_spellbooks:root",
-                        "irons_spellbooks:thunderstorm"
+                        "irons_spellbooks:echoing_strikes",
+                        "irons_spellbooks:charge"
                 ),
                 o -> o instanceof String);
         DOPPEL_PHASE3_SPELLS_A = BUILDER.defineListAllowEmpty("phase3.spells_a",
                 List.of(
+                        "irons_spellbooks:eldritch_blast",
+                        "irons_spellbooks:wither_skull",
+                        "irons_spellbooks:wither_skull",
                         "irons_spellbooks:lightning_lance",
-                        "irons_spellbooks:stomp"
+                        "irons_spellbooks:fang_strike",
+                        "irons_spellbooks:magic_arrow"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE3_SPELLS_B = BUILDER.defineListAllowEmpty("phase3.spells_b",
                 List.of(
                         "irons_spellbooks:shockwave",
-                        "irons_spellbooks:ascension"
+                        "irons_spellbooks:fang_ward",
+                        "irons_spellbooks:blood_step"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE3_SPELLS_C = BUILDER.defineListAllowEmpty("phase3.spells_c",
-                List.of("irons_spellbooks:blood_step"),
+                List.of(
+                        "irons_spellbooks:blood_step",
+                        "irons_spellbooks:ascension"
+                ),
                 o -> o instanceof String);
 
         DOPPEL_PHASE3_SPELLS_D = BUILDER.defineListAllowEmpty("phase3.spells_d",
                 List.of(
-                        "irons_spellbooks:evasion",
-                        "irons_spellbooks:echoing_strikes"
+                        "irons_spellbooks:echoing_strikes",
+                        "irons_spellbooks:thunderstorm"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_FINAL_SPELLS_A = BUILDER.defineListAllowEmpty("final.spells_a",
                 List.of(
-                        "irons_spellbooks:eldritch_blast",
                         "irons_spellbooks:sonic_boom",
-                        "irons_spellbooks:abyssal_shroud",
-                        "irons_spellbooks:ray_of_frost",
-                        "irons_spellbooks:sculk_tentacles"
+                        "irons_spellbooks:eldritch_blast",
+                        "irons_spellbooks:wither_skull",
+                        "irons_spellbooks:lightning_lance",
+                        "irons_spellbooks:ice_spikes",
+                        "irons_spellbooks:fang_strike"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_FINAL_SPELLS_B = BUILDER.defineListAllowEmpty("final.spells_b",
                 List.of(
-                        "irons_spellbooks:ascension",
-                        "irons_spellbooks:abyssal_shroud"
+                        "irons_spellbooks:shockwave",
+                        "irons_spellbooks:frostwave",
+                        "irons_spellbooks:blood_step"
                 ),
                 o -> o instanceof String);
 
         DOPPEL_FINAL_SPELLS_C = BUILDER.defineListAllowEmpty("final.spells_c",
-                List.of("irons_spellbooks:blood_step"),
+                List.of(
+                        "irons_spellbooks:blood_step",
+                        "irons_spellbooks:thunder_step",
+                        "irons_spellbooks:ascension"
+                ),
                 o -> o instanceof String);
 
         DOPPEL_FINAL_SPELLS_D = BUILDER.defineListAllowEmpty("final.spells_d",
                 List.of(
-                        "irons_spellbooks:abyssal_shroud",
                         "irons_spellbooks:echoing_strikes",
-                        "irons_spellbooks:root",
-                        "irons_spellbooks:blight"
+                        "irons_spellbooks:thunderstorm",
+                        "irons_spellbooks:haste"
                 ),
                 o -> o instanceof String);
 
