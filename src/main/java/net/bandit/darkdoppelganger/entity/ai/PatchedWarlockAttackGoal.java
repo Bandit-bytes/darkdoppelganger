@@ -8,6 +8,9 @@ import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackAnimationData;
 import io.redspace.ironsspellbooks.entity.mobs.goals.melee.AttackKeyframe;
 import io.redspace.ironsspellbooks.network.SyncAnimationPacket;
 import io.redspace.ironsspellbooks.registries.SoundRegistry;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -45,6 +48,8 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
     /** -1 while not drawing, otherwise ticks spent drawing so far. */
     protected int bowDrawTime = -1;
     protected int bowCooldown = 0;
+    /** Ticks before release when the glint shows, so players can see a shot coming. */
+    protected static final int BOW_GLINT_TICKS = 8;
 
     /** True when the mob can shoot and holds a bow or crossbow in its main hand. */
     protected boolean isHoldingBow() {
@@ -57,7 +62,7 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
         if (isHoldingBow()) {
             wantsToMelee = false;
         } else {
-            bowDrawTime = -1;
+            cancelDraw();
         }
         super.tick();
     }
@@ -133,7 +138,7 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
         if (bowCooldown > 0) bowCooldown--;
 
         if (mob.isCasting() || target == null || target.isDeadOrDying()) {
-            bowDrawTime = -1;
+            cancelDraw();
             return;
         }
 
@@ -141,6 +146,8 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
         if (bowDrawTime < 0) {
             if (bowCooldown <= 0 && hasLineOfSight && distanceSquared <= bowRange * bowRange) {
                 bowDrawTime = 0;
+                // Using the item shows the bow pulling back, and crossbows play their loading sounds.
+                mob.startUsingItem(InteractionHand.MAIN_HAND);
             }
             return;
         }
@@ -148,14 +155,25 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
         mob.getLookControl().setLookAt(target);
         if (!hasLineOfSight) {
             // Hold the draw briefly when the target ducks behind cover, then give up.
-            if (seeTime < -20) bowDrawTime = -1;
+            if (seeTime < -20) cancelDraw();
             return;
         }
-        if (++bowDrawTime >= bowDrawTicks) {
+        ++bowDrawTime;
+        if (bowDrawTime == Math.max(1, bowDrawTicks - BOW_GLINT_TICKS) && mob.level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.ENCHANTED_HIT, mob.getX(), mob.getEyeY() - 0.3, mob.getZ(),
+                    12, 0.3, 0.2, 0.3, 0.15);
+            mob.playSound(SoundEvents.CROSSBOW_QUICK_CHARGE_3.value(), 0.8f, 1.4f);
+        }
+        if (bowDrawTime >= bowDrawTicks) {
             ((DoppelArcher) mob).performBowShot(target);
-            bowDrawTime = -1;
+            cancelDraw();
             bowCooldown = Mth.randomBetweenInclusive(mob.getRandom(), bowCooldownMin, bowCooldownMax);
         }
+    }
+
+    protected void cancelDraw() {
+        if (bowDrawTime >= 0 && mob.isUsingItem()) mob.stopUsingItem();
+        bowDrawTime = -1;
     }
 
     protected void onHitFrame(AttackKeyframe attackKeyframe, float meleeRange) {
@@ -243,7 +261,7 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
         super.stop();
         this.meleeAnimTimer = -1;
         this.queueCombo = null;
-        this.bowDrawTime = -1;
+        cancelDraw();
     }
 
     public void playSwingSound() {
