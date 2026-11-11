@@ -1,7 +1,6 @@
 package net.bandit.darkdoppelganger.entity;
 
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
-import io.redspace.ironsspellbooks.api.magic.MagicData;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import io.redspace.ironsspellbooks.api.spells.AbstractSpell;
 import io.redspace.ironsspellbooks.entity.mobs.IAnimatedAttacker;
@@ -116,6 +115,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private int exposedTicks = 0;
     private static final int EXPOSED_DURATION = 60;
     private static final float EXPOSED_DAMAGE_BONUS = 1.25F;
+    /**
+     * Minecraft caps max health (1024 in vanilla). When the configured health is higher, the boss keeps
+     * the capped max health and takes proportionally less damage, so the fight lasts as long as the
+     * configured value. 1.0 when no scaling is needed.
+     */
+    private float damageScale = 1.0F;
     private static final int SHADOWSTEP_WINDUP_TICKS = 25;
     private int mirrorCloneCooldown = 360;
     private int echoCooldown = 260;
@@ -458,7 +463,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             if (players > 1) {
                 health *= 1.0 + Config.DOPPELGANGER_HEALTH_PER_EXTRA_PLAYER.get() * (players - 1);
             }
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Math.min(health, 1024.0 * 1024.0));
+            double cap = Attributes.MAX_HEALTH.value() instanceof RangedAttribute ranged ? ranged.getMaxValue() : 1024.0;
+            double maxHealth = Math.min(health, cap);
+            damageScale = (float) (maxHealth / health);
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(maxHealth);
         }
         if (Config.DOPPELGANGER_ATTACK_DAMAGE != null) {
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(Config.DOPPELGANGER_ATTACK_DAMAGE.get());
@@ -575,6 +583,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         age++;
     }
+    /** Health the fight actually represents, including damage scaling past the max health cap. */
+    public float getEffectiveMaxHealth() {
+        return getMaxHealth() / damageScale;
+    }
+
     @Nullable
     public ServerPlayer getSummonerPlayer() {
         if (summonerUUID == null) return null;
@@ -660,6 +673,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return super.hurt(source, amount);
         }
 
+        amount *= damageScale;
         if (exposedTicks > 0) {
             amount *= EXPOSED_DAMAGE_BONUS;
         }
@@ -1102,7 +1116,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (signatureSpell == null) return;
 
         if (isCasting()) {
-            var casting = MagicData.getPlayerMagicData(this).getCastingSpell();
+            // Spell-casting mobs keep their own MagicData; the entity attachment is unused for them.
+            var casting = getMagicData().getCastingSpell();
             if (casting != null && casting.getSpell() == signatureSpell) castingSignature = true;
         } else if (castingSignature) {
             castingSignature = false;
@@ -1404,6 +1419,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         tag.putInt("StrandedBelowTicks", strandedBelowTicks);
         tag.putInt("MirrorCloneCooldown", mirrorCloneCooldown);
         tag.putInt("EchoCooldown", echoCooldown);
+        tag.putFloat("DamageScale", damageScale);
         tag.putInt(NBT_MINION_COUNT, activeMinionUUIDs.size());
         int index = 0;
         for (UUID uuid : activeMinionUUIDs) {
@@ -1428,6 +1444,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (tag.contains("StrandedBelowTicks")) strandedBelowTicks = tag.getInt("StrandedBelowTicks");
         if (tag.contains("MirrorCloneCooldown")) mirrorCloneCooldown = tag.getInt("MirrorCloneCooldown");
         if (tag.contains("EchoCooldown")) echoCooldown = tag.getInt("EchoCooldown");
+        if (tag.contains("DamageScale")) damageScale = Math.max(0.0001F, tag.getFloat("DamageScale"));
 
         activeMinionUUIDs.clear();
         int count = tag.getInt(NBT_MINION_COUNT);

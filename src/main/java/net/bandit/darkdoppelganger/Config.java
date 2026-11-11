@@ -62,7 +62,8 @@ public class Config {
         BUILDER.comment("Dark Doppelganger Configuration").push("dark_doppelganger");
 
         DOPPELGANGER_HEALTH = BUILDER
-                .comment("Health of the Dark Doppelganger. It refills at the start of phases 2 and 3, so the full fight is roughly 2.4x this value.")
+                .comment("Health of the Dark Doppelganger. It refills at the start of phases 2 and 3, so the full fight is roughly 2.4x this value.",
+                        "Minecraft caps max health at 1024; above that the boss takes proportionally less damage instead, so the fight still lasts as long as this value.")
                 .defineInRange("health", 1500.0, 1.0, 100000.0);
 
         DOPPELGANGER_ATTACK_DAMAGE = BUILDER
