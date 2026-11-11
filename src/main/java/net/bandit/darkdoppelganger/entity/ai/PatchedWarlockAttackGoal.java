@@ -12,6 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -37,6 +38,30 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
      */
     float comboChance = .3f;
 
+    /** Ticks needed to fully draw a bow before firing. */
+    protected int bowDrawTicks = 20;
+    protected int bowCooldownMin = 25;
+    protected int bowCooldownMax = 40;
+    /** -1 while not drawing, otherwise ticks spent drawing so far. */
+    protected int bowDrawTime = -1;
+    protected int bowCooldown = 0;
+
+    /** True when the mob can shoot and holds a bow or crossbow in its main hand. */
+    protected boolean isHoldingBow() {
+        return mob instanceof DoppelArcher && mob.getMainHandItem().getItem() instanceof ProjectileWeaponItem;
+    }
+
+    @Override
+    public void tick() {
+        // An archer keeps its distance: disable melee before movement and attack logic run.
+        if (isHoldingBow()) {
+            wantsToMelee = false;
+        } else {
+            bowDrawTime = -1;
+        }
+        super.tick();
+    }
+
     @Override
     public boolean isActing() {
         return super.isActing() || isMeleeing();
@@ -54,6 +79,11 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
 
     @Override
     protected void handleAttackLogic(double distanceSquared) {
+        if (meleeAnimTimer < 0 && isHoldingBow()) {
+            super.handleAttackLogic(distanceSquared); // spellcasting continues alongside the bow
+            handleBowLogic(distanceSquared);
+            return;
+        }
         var meleeRange = meleeRange();
         float rangeMultiplier = nextAttack == null ? 1f : nextAttack.rangeMultiplier;
         float procRangeSqr = meleeRange * meleeRange * rangeMultiplier * rangeMultiplier * 1.2f * 1.2f;
@@ -96,6 +126,35 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
                     resetMeleeAttackInterval(distanceSquared);
                 }
             }
+        }
+    }
+
+    protected void handleBowLogic(double distanceSquared) {
+        if (bowCooldown > 0) bowCooldown--;
+
+        if (mob.isCasting() || target == null || target.isDeadOrDying()) {
+            bowDrawTime = -1;
+            return;
+        }
+
+        float bowRange = spellcastingRange * 1.4f;
+        if (bowDrawTime < 0) {
+            if (bowCooldown <= 0 && hasLineOfSight && distanceSquared <= bowRange * bowRange) {
+                bowDrawTime = 0;
+            }
+            return;
+        }
+
+        mob.getLookControl().setLookAt(target);
+        if (!hasLineOfSight) {
+            // Hold the draw briefly when the target ducks behind cover, then give up.
+            if (seeTime < -20) bowDrawTime = -1;
+            return;
+        }
+        if (++bowDrawTime >= bowDrawTicks) {
+            ((DoppelArcher) mob).performBowShot(target);
+            bowDrawTime = -1;
+            bowCooldown = Mth.randomBetweenInclusive(mob.getRandom(), bowCooldownMin, bowCooldownMax);
         }
     }
 
@@ -184,6 +243,7 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
         super.stop();
         this.meleeAnimTimer = -1;
         this.queueCombo = null;
+        this.bowDrawTime = -1;
     }
 
     public void playSwingSound() {
@@ -193,6 +253,13 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
     public PatchedWarlockAttackGoal<T> setMoveset(List<AttackAnimationData> moveset) {
         this.moveList = moveset;
         nextAttack = getNextAttack(0);
+        return this;
+    }
+
+    public PatchedWarlockAttackGoal<T> setBowTiming(int drawTicks, int cooldownMin, int cooldownMax) {
+        this.bowDrawTicks = drawTicks;
+        this.bowCooldownMin = cooldownMin;
+        this.bowCooldownMax = cooldownMax;
         return this;
     }
 

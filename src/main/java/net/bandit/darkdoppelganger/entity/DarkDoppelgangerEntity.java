@@ -12,6 +12,7 @@ import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.FireBossMoveCon
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.NotIdioticNavigation;
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
 import net.bandit.darkdoppelganger.Config;
+import net.bandit.darkdoppelganger.entity.ai.DoppelArcher;
 import net.bandit.darkdoppelganger.entity.ai.PatchedWarlockAttackGoal;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
@@ -28,6 +29,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
@@ -45,8 +48,12 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -59,7 +66,7 @@ import software.bernie.geckolib.animation.AnimationState;
 
 import java.util.*;
 
-public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker {
+public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements Enemy, IAnimatedAttacker, DoppelArcher {
 
     private static final String NBT_SUMMONER_UUID = "SummonerUUID";
     private static final String NBT_SECOND_PHASE = "SecondPhaseTriggered";
@@ -93,6 +100,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private boolean loadedFromSave = false;
     private int mirrorTheftCooldown = 280;
     private int shadowstepCooldown = 180;
+    /** Counts down the warning before a shadowstep; 0 when no shadowstep is pending. */
+    private int shadowstepWindup = 0;
+    private static final int SHADOWSTEP_WINDUP_TICKS = 25;
     private int mirrorCloneCooldown = 360;
     private int echoCooldown = 260;
     private int equipmentMirrorCooldown = 40;
@@ -236,6 +246,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
                 ))
                 .setComboChance(.4f)
+                .setBowTiming(20, 25, 40)
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
                 .setSpells(
@@ -263,6 +274,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
                 ))
                 .setComboChance(.4f)
+                .setBowTiming(18, 20, 35)
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
                 .setSpells(
@@ -290,6 +302,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
                 ))
                 .setComboChance(.4f)
+                .setBowTiming(15, 15, 30)
                 .setMeleeAttackInverval(10, 30)
                 .setMeleeMovespeedModifier(1.5f)
                 .setSpells(
@@ -317,6 +330,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                         new AttackAnimationData(10, "simple_sword_horizontal_cross_swipe", 8)
                 ))
                 .setComboChance(.7f)
+                .setBowTiming(12, 10, 20)
                 .setMeleeAttackInverval(10, 20)
                 .setMeleeMovespeedModifier(1.7f)
                 .setSpells(
@@ -616,7 +630,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         String damageSignature = source.getMsgId();
         if (secondPhaseTriggered && adaptationTicks > 0 && adaptationSignature.equals(damageSignature)) {
-            amount *= thirdPhaseTriggered ? 0.45F : 0.65F;
+            // Archers cannot easily switch damage types, so learned projectiles are resisted less.
+            if (source.is(DamageTypeTags.IS_PROJECTILE)) {
+                amount *= thirdPhaseTriggered ? 0.7F : 0.8F;
+            } else {
+                amount *= thirdPhaseTriggered ? 0.45F : 0.65F;
+            }
         }
         learnFromDamage(source, damageSignature);
 
@@ -704,13 +723,48 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     private void lifeDrainAttack() {
-        level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(8)).forEach(player -> {
-            player.hurt(level().damageSources().magic(), 4.0F);
-            heal(4.0F);
-        });
+        // Damage only: the boss no longer heals from this pulse.
+        level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(8)).forEach(player ->
+                player.hurt(level().damageSources().magic(), 4.0F));
 
         // Life drain is a major attack, so it may laugh -- but still obeys the global cooldown.
         tryBossLaugh(0.65F, 1.15F, 1.0F);
+    }
+
+    /**
+     * The Doppelganger never heals: no regeneration, no lifesteal (Devour, enchantments,
+     * attributes on copied gear, stolen effects). Phase transitions use setHealth directly
+     * and are unaffected.
+     */
+    @Override
+    public void heal(float amount) {
+    }
+
+    /**
+     * Mirrored armor is for looks and mind games, not defense. Copying a fully geared player's
+     * armor (plus Protection) made the boss take under a tenth of their damage, so it uses its
+     * own base armor and toughness instead and does not wear down the copies.
+     */
+    @Override
+    protected float getDamageAfterArmorAbsorb(DamageSource source, float amount) {
+        if (source.is(DamageTypeTags.BYPASSES_ARMOR)) return amount;
+        AttributeInstance armor = getAttribute(Attributes.ARMOR);
+        AttributeInstance toughness = getAttribute(Attributes.ARMOR_TOUGHNESS);
+        return CombatRules.getDamageAfterAbsorb(this, amount, source,
+                armor == null ? 0.0F : (float) armor.getBaseValue(),
+                toughness == null ? 0.0F : (float) toughness.getBaseValue());
+    }
+
+    /** Resistance still applies; Protection enchantments on the copied armor do not. */
+    @Override
+    protected float getDamageAfterMagicAbsorb(DamageSource source, float amount) {
+        if (source.is(DamageTypeTags.BYPASSES_EFFECTS)) return amount;
+        MobEffectInstance resistance = getEffect(MobEffects.DAMAGE_RESISTANCE);
+        if (resistance != null && !source.is(DamageTypeTags.BYPASSES_RESISTANCE)) {
+            int reduction = Math.min(25, (resistance.getAmplifier() + 1) * 5);
+            amount = Math.max(amount * (25 - reduction) / 25.0F, 0.0F);
+        }
+        return amount;
     }
 
     @Override
@@ -802,9 +856,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 }
             }
 
-            if (shadowstepCooldown-- <= 0 && distanceToSqr(player) > 12.0 * 12.0) {
-                shadowstepBehind(player);
-                shadowstepCooldown = thirdPhaseTriggered ? 90 : 160;
+            if (shadowstepWindup > 0) {
+                if (--shadowstepWindup == 0) {
+                    shadowstepBehind(player);
+                    shadowstepCooldown = thirdPhaseTriggered ? 90 : 160;
+                }
+            } else if (shadowstepCooldown-- <= 0 && distanceToSqr(player) > 12.0 * 12.0) {
+                warnShadowstep(player);
             }
 
             if (mirrorCloneCooldown-- <= 0) {
@@ -926,12 +984,45 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
+    @Override
+    public void performBowShot(LivingEntity target) {
+        ItemStack weapon = getMainHandItem();
+        if (!(weapon.getItem() instanceof ProjectileWeaponItem weaponItem)) return;
+
+        ItemStack ammo = getProjectile(weapon);
+        if (ammo.isEmpty()) ammo = new ItemStack(Items.ARROW);
+
+        // The weapon stack carries its enchantments (Power, Flame, Punch, Piercing...) onto the arrow,
+        // and customArrow lets modded bows swap in their own projectile.
+        AbstractArrow arrow = ProjectileUtil.getMobArrow(this, ammo, 1.0F, weapon);
+        arrow = weaponItem.customArrow(arrow, ammo, weapon);
+        double damageMultiplier = Config.DOPPELGANGER_BOW_DAMAGE_MULTIPLIER.get();
+        if (isClone) damageMultiplier *= 0.4; // mirror clones are a distraction, not a second boss
+        arrow.setBaseDamage(arrow.getBaseDamage() * damageMultiplier);
+        arrow.setCritArrow(true);
+        arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
+
+        // A little slower than a player's full draw so arrows can be strafed at range;
+        // the gravity lead keeps them accurate at any distance.
+        float velocity = 2.6F;
+        double dx = target.getX() - getX();
+        double dy = target.getY(0.3333333333333333) - arrow.getY();
+        double dz = target.getZ() - getZ();
+        double horizontal = Math.sqrt(dx * dx + dz * dz);
+        double gravityLead = horizontal * horizontal * 0.03 / (velocity * velocity);
+        arrow.shoot(dx, dy + gravityLead, dz, velocity, 2.0F);
+
+        boolean crossbow = weaponItem instanceof CrossbowItem;
+        playSound(crossbow ? SoundEvents.CROSSBOW_SHOOT : SoundEvents.ARROW_SHOOT, 1.0F,
+                1.0F / (getRandom().nextFloat() * 0.4F + 0.8F));
+        level().addFreshEntity(arrow);
+    }
+
     private boolean tryMirrorTheft(Player target) {
         List<Holder<MobEffect>> candidates = new ArrayList<>();
         candidates.add(MobEffects.MOVEMENT_SPEED);
         candidates.add(MobEffects.DAMAGE_BOOST);
         candidates.add(MobEffects.DAMAGE_RESISTANCE);
-        candidates.add(MobEffects.REGENERATION);
         candidates.add(MobEffects.DIG_SPEED);
         candidates.add(MobEffectRegistry.HASTENED.getDelegate());
         candidates.add(MobEffectRegistry.EVASION.getDelegate());
@@ -957,6 +1048,17 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return true;
         }
         return false;
+    }
+
+    /** Telegraphs a shadowstep so ranged players get a moment to turn around. */
+    private void warnShadowstep(Player target) {
+        shadowstepWindup = SHADOWSTEP_WINDUP_TICKS;
+        level().playSound(null, target.getX(), target.getY(), target.getZ(),
+                SoundEvents.ILLUSIONER_PREPARE_MIRROR, SoundSource.HOSTILE, 1.5F, 0.8F);
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 1.0, getZ(), 40, 0.4, 0.8, 0.4, 0.1);
+        }
+        target.displayClientMessage(Component.literal("Your reflection is slipping behind you...").withStyle(ChatFormatting.DARK_PURPLE), true);
     }
 
     private void shadowstepBehind(Player target) {

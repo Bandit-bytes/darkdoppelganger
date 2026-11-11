@@ -32,6 +32,7 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_ARMOR;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_MAINHAND;
+    public static final ModConfigSpec.DoubleValue DOPPELGANGER_BOW_DAMAGE_MULTIPLIER;
     public static final ModConfigSpec.BooleanValue ALTAR_END_ONLY;
 
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_A;
@@ -59,8 +60,8 @@ public class Config {
         BUILDER.comment("Dark Doppelganger Configuration").push("dark_doppelganger");
 
         DOPPELGANGER_HEALTH = BUILDER
-                .comment("Health of the Dark Doppelganger")
-                .defineInRange("health", 600.0, 1.0, 100000.0);
+                .comment("Health of the Dark Doppelganger. It refills at the start of phases 2 and 3, so the full fight is roughly 2.4x this value.")
+                .defineInRange("health", 1500.0, 1.0, 100000.0);
 
         DOPPELGANGER_ATTACK_DAMAGE = BUILDER
                 .comment("Attack Damage of the Dark Doppelganger")
@@ -93,6 +94,10 @@ public class Config {
         DOPPELGANGER_COPY_PLAYER_MAINHAND = BUILDER
                 .comment("If true, the boss will copy the player's main hand item. If false, it will always use the configured default main hand item.")
                 .define("copy_player_mainhand", true);
+
+        DOPPELGANGER_BOW_DAMAGE_MULTIPLIER = BUILDER
+                .comment("Damage multiplier for arrows the boss fires when it holds a bow or crossbow. A fully drawn shot at 1.0 deals about as much as a player's fully drawn bow.")
+                .defineInRange("bow_damage_multiplier", 2.0, 0.0, 100.0);
 
         DOPPEL_PHASE1_SPELLS_A = BUILDER.defineListAllowEmpty("phase1.spells_a",
                 List.of(
