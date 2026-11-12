@@ -465,7 +465,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
         if (!this.isClone && !loadedFromSave) {
             adjustAttributesFromConfig();
-            playIntro();
         }
         if (!this.isClone) {
             restorePhaseGoals();
@@ -554,19 +553,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
-    /** Title card when the boss first appears. Not replayed when the boss is loaded from a save. */
-    private void playIntro() {
-        Player summoner = getSummonerPlayer();
-        Component subtitle = summoner != null
-                ? Component.literal(summoner.getName().getString() + "'s reflection has awakened").withStyle(ChatFormatting.GRAY)
-                : Component.literal("Your reflection has awakened").withStyle(ChatFormatting.GRAY);
-        showTitleToNearby(Component.literal("DARK DOPPELGANGER").withStyle(ChatFormatting.DARK_PURPLE),
-                subtitle, 48.0, 70);
-    }
-
     /**
      * Titles draw at 4x the GUI scale, so at 1080p a title has about 480 GUI pixels of width. Long
-     * titles stay unbolded so they fit; "DARK DOPPELGANGER" in bold runs off both edges.
+     * titles stay unbolded so they fit; "REFLECTION BROKEN" in bold runs off both edges.
      */
     private void showTitleToNearby(Component title, Component subtitle, double range, int stayTicks) {
         for (ServerPlayer player : level().getEntitiesOfClass(ServerPlayer.class, getBoundingBox().inflate(range))) {
@@ -976,8 +965,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             shatterOwnedClones(serverLevel);
             playShatterBurst(serverLevel);
             playRoar(0.7F);
-            showTitleToNearby(Component.literal("SHATTERED").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD),
-                    Component.literal("The Dark Doppelganger is defeated").withStyle(ChatFormatting.GRAY), 64.0, 80);
         }
 
         this.bossEvent.removeAllPlayers();
