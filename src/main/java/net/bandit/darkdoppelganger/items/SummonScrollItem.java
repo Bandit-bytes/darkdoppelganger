@@ -1,5 +1,6 @@
 package net.bandit.darkdoppelganger.items;
 
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.bandit.darkdoppelganger.summoning.DelayedTasks;
 import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
@@ -74,13 +75,14 @@ public class SummonScrollItem extends Item {
         }
 
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
-        serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
-
-        if (!DoppelgangerSummoning.summon(serverWorld, player, ritualPos)) {
+        DarkDoppelgangerEntity boss = DoppelgangerSummoning.summon(serverWorld, player, ritualPos);
+        if (boss == null) {
             if (refund) {
                 player.getInventory().placeItemBackInInventory(new ItemStack(this));
             }
+        } else if (!boss.isInIntro()) { // the intro has its own laugh
+            serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
         }
     }
 

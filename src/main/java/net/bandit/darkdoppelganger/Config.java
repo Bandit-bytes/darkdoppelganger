@@ -36,6 +36,7 @@ public class Config {
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_HEALTH_PER_EXTRA_PLAYER;
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_MAX_COPIED_SPELL_POWER;
     public static final ModConfigSpec.BooleanValue ALTAR_END_ONLY;
+    public static final ModConfigSpec.BooleanValue INTRO_CUTSCENE;
 
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_A;
     public static ModConfigSpec.ConfigValue<List<? extends String>> DOPPEL_PHASE1_SPELLS_B;
@@ -281,6 +282,10 @@ public class Config {
                         ),
                         o -> o instanceof String
                 );
+        INTRO_CUTSCENE = BUILDER
+                .comment("Play a short cutscene when the boss is summoned: players within 48 blocks turn to watch it rise from its portal.")
+                .define("introCutscene", true);
+
         DOPPELGANGER_SPELL_POWER_MULTIPLIER = BUILDER
                 .comment("Scales all Iron's Spellbooks spell power attributes copied from the summoner. 1.0 = no change.")
                 .defineInRange("doppelgangerSpellPowerMultiplier", 1.0D, 0.0D, 100.0D);

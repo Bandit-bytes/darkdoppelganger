@@ -1,6 +1,7 @@
 package net.bandit.darkdoppelganger.summoning;
 
 import net.bandit.darkdoppelganger.Config;
+import net.bandit.darkdoppelganger.cutscene.CutsceneTracker;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -34,19 +35,21 @@ public final class DoppelgangerSummoning {
     private DoppelgangerSummoning() {
     }
 
-    public static boolean summon(ServerLevel level, Player player, BlockPos ritualPos) {
+    /** Summons the boss for this player. Returns null when it could not be placed. */
+    @Nullable
+    public static DarkDoppelgangerEntity summon(ServerLevel level, Player player, BlockPos ritualPos) {
         if (player == null || !player.isAlive()) {
-            return false;
+            return null;
         }
 
         DarkDoppelgangerEntity boss = EntityRegistry.DARK_DOPPELGANGER.get().create(level);
         if (boss == null) {
-            return false;
+            return null;
         }
 
         Vec3 spawnPosition = findSpawnPosition(level, boss, player, ritualPos);
         if (spawnPosition == null) {
-            return false;
+            return null;
         }
 
         boss.setPos(spawnPosition.x, spawnPosition.y, spawnPosition.z);
@@ -60,9 +63,14 @@ public final class DoppelgangerSummoning {
         applyConfiguredEquipment(boss, player);
         disableEquipmentDrops(boss);
         boss.setPersistenceRequired();
+        boss.prepareEntrance(Config.INTRO_CUTSCENE.get() && !CutsceneTracker.nearbyViewers(boss).isEmpty());
 
         if (!level.addFreshEntity(boss)) {
-            return false;
+            return null;
+        }
+        // During the intro the boss makes its own entrance when it emerges.
+        if (boss.isInIntro()) {
+            return boss;
         }
 
         level.sendParticles(
@@ -83,7 +91,7 @@ public final class DoppelgangerSummoning {
                 1.0F,
                 0.5F
         );
-        return true;
+        return boss;
     }
 
     private static void applyConfiguredEquipment(DarkDoppelgangerEntity boss, Player player) {

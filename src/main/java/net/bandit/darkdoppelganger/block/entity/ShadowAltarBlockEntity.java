@@ -146,7 +146,7 @@ public class ShadowAltarBlockEntity extends BlockEntity {
             return;
         }
 
-        boolean summoned = DoppelgangerSummoning.summon(level, summoner, worldPosition);
+        boolean summoned = DoppelgangerSummoning.summon(level, summoner, worldPosition) != null;
         if (!summoned) {
             failRitual(level, summoner);
             return;

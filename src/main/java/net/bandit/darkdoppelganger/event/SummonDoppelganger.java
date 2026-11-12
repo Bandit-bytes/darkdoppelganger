@@ -1,5 +1,6 @@
 package net.bandit.darkdoppelganger.event;
 
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.bandit.darkdoppelganger.summoning.DelayedTasks;
 import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
@@ -48,19 +49,20 @@ public class SummonDoppelganger {
                 return;
             }
             nearestPlayer.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
-            serverWorld.playSound(
-                    null,
-                    nearestPlayer.getX(),
-                    nearestPlayer.getY(),
-                    nearestPlayer.getZ(),
-                    SoundRegistry.BOSS_LAUGH.get(),
-                    SoundSource.PLAYERS,
-                    1.5F,
-                    1.0F
-            );
-
-            if (!DoppelgangerSummoning.summon(serverWorld, nearestPlayer, ritualPos)) {
+            DarkDoppelgangerEntity boss = DoppelgangerSummoning.summon(serverWorld, nearestPlayer, ritualPos);
+            if (boss == null) {
                 source.sendFailure(Component.literal("No safe place was found for the Dark Doppelganger."));
+            } else if (!boss.isInIntro()) { // the intro has its own laugh
+                serverWorld.playSound(
+                        null,
+                        nearestPlayer.getX(),
+                        nearestPlayer.getY(),
+                        nearestPlayer.getZ(),
+                        SoundRegistry.BOSS_LAUGH.get(),
+                        SoundSource.PLAYERS,
+                        1.5F,
+                        1.0F
+                );
             }
         });
 

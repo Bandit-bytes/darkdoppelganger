@@ -40,6 +40,16 @@ public abstract class AzureCompatibleDoppelgangerRenderer extends AbstractSpellC
         outerArmorModel = new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR));
     }
 
+    /** During the intro the boss is in the world before it emerges from its portal; draw nothing until then. */
+    @Override
+    public boolean shouldRender(AbstractSpellCastingMob entity, net.minecraft.client.renderer.culling.Frustum frustum,
+                                double camX, double camY, double camZ) {
+        if (entity instanceof net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity boss && boss.isHiddenBeforeEmerging()) {
+            return false;
+        }
+        return super.shouldRender(entity, frustum, camX, camY, camZ);
+    }
+
     @Override
     public void actuallyRender(PoseStack poseStack, AbstractSpellCastingMob entity, BakedGeoModel model,
                                @Nullable RenderType renderType, MultiBufferSource bufferSource,
