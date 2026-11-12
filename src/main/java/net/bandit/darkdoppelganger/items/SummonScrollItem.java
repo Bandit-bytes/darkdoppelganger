@@ -1,6 +1,6 @@
 package net.bandit.darkdoppelganger.items;
 
-import net.bandit.darkdoppelganger.registry.SoundRegistry;
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.summoning.DelayedTasks;
 import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
 import net.minecraft.client.Minecraft;
@@ -9,11 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -73,14 +70,13 @@ public class SummonScrollItem extends Item {
             return;
         }
 
-        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
-        serverWorld.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
-
-        if (!DoppelgangerSummoning.summon(serverWorld, player, ritualPos)) {
+        DarkDoppelgangerEntity boss = DoppelgangerSummoning.summon(serverWorld, player, ritualPos);
+        if (boss == null) {
             if (refund) {
                 player.getInventory().placeItemBackInInventory(new ItemStack(this));
             }
+        } else if (!boss.isInIntro()) {
+            DoppelgangerSummoning.laughAtSummoner(serverWorld, player);
         }
     }
 

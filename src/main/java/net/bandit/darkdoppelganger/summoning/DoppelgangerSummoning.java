@@ -1,8 +1,10 @@
 package net.bandit.darkdoppelganger.summoning;
 
 import net.bandit.darkdoppelganger.Config;
+import net.bandit.darkdoppelganger.cutscene.CutsceneTracker;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
+import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -12,14 +14,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,19 +36,21 @@ public final class DoppelgangerSummoning {
     private DoppelgangerSummoning() {
     }
 
-    public static boolean summon(ServerLevel level, Player player, BlockPos ritualPos) {
+    /** Summons the boss for this player. Returns null when it could not be placed. */
+    @Nullable
+    public static DarkDoppelgangerEntity summon(ServerLevel level, Player player, BlockPos ritualPos) {
         if (player == null || !player.isAlive()) {
-            return false;
+            return null;
         }
 
         DarkDoppelgangerEntity boss = EntityRegistry.DARK_DOPPELGANGER.get().create(level);
         if (boss == null) {
-            return false;
+            return null;
         }
 
         Vec3 spawnPosition = findSpawnPosition(level, boss, player, ritualPos);
         if (spawnPosition == null) {
-            return false;
+            return null;
         }
 
         boss.setPos(spawnPosition.x, spawnPosition.y, spawnPosition.z);
@@ -60,9 +64,14 @@ public final class DoppelgangerSummoning {
         applyConfiguredEquipment(boss, player);
         disableEquipmentDrops(boss);
         boss.setPersistenceRequired();
+        boss.prepareEntrance(Config.INTRO_CUTSCENE.get() ? CutsceneTracker.nearbyViewers(boss) : List.of());
 
         if (!level.addFreshEntity(boss)) {
-            return false;
+            return null;
+        }
+        // During the intro the boss makes its own entrance when it emerges.
+        if (boss.isInIntro()) {
+            return boss;
         }
 
         level.sendParticles(
@@ -83,7 +92,17 @@ public final class DoppelgangerSummoning {
                 1.0F,
                 0.5F
         );
-        return true;
+        return boss;
+    }
+
+    /**
+     * Slows the summoner and laughs at them. The Summon Scroll and the summon command use it when
+     * there is no intro. The intro has its own laugh and holds the player still.
+     */
+    public static void laughAtSummoner(ServerLevel level, Player player) {
+        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
     }
 
     private static void applyConfiguredEquipment(DarkDoppelgangerEntity boss, Player player) {
@@ -191,14 +210,13 @@ public final class DoppelgangerSummoning {
         }
         forward = forward.normalize();
 
-        Vec3 eyes = player.getEyePosition();
         Vec3 hidden = null;
         for (double distance : FAR_DISTANCES) {
             for (double angle : FAR_ANGLES) {
                 Vec3 offset = forward.yRot((float) Math.toRadians(angle)).scale(distance);
                 Vec3 candidate = findFreeSpot(level, boss, ritualPos, offset);
                 if (candidate == null) continue;
-                if (isVisible(level, player, eyes, candidate)) return candidate;
+                if (CutsceneTracker.canSee(player, candidate)) return candidate;
                 if (hidden == null) hidden = candidate;
             }
         }
@@ -227,12 +245,6 @@ public final class DoppelgangerSummoning {
         if (candidate == null) return null;
         boss.setPos(candidate.x, candidate.y, candidate.z);
         return level.getWorldBorder().isWithinBounds(boss.blockPosition()) && level.noCollision(boss) ? candidate : null;
-    }
-
-    private static boolean isVisible(ServerLevel level, Player player, Vec3 eyes, Vec3 spot) {
-        Vec3 chest = spot.add(0.0, 1.2, 0.0);
-        return level.clip(new ClipContext(eyes, chest, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player))
-                .getType() == HitResult.Type.MISS;
     }
 
     private static Vec3 findGroundedPosition(ServerLevel level, double x, double z, int originY) {

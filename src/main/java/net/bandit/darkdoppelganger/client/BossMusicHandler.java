@@ -6,7 +6,6 @@ import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,6 +26,7 @@ public final class BossMusicHandler {
 
     private static Music bossMusic;
     private static boolean fightNearby;
+    private static boolean introNearby;
 
     private BossMusicHandler() {
     }
@@ -43,13 +43,22 @@ public final class BossMusicHandler {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             fightNearby = false;
+            introNearby = false;
             return;
         }
         if (mc.level.getGameTime() % SCAN_INTERVAL != 0) return;
 
         boolean wasNearby = fightNearby;
-        fightNearby = !mc.level.getEntitiesOfClass(DarkDoppelgangerEntity.class,
-                mc.player.getBoundingBox().inflate(RANGE), LivingEntity::isAlive).isEmpty();
+        // Silent during the intro. The boss track starts with the fight.
+        boolean fight = false;
+        boolean intro = false;
+        for (DarkDoppelgangerEntity doppel : mc.level.getEntitiesOfClass(DarkDoppelgangerEntity.class,
+                mc.player.getBoundingBox().inflate(RANGE), DarkDoppelgangerEntity::isAlive)) {
+            if (doppel.isInIntro()) intro = true;
+            else fight = true;
+        }
+        fightNearby = fight;
+        introNearby = intro;
         if (wasNearby && !fightNearby) {
             // Stop the sound directly so the music manager waits its normal delay before vanilla music returns.
             mc.getSoundManager().stop(SoundRegistry.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC);
@@ -60,6 +69,8 @@ public final class BossMusicHandler {
     public static void onSelectMusic(SelectMusicEvent event) {
         if (fightNearby) {
             event.overrideMusic(bossMusic());
+        } else if (introNearby) {
+            event.overrideMusic(null);
         }
     }
 }

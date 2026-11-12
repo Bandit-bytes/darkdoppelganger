@@ -13,6 +13,7 @@ import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.FireBossMoveCon
 import io.redspace.ironsspellbooks.entity.mobs.wizards.fire_boss.NotIdioticNavigation;
 import io.redspace.ironsspellbooks.registries.MobEffectRegistry;
 import net.bandit.darkdoppelganger.Config;
+import net.bandit.darkdoppelganger.cutscene.CutsceneTracker;
 import net.bandit.darkdoppelganger.entity.ai.DoppelArcher;
 import net.bandit.darkdoppelganger.entity.ai.PatchedWarlockAttackGoal;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
@@ -93,7 +94,26 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     /** Game time the entity first spawned. Synced so clients only play the spawn animation for a new boss. */
     private static final EntityDataAccessor<Long> DATA_SPAWN_TIME =
             SynchedEntityData.defineId(DarkDoppelgangerEntity.class, EntityDataSerializers.LONG);
-    private static final int SPAWN_ANIMATION_TICKS = 45;
+    /** Length of the spawn animation, in which the boss rises out of its portal. */
+    public static final int SPAWN_ANIMATION_TICKS = 45;
+
+    /** Synced so clients keep the music quiet during the intro. */
+    private static final EntityDataAccessor<Boolean> DATA_INTRO =
+            SynchedEntityData.defineId(DarkDoppelgangerEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final String NBT_INTRO = "InIntro";
+
+    /** Length of the intro cutscene. */
+    public static final int INTRO_TICKS = 190;
+    // Intro beats, in ticks from the summon. The boss is hidden until it emerges and takes 45 ticks to rise.
+    // The laugh lands as it finishes rising and runs about 4 seconds, through the camera's pull back.
+    public static final int INTRO_EMERGE = 20;
+    private static final int INTRO_LAUGH = 60;
+
+    /** Who watches the intro, set by the summon code. Empty when there is no intro. */
+    private List<ServerPlayer> introViewers = List.of();
+    /** Ticks left in the intro. The boss is frozen and cannot be hurt. Server only. */
+    private int introTicks = 0;
+    private boolean spawnAnimationStarted = false;
 
     /** Length of the phase change, during which the boss hovers, cannot be hurt and refills its health. */
     public static final int PHASE_TRANSITION_TICKS = 60;
@@ -185,6 +205,31 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         super.defineSynchedData(builder);
         // 0 means long ago, so a boss without a recorded spawn time never replays the animation.
         builder.define(DATA_SPAWN_TIME, 0L);
+        builder.define(DATA_INTRO, false);
+    }
+
+    /**
+     * Called by the summon code before the boss is added to the world, with the players who will
+     * watch the intro, or none for no intro. Players are sent the boss before {@link #onAddedToLevel}
+     * runs, so the entrance state has to be set here, or clients show the boss for a tick before
+     * hiding it.
+     */
+    public void prepareEntrance(List<ServerPlayer> viewers) {
+        introViewers = List.copyOf(viewers);
+        boolean withIntro = !introViewers.isEmpty();
+        // Hidden until it emerges; clients compare this time to their own clock.
+        long now = level().getGameTime();
+        entityData.set(DATA_SPAWN_TIME, withIntro ? now + INTRO_EMERGE : now);
+        entityData.set(DATA_INTRO, withIntro);
+    }
+
+    public boolean isInIntro() {
+        return entityData.get(DATA_INTRO);
+    }
+
+    /** During the intro the boss is in the world but hidden until it emerges from its portal. */
+    public boolean isHiddenBeforeEmerging() {
+        return ticksSinceSpawn() < 0;
     }
 
     private long ticksSinceSpawn() {
@@ -198,7 +243,12 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     /** Skips the AI step (goals, navigation, look control) during a phase change. Gravity and motion still run. */
     @Override
     protected boolean isImmobile() {
-        return super.isImmobile() || phaseTransitionTicks > 0;
+        return super.isImmobile() || phaseTransitionTicks > 0 || introTicks > 0;
+    }
+
+    @Override
+    public boolean isPickable() {
+        return super.isPickable() && !isInIntro() && !isHiddenBeforeEmerging();
     }
 
     protected LookControl createLookControl() {
@@ -456,12 +506,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         if (!loadedFromSave) {
             // Fresh spawn only: chunk loads and players coming back into range must not replay the entrance.
-            entityData.set(DATA_SPAWN_TIME, level().getGameTime());
-            PortalJoinEntity portal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
-            portal.setPos(this.position());
-            portal.setYRot(this.getYRot());
-            portal.yRotO = this.getYRot();
-            this.level().addFreshEntity(portal);
+            if (!introViewers.isEmpty()) {
+                beginIntro();
+            } else {
+                emerge();
+            }
         }
         if (!this.isClone && !loadedFromSave) {
             adjustAttributesFromConfig();
@@ -553,6 +602,53 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
+    /** Starts the spawn animation and portal. During the intro this happens at {@link #INTRO_EMERGE}. */
+    private void emerge() {
+        entityData.set(DATA_SPAWN_TIME, level().getGameTime());
+        PortalJoinEntity portal = new PortalJoinEntity(EntityRegistry.PORTAL_JOIN_ENTITY.get(), this.level());
+        portal.setPos(this.position());
+        portal.setYRot(this.getYRot());
+        portal.yRotO = this.getYRot();
+        this.level().addFreshEntity(portal);
+    }
+
+    private void beginIntro() {
+        introTicks = INTRO_TICKS;
+        bossEvent.setVisible(false);
+        CutsceneTracker.start(this, INTRO_TICKS, INTRO_EMERGE, introViewers);
+        introViewers = List.of();
+    }
+
+    /** Runs the intro beats. Jumps to the end once nobody is watching (every watcher left, died or changed dimension). */
+    private void tickIntro() {
+        int elapsed = INTRO_TICKS - introTicks;
+        boolean watched = getServer() != null && CutsceneTracker.anyWatching(getUUID(), getServer());
+        if (!watched && elapsed > 0) {
+            if (elapsed < INTRO_EMERGE) introEmerge();
+            endIntro();
+            return;
+        }
+        if (elapsed == INTRO_EMERGE) introEmerge();
+        if (elapsed == INTRO_LAUGH) {
+            level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_LAUGH.get(), SoundSource.HOSTILE, 2.0F, 0.9F);
+        }
+        if (--introTicks <= 0) endIntro();
+    }
+
+    private void introEmerge() {
+        emerge();
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 1.0, getZ(), 80, 0.6, 1.0, 0.6, 0.15);
+        }
+        level().playSound(null, getX(), getY(), getZ(), SoundEvents.END_PORTAL_SPAWN, SoundSource.HOSTILE, 1.0F, 0.8F);
+    }
+
+    private void endIntro() {
+        introTicks = 0;
+        entityData.set(DATA_INTRO, false);
+        bossEvent.setVisible(true);
+    }
+
     /**
      * Titles draw at 4x the GUI scale, so at 1080p a title has about 480 GUI pixels of width. Long
      * titles stay unbolded so they fit; "REFLECTION BROKEN" in bold runs off both edges.
@@ -578,7 +674,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     public void tick() {
         super.tick();
         if (level().isClientSide) {
-            if (!spawnParticlesShown && ticksSinceSpawn() < SPAWN_ANIMATION_TICKS) {
+            long sinceSpawn = ticksSinceSpawn();
+            if (!spawnParticlesShown && sinceSpawn >= 0 && sinceSpawn < SPAWN_ANIMATION_TICKS) {
                 spawnParticlesShown = true;
                 spawnSummoningParticles();
             }
@@ -593,6 +690,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
         cleanupMinions();
 
+        if (introTicks > 0) {
+            tickIntro();
+            return;
+        }
         if (phaseTransitionTicks > 0) {
             tickPhaseTransition();
             this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
@@ -754,6 +855,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
         if (isClone) {
             return super.hurt(source, amount);
+        }
+        if (introTicks > 0) {
+            return false;
         }
         if (phaseTransitionTicks > 0) {
             if (source.getEntity() instanceof Player && tickCount - lastImmuneSoundTick >= 10) {
@@ -990,6 +1094,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         discard();
     }
 
+
+    /** Runs however the boss leaves the world, including chunk unloads, which skip {@link #remove}. */
+    @Override
+    public void onRemovedFromLevel() {
+        super.onRemovedFromLevel();
+        if (!level().isClientSide && !isClone) CutsceneTracker.endAll(getUUID());
+    }
 
     private void restorePhaseGoals() {
         if (thirdPhaseTriggered) {
@@ -1604,6 +1715,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         tag.putFloat("DamageScale", damageScale);
         tag.putInt(NBT_TRANSITION_TICKS, phaseTransitionTicks);
         tag.putLong(NBT_SPAWN_TIME, entityData.get(DATA_SPAWN_TIME));
+        tag.putBoolean(NBT_INTRO, introTicks > 0);
         tag.putInt(NBT_MINION_COUNT, activeMinionUUIDs.size());
         int index = 0;
         for (UUID uuid : activeMinionUUIDs) {
@@ -1634,6 +1746,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (tag.contains("DamageScale")) damageScale = Math.max(0.0001F, tag.getFloat("DamageScale"));
         phaseTransitionTicks = tag.getInt(NBT_TRANSITION_TICKS);
         entityData.set(DATA_SPAWN_TIME, tag.getLong(NBT_SPAWN_TIME));
+        // The cutscene does not survive a reload. Show the boss at once, without the entrance.
+        if (tag.getBoolean(NBT_INTRO)) entityData.set(DATA_SPAWN_TIME, 0L);
 
         activeMinionUUIDs.clear();
         int count = tag.getInt(NBT_MINION_COUNT);
@@ -1683,7 +1797,13 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private PlayState spawnPredicate(AnimationState<DarkDoppelgangerEntity> animationEvent) {
         var controller = animationEvent.getController();
 
-        if (ticksSinceSpawn() < SPAWN_ANIMATION_TICKS) {
+        long sinceSpawn = ticksSinceSpawn();
+        if (sinceSpawn < 0) return PlayState.STOP; // hidden until it emerges
+        if (sinceSpawn < SPAWN_ANIMATION_TICKS) {
+            if (!spawnAnimationStarted) {
+                spawnAnimationStarted = true;
+                controller.forceAnimationReset();
+            }
             controller.setAnimation(ANIMATION_SPAWN);
             return PlayState.CONTINUE;
         }
