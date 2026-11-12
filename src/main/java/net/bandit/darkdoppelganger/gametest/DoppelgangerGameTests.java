@@ -3,6 +3,8 @@ package net.bandit.darkdoppelganger.gametest;
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
+import net.bandit.darkdoppelganger.cutscene.CutsceneTracker;
+import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.event.SummonDoppelganger;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
@@ -344,6 +346,63 @@ public class DoppelgangerGameTests {
         });
     }
 
+    private static DarkDoppelgangerEntity summonedBoss(GameTestHelper helper) {
+        return doppelsAround(helper).stream().filter(d -> !d.isClone && !d.isRemoved()).findFirst()
+                .orElseThrow(() -> new net.minecraft.gametest.framework.GameTestAssertException("No boss was summoned"));
+    }
+
+    @GameTest(template = ARENA, batch = "doppel_cutscene_intro", timeoutTicks = 400)
+    public static void introFreezesTheBossUntilItEnds(GameTestHelper helper) {
+        CutsceneTracker.setIncludeFakePlayersForTests(true);
+        ServerPlayer player = mockPlayerAt(helper, new BlockPos(6, 2, 12));
+        BlockPos ritual = helper.absolutePos(CENTER);
+
+        check(helper, DoppelgangerSummoning.summon(helper.getLevel(), player, ritual) != null, "Summon failed");
+        CutsceneTracker.setIncludeFakePlayersForTests(false);
+        DarkDoppelgangerEntity boss = summonedBoss(helper);
+        check(helper, boss.isInIntro(), "Summon did not start the intro");
+        check(helper, boss.isHiddenBeforeEmerging(), "Boss visible before it emerges");
+        check(helper, CutsceneTracker.isWatching(player), "Nearby player is not watching");
+        boss.invulnerableTime = 0;
+        check(helper, !boss.hurt(helper.getLevel().damageSources().playerAttack(player), 50.0F), "Boss took damage during the intro");
+
+        helper.runAfterDelay(DarkDoppelgangerEntity.INTRO_TICKS - 5, () -> {
+            check(helper, boss.isInIntro(), "Intro ended early");
+            check(helper, !boss.isHiddenBeforeEmerging(), "Boss still hidden late in the intro");
+        });
+        helper.runAfterDelay(DarkDoppelgangerEntity.INTRO_TICKS + 2, () -> {
+            check(helper, !boss.isInIntro(), "Intro did not end");
+            check(helper, !CutsceneTracker.isWatching(player), "Player still watching after the intro");
+            boss.invulnerableTime = 0;
+            check(helper, boss.hurt(helper.getLevel().damageSources().playerAttack(player), 5.0F), "Boss cannot be hurt after the intro");
+            cleanupAndSucceed(helper, player);
+        });
+    }
+
+    @GameTest(template = ARENA, batch = "doppel_spawn_spot", timeoutTicks = 100)
+    public static void bossEntersInFrontOfTheSummonerAndFarAway(GameTestHelper helper) {
+        CutsceneTracker.setIncludeFakePlayersForTests(false);
+        // At an altar: past the altar, on the far side from the summoner
+        ServerPlayer summoner = mockPlayerAt(helper, new BlockPos(4, 2, 12));
+        BlockPos altar = helper.absolutePos(new BlockPos(8, 2, 12));
+        check(helper, DoppelgangerSummoning.summon(helper.getLevel(), summoner, altar) != null, "Summon at the altar failed");
+        DarkDoppelgangerEntity boss = summonedBoss(helper);
+        double ahead = boss.getX() - summoner.getX();
+        double aside = Math.abs(boss.getZ() - summoner.getZ());
+        check(helper, ahead >= 12.0 && aside <= ahead * 0.5,
+                "Boss not far in front of the summoner: " + Math.round(ahead) + " ahead, " + Math.round(aside) + " aside");
+        boss.discard();
+
+        // The command run at the summoner's feet: in the direction they look (yaw 0 is +Z)
+        BlockPos feet = helper.absolutePos(new BlockPos(4, 2, 4));
+        summoner.moveTo(feet.getX() + 0.5, feet.getY(), feet.getZ() + 0.5, 0.0F, 0.0F);
+        check(helper, DoppelgangerSummoning.summon(helper.getLevel(), summoner, feet) != null, "Summon at the feet failed");
+        DarkDoppelgangerEntity second = summonedBoss(helper);
+        double forward = second.getZ() - summoner.getZ();
+        check(helper, forward >= 8.0, "Boss not in front of where the summoner looks: " + Math.round(forward) + " ahead");
+        cleanupAndSucceed(helper, summoner);
+    }
+
     @GameTest(template = ARENA, batch = "doppel_boat", timeoutTicks = 100)
     public static void cannotBeTrappedInABoat(GameTestHelper helper) {
         Boat boat = helper.spawn(EntityType.BOAT, new BlockPos(12, 2, 8));
@@ -378,6 +437,7 @@ public class DoppelgangerGameTests {
 
     @GameTest(template = ARENA, batch = "doppel_command", timeoutTicks = 200)
     public static void summonCommandWaitsWithoutBlockingTheServer(GameTestHelper helper) {
+        CutsceneTracker.setIncludeFakePlayersForTests(false);
         ServerPlayer player = mockPlayerAt(helper, new BlockPos(6, 2, 6));
         CommandSourceStack source = helper.getLevel().getServer().createCommandSourceStack()
                 .withLevel(helper.getLevel())
