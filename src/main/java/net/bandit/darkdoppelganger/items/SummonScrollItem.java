@@ -78,7 +78,6 @@ public class SummonScrollItem extends Item {
                 SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
 
         if (!DoppelgangerSummoning.summon(serverWorld, player, ritualPos)) {
-            player.displayClientMessage(Component.literal("No room for the Dark Doppelganger here."), true);
             if (refund) {
                 player.getInventory().placeItemBackInInventory(new ItemStack(this));
             }
