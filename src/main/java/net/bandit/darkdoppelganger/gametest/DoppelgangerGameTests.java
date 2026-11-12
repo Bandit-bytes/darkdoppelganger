@@ -332,8 +332,10 @@ public class DoppelgangerGameTests {
 
         helper.succeedWhen(() -> {
             boss.setTarget(player);
+            // Phase 2 Reflections attack the player, and each hit they dodge uses up a level of Evasion.
+            doppelsAround(helper).stream().filter(d -> d.isClone).forEach(d -> d.setNoAi(true));
             MobEffectInstance stolen = boss.getEffect(MobEffects.DAMAGE_RESISTANCE);
-            if (stolen == null) helper.fail("No Resistance stolen yet");
+            if (stolen == null) helper.fail("No Resistance stolen yet. Player effects: " + player.getActiveEffects());
             check(helper, stolen.getAmplifier() <= 1, "Stolen Resistance not capped: amplifier " + stolen.getAmplifier());
             check(helper, !player.hasEffect(MobEffects.DAMAGE_RESISTANCE), "Player kept the stolen Resistance");
             check(helper, player.hasEffect(io.redspace.ironsspellbooks.registries.MobEffectRegistry.EVASION), "Evasion was stolen");
