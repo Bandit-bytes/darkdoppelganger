@@ -17,13 +17,20 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class DoppelgangerSummoning {
+    /** Distances past the ritual spot to try first, and the turns off straight ahead to try at each. */
+    private static final double[] FAR_DISTANCES = {10.0, 8.0, 6.0};
+    private static final double[] FAR_ANGLES = {0.0, 20.0, -20.0, 40.0, -40.0};
+
     private DoppelgangerSummoning() {
     }
 
@@ -159,6 +166,11 @@ public final class DoppelgangerSummoning {
         boss.setDropChance(EquipmentSlot.FEET, 0.0F);
     }
 
+    /**
+     * Picks where the boss enters: in front of the summoner, well past the ritual spot, where the
+     * summoner can see it. Far enough that everyone gathered at the altar sees it in front of them.
+     * Falls back to spots near the ritual, then to far spots out of sight.
+     */
     private static Vec3 findSpawnPosition(
             ServerLevel level,
             DarkDoppelgangerEntity boss,
@@ -166,43 +178,61 @@ public final class DoppelgangerSummoning {
             BlockPos ritualPos
     ) {
         Vec3 altarCenter = Vec3.atCenterOf(ritualPos);
-        Vec3 away = altarCenter.subtract(player.position());
-        away = new Vec3(away.x, 0.0, away.z);
+        Vec3 forward = altarCenter.subtract(player.position());
+        forward = new Vec3(forward.x, 0.0, forward.z);
 
-        if (away.lengthSqr() < 0.001) {
+        // The summoner is on the ritual spot (the command run at their feet): use where they look.
+        if (forward.lengthSqr() < 1.0) {
             Vec3 look = player.getLookAngle();
-            away = new Vec3(-look.x, 0.0, -look.z);
+            forward = new Vec3(look.x, 0.0, look.z);
         }
-        if (away.lengthSqr() < 0.001) {
-            away = new Vec3(0.0, 0.0, 1.0);
+        if (forward.lengthSqr() < 0.001) {
+            forward = new Vec3(0.0, 0.0, 1.0);
         }
-        away = away.normalize();
+        forward = forward.normalize();
 
-        Vec3 perpendicular = new Vec3(-away.z, 0.0, away.x);
-        List<Vec3> offsets = new ArrayList<>();
-        offsets.add(away.scale(2.5));
-        offsets.add(perpendicular.scale(2.5));
-        offsets.add(perpendicular.scale(-2.5));
-        offsets.add(away.scale(-2.5));
-        offsets.add(away.scale(3.5));
-        offsets.add(perpendicular.scale(3.5));
-        offsets.add(perpendicular.scale(-3.5));
-
-        for (Vec3 offset : offsets) {
-            double x = ritualPos.getX() + 0.5 + offset.x;
-            double z = ritualPos.getZ() + 0.5 + offset.z;
-            Vec3 candidate = findGroundedPosition(level, x, z, ritualPos.getY());
-            if (candidate == null) {
-                continue;
-            }
-
-            boss.setPos(candidate.x, candidate.y, candidate.z);
-            if (level.getWorldBorder().isWithinBounds(boss.blockPosition()) && level.noCollision(boss)) {
-                return candidate;
+        Vec3 eyes = player.getEyePosition();
+        Vec3 hidden = null;
+        for (double distance : FAR_DISTANCES) {
+            for (double angle : FAR_ANGLES) {
+                Vec3 offset = forward.yRot((float) Math.toRadians(angle)).scale(distance);
+                Vec3 candidate = findFreeSpot(level, boss, ritualPos, offset);
+                if (candidate == null) continue;
+                if (isVisible(level, player, eyes, candidate)) return candidate;
+                if (hidden == null) hidden = candidate;
             }
         }
 
-        return null;
+        Vec3 perpendicular = new Vec3(-forward.z, 0.0, forward.x);
+        List<Vec3> nearOffsets = new ArrayList<>();
+        nearOffsets.add(forward.scale(2.5));
+        nearOffsets.add(perpendicular.scale(2.5));
+        nearOffsets.add(perpendicular.scale(-2.5));
+        nearOffsets.add(forward.scale(-2.5));
+        nearOffsets.add(forward.scale(3.5));
+        nearOffsets.add(perpendicular.scale(3.5));
+        nearOffsets.add(perpendicular.scale(-3.5));
+        for (Vec3 offset : nearOffsets) {
+            Vec3 candidate = findFreeSpot(level, boss, ritualPos, offset);
+            if (candidate != null) return candidate;
+        }
+        return hidden;
+    }
+
+    @Nullable
+    private static Vec3 findFreeSpot(ServerLevel level, DarkDoppelgangerEntity boss, BlockPos ritualPos, Vec3 offset) {
+        double x = ritualPos.getX() + 0.5 + offset.x;
+        double z = ritualPos.getZ() + 0.5 + offset.z;
+        Vec3 candidate = findGroundedPosition(level, x, z, ritualPos.getY());
+        if (candidate == null) return null;
+        boss.setPos(candidate.x, candidate.y, candidate.z);
+        return level.getWorldBorder().isWithinBounds(boss.blockPosition()) && level.noCollision(boss) ? candidate : null;
+    }
+
+    private static boolean isVisible(ServerLevel level, Player player, Vec3 eyes, Vec3 spot) {
+        Vec3 chest = spot.add(0.0, 1.2, 0.0);
+        return level.clip(new ClipContext(eyes, chest, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, player))
+                .getType() == HitResult.Type.MISS;
     }
 
     private static Vec3 findGroundedPosition(ServerLevel level, double x, double z, int originY) {
