@@ -171,7 +171,7 @@ public class Config {
         DOPPEL_PHASE2_SPELLS_C = BUILDER.defineListAllowEmpty("phase2.spells_c",
                 List.of(
                         "irons_spellbooks:frost_step",
-                        "irons_spellbooks:thunder_step"
+                        "irons_spellbooks:volt_strike"
                 ),
                 o -> o instanceof String);
 
@@ -236,7 +236,7 @@ public class Config {
         DOPPEL_FINAL_SPELLS_C = BUILDER.defineListAllowEmpty("final.spells_c",
                 List.of(
                         "irons_spellbooks:blood_step",
-                        "irons_spellbooks:thunder_step",
+                        "irons_spellbooks:volt_strike",
                         "irons_spellbooks:ascension"
                 ),
                 o -> o instanceof String);
