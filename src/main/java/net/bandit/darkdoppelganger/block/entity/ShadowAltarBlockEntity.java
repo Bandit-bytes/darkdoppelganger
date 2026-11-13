@@ -1,5 +1,6 @@
 package net.bandit.darkdoppelganger.block.entity;
 
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.ModBlockEntities;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
@@ -146,11 +147,13 @@ public class ShadowAltarBlockEntity extends BlockEntity {
             return;
         }
 
-        boolean summoned = DoppelgangerSummoning.summon(level, summoner, worldPosition);
-        if (!summoned) {
+        DarkDoppelgangerEntity boss = DoppelgangerSummoning.summon(level, summoner, worldPosition);
+        if (boss == null) {
             failRitual(level, summoner);
             return;
         }
+        clearRitual();
+        if (boss.isInIntro()) return; // these would land in the intro's opening shot
 
         double x = worldPosition.getX() + 0.5;
         double y = worldPosition.getY() + 1.6;
@@ -158,8 +161,6 @@ public class ShadowAltarBlockEntity extends BlockEntity {
         level.sendParticles(ParticleTypes.EXPLOSION, x, y, z, 1, 0.0, 0.0, 0.0, 0.0);
         level.sendParticles(ParticleTypes.PORTAL, x, y, z, 60, 0.5, 0.5, 0.5, 0.2);
         level.playSound(null, worldPosition, SoundEvents.ENDERMAN_SCREAM, SoundSource.HOSTILE, 0.8F, 0.7F);
-
-        clearRitual();
     }
 
     private void failRitual(ServerLevel level, @Nullable ServerPlayer summoner) {
