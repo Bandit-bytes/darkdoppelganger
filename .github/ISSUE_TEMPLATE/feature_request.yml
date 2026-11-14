@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest an idea or a change.
+labels: ["feature request"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What's your idea?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it be good for the mod?
+      description: What problem does it solve, or how would it make the fight better?
+  - type: dropdown
+    id: minecraft
+    attributes:
+      label: Minecraft version
+      description: Which version would you want this for?
+      multiple: true
+      options:
+        - 1.21.1 (NeoForge)
+        - 1.20.1 (Forge)

@@ -77,7 +77,7 @@ Report bugs on the [issue tracker](https://github.com/Bandit-bytes/darkdoppelgan
 
 ## License
 
-All rights reserved.
+All rights reserved. See [LICENSE](LICENSE) for what you can and can't do with the code.
 
 ---
 

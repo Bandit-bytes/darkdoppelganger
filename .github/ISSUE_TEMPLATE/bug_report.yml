@@ -1,0 +1,66 @@
+name: Bug report
+description: Something isn't working as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please check the [existing issues](https://github.com/Bandit-bytes/darkdoppelganger/issues) first in case it's already been reported.
+  - type: dropdown
+    id: minecraft
+    attributes:
+      label: Minecraft version
+      options:
+        - 1.21.1 (NeoForge)
+        - 1.20.1 (Forge)
+    validations:
+      required: true
+  - type: input
+    id: mod-version
+    attributes:
+      label: Dark Doppelganger version
+      description: The version in the jar's file name, for example 4.5.1-1.21.1.
+    validations:
+      required: true
+  - type: input
+    id: iss-version
+    attributes:
+      label: Iron's Spells 'n Spellbooks version
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What went wrong, and what did you expect to happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we reproduce it?
+      description: The steps that make the bug happen. Leave this empty if you're not sure.
+      placeholder: |
+        1. Place the Shadow Altar in the End
+        2. Put the Shadow Orb on it
+        3. ...
+  - type: dropdown
+    id: world
+    attributes:
+      label: Where did it happen?
+      options:
+        - Singleplayer
+        - Multiplayer server
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or crash report
+      description: |
+        For a crash, upload the crash report from the `crash-reports` folder. Otherwise, upload `logs/latest.log`. You can drag the file in here or paste a link from https://mclo.gs.
+  - type: textarea
+    id: mods
+    attributes:
+      label: Modpack or other mods
+      description: If you're playing a modpack, its name and version. Otherwise, any mods you think might be involved.
