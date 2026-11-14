@@ -10,16 +10,21 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.ClientHooks;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.ItemArmorGeoLayer;
 
 /** Keeps vanilla/GeckoLib armor on bones; AzureLib armor is drawn once as a whole model. */
 public final class DoppelgangerArmorGeoLayer extends ItemArmorGeoLayer<AbstractSpellCastingMob> {
+    /** While set, the body armor bone draws the leggings' belt instead of the chestplate. */
+    private boolean beltPass;
+
     public DoppelgangerArmorGeoLayer(GeoRenderer<AbstractSpellCastingMob> renderer) {
         super(renderer);
     }
@@ -36,8 +41,8 @@ public final class DoppelgangerArmorGeoLayer extends ItemArmorGeoLayer<AbstractS
                  DefaultBipedBoneIdents.RIGHT_LEG_ARMOR_BONE_IDENT,
                  DefaultBipedBoneIdents.LEFT_LEG_ARMOR_BONE_2_IDENT,
                  DefaultBipedBoneIdents.RIGHT_LEG_ARMOR_BONE_2_IDENT -> leggingsStack;
-            case DefaultBipedBoneIdents.BODY_ARMOR_BONE_IDENT,
-                 DefaultBipedBoneIdents.RIGHT_ARM_ARMOR_BONE_IDENT,
+            case DefaultBipedBoneIdents.BODY_ARMOR_BONE_IDENT -> beltPass ? leggingsStack : chestplateStack;
+            case DefaultBipedBoneIdents.RIGHT_ARM_ARMOR_BONE_IDENT,
                  DefaultBipedBoneIdents.LEFT_ARM_ARMOR_BONE_IDENT -> chestplateStack;
             case DefaultBipedBoneIdents.HEAD_ARMOR_BONE_IDENT -> helmetStack;
             default -> null;
@@ -56,8 +61,8 @@ public final class DoppelgangerArmorGeoLayer extends ItemArmorGeoLayer<AbstractS
                  DefaultBipedBoneIdents.RIGHT_LEG_ARMOR_BONE_IDENT,
                  DefaultBipedBoneIdents.LEFT_LEG_ARMOR_BONE_2_IDENT,
                  DefaultBipedBoneIdents.RIGHT_LEG_ARMOR_BONE_2_IDENT -> EquipmentSlot.LEGS;
-            case DefaultBipedBoneIdents.BODY_ARMOR_BONE_IDENT,
-                 DefaultBipedBoneIdents.RIGHT_ARM_ARMOR_BONE_IDENT,
+            case DefaultBipedBoneIdents.BODY_ARMOR_BONE_IDENT -> beltPass ? EquipmentSlot.LEGS : EquipmentSlot.CHEST;
+            case DefaultBipedBoneIdents.RIGHT_ARM_ARMOR_BONE_IDENT,
                  DefaultBipedBoneIdents.LEFT_ARM_ARMOR_BONE_IDENT -> EquipmentSlot.CHEST;
             case DefaultBipedBoneIdents.HEAD_ARMOR_BONE_IDENT -> EquipmentSlot.HEAD;
             default -> super.getEquipmentSlotForBone(bone, stack, entity);
@@ -88,6 +93,34 @@ public final class DoppelgangerArmorGeoLayer extends ItemArmorGeoLayer<AbstractS
     public void renderForBone(PoseStack poseStack, AbstractSpellCastingMob entity, GeoBone bone,
                               RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer,
                               float partialTick, int packedLight, int packedOverlay) {
+        // Vanilla leggings cover the waist with a belt on the body, and chestplate textures leave
+        // their lower rows clear for it. The model has one body armor bone, so the belt is drawn
+        // there first and the chestplate over it.
+        if (DefaultBipedBoneIdents.BODY_ARMOR_BONE_IDENT.equals(bone.getName()) && hasVanillaBelt(bone, entity)) {
+            beltPass = true;
+            try {
+                renderPiece(poseStack, entity, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+            } finally {
+                beltPass = false;
+            }
+        }
+        renderPiece(poseStack, entity, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+    }
+
+    /**
+     * Only plain armor items. A GeckoLib armor set can model its whole torso on the body bone, which
+     * would sit in the chestplate's place and flicker against it.
+     */
+    private boolean hasVanillaBelt(GeoBone bone, AbstractSpellCastingMob entity) {
+        if (leggingsStack == null || !(leggingsStack.getItem() instanceof ArmorItem)) {
+            return false;
+        }
+        return !(getModelForItem(bone, EquipmentSlot.LEGS, leggingsStack, entity) instanceof GeoArmorRenderer<?>);
+    }
+
+    private void renderPiece(PoseStack poseStack, AbstractSpellCastingMob entity, GeoBone bone,
+                             RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer,
+                             float partialTick, int packedLight, int packedOverlay) {
         ItemStack stack = getArmorItemForBone(bone, entity);
         if (AzureCompatibleDoppelgangerRenderer.AZURELIB_LOADED && stack != null
                 && AzureLibArmorCompat.hasRenderer(stack)) {
