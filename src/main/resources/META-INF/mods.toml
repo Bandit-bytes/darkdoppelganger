@@ -59,3 +59,11 @@ mandatory = true
 versionRange = "[${player_animator_version},)"
 ordering = "NONE"
 side = "BOTH"
+
+# AzureLib is optional; its 3.1 API is used only by the client armor bridge.
+[[dependencies."${mod_id}"]]
+modId = "azurelib"
+mandatory = false
+versionRange = "[3.1.0,4.0.0)"
+ordering = "AFTER"
+side = "CLIENT"

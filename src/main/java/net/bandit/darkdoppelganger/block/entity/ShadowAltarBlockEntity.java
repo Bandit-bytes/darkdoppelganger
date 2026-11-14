@@ -1,7 +1,7 @@
 package net.bandit.darkdoppelganger.block.entity;
 
+import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.ModBlockEntities;
-import net.bandit.darkdoppelganger.registry.ModSounds;
 import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class ShadowAltarBlockEntity extends BlockEntity {
-
     private static final String TAG_ORB = "ShadowOrb";
     private static final String TAG_SUMMONER = "Summoner";
     private static final String TAG_TICKS = "RitualTicks";
@@ -51,10 +50,6 @@ public class ShadowAltarBlockEntity extends BlockEntity {
         return orb;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
     public void beginRitual(Player player, ItemStack heldOrb) {
         if (level == null || level.isClientSide || hasOrb()) {
             return;
@@ -76,14 +71,7 @@ public class ShadowAltarBlockEntity extends BlockEntity {
                 true
         );
 
-        level.playSound(
-                null,
-                worldPosition,
-                ModSounds.BOSS_LAUGH.get(),
-                SoundSource.HOSTILE,
-                1.5F,
-                0.8F
-        );
+        level.playSound(null, worldPosition, SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.HOSTILE, 1.0F, 1.0F);
         setChangedAndSync();
     }
 
@@ -150,11 +138,13 @@ public class ShadowAltarBlockEntity extends BlockEntity {
             return;
         }
 
-        boolean summoned = DoppelgangerSummoning.summon(level, summoner, worldPosition);
-        if (!summoned) {
+        DarkDoppelgangerEntity boss = DoppelgangerSummoning.summon(level, summoner, worldPosition);
+        if (boss == null) {
             failRitual(level, summoner);
             return;
         }
+        clearRitual();
+        if (boss.isInIntro()) return; // these would land in the intro's opening shot
 
         double x = worldPosition.getX() + 0.5;
         double y = worldPosition.getY() + 1.6;
@@ -162,8 +152,6 @@ public class ShadowAltarBlockEntity extends BlockEntity {
         level.sendParticles(ParticleTypes.EXPLOSION, x, y, z, 1, 0.0, 0.0, 0.0, 0.0);
         level.sendParticles(ParticleTypes.PORTAL, x, y, z, 60, 0.5, 0.5, 0.5, 0.2);
         level.playSound(null, worldPosition, SoundEvents.ENDERMAN_SCREAM, SoundSource.HOSTILE, 0.8F, 0.7F);
-
-        clearRitual();
     }
 
     private void failRitual(ServerLevel level, @Nullable ServerPlayer summoner) {
@@ -257,6 +245,8 @@ public class ShadowAltarBlockEntity extends BlockEntity {
 
     @Override
     public CompoundTag getUpdateTag() {
-        return saveWithoutMetadata();
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
     }
 }

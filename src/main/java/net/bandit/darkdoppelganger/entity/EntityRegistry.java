@@ -19,6 +19,7 @@ public class EntityRegistry {
                             .sized(0.6F, 1.8F)
                             .setTrackingRange(80)
                             .setUpdateInterval(3)
+                            .clientTrackingRange(80)
                             .setShouldReceiveVelocityUpdates(true)
                             .build(DarkDoppelgangerMod.MOD_ID + ":dark_doppelganger"));
 

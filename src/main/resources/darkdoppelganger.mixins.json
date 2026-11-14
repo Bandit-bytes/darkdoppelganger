@@ -1,12 +1,14 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.bandit.mixin",
+  "package": "net.bandit.darkdoppelganger.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "darkdoppelganger.refmap.json",
   "mixins": [
   ],
   "client": [
+    "MouseHandlerMixin",
+    "MusicManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
