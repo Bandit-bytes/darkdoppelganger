@@ -18,6 +18,7 @@ import net.bandit.darkdoppelganger.entity.ai.DoppelArcher;
 import net.bandit.darkdoppelganger.entity.ai.PatchedWarlockAttackGoal;
 import net.bandit.darkdoppelganger.registry.EntityRegistry;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
+import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -100,21 +101,33 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     public static final int SPAWN_ANIMATION_TICKS = 45;
 
     /** Synced so clients keep the music quiet during the intro. */
+    /** Synced: the boss wears its summoner's skin and gear instead of its own look. */
+    private static final EntityDataAccessor<Boolean> DATA_MIRRORED =
+            SynchedEntityData.defineId(DarkDoppelgangerEntity.class, EntityDataSerializers.BOOLEAN);
+    /** Synced: whose skin the boss wears once mirrored. */
+    private static final EntityDataAccessor<Optional<UUID>> DATA_SKIN_OWNER =
+            SynchedEntityData.defineId(DarkDoppelgangerEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final String NBT_MIRRORED = "Mirrored";
+    private static final String NBT_MIRROR_GEAR = "MirrorGear";
+    /** The summoner's gear, held back during the intro until the boss copies them. */
+    private final Map<EquipmentSlot, ItemStack> mirrorGear = new EnumMap<>(EquipmentSlot.class);
     private static final EntityDataAccessor<Boolean> DATA_INTRO =
             SynchedEntityData.defineId(DarkDoppelgangerEntity.class, EntityDataSerializers.BOOLEAN);
     private static final String NBT_INTRO = "InIntro";
 
     /** Length of the intro cutscene. */
-    public static final int INTRO_TICKS = 352;
+    public static final int INTRO_TICKS = 397;
     // Intro beats, in ticks from the summon. The boss is hidden until it emerges and takes 45 ticks to rise,
-    // then stands silent. The camera cuts to the boss, which speaks its whole line in that shot, then
-    // after a beat of silence to the player, then to a wide shot of both.
+    // in its own look, then stands silent. The camera cuts to the boss, which takes on the summoner's skin
+    // and gear, then speaks its whole line in that shot. After a beat of silence the camera cuts to the
+    // player, then to a wide shot of both.
     public static final int INTRO_EMERGE = 20;
     public static final int INTRO_BOSS_SHOT = 100;
-    public static final int INTRO_PLAYER_SHOT = 210;
-    public static final int INTRO_BOTH_SHOT = 262;
-    /** The line opens with a 9-tick swell, so its first word lands 15 ticks into the boss's shot and its last at tick 195. */
-    public static final int INTRO_LINE = INTRO_BOSS_SHOT + 6;
+    public static final int INTRO_MIRROR = 125;
+    /** The line opens with a 9-tick swell, so its first word lands at tick 159 and its last at tick 239. */
+    public static final int INTRO_LINE = INTRO_MIRROR + 25;
+    public static final int INTRO_PLAYER_SHOT = 255;
+    public static final int INTRO_BOTH_SHOT = 307;
 
     /** Who watches the intro, set by the summon code. Empty when there is no intro. */
     private List<ServerPlayer> introViewers = List.of();
@@ -222,6 +235,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         // 0 means long ago, so a boss without a recorded spawn time never replays the animation.
         builder.define(DATA_SPAWN_TIME, 0L);
         builder.define(DATA_INTRO, false);
+        builder.define(DATA_MIRRORED, false);
+        builder.define(DATA_SKIN_OWNER, Optional.empty());
     }
 
     /**
@@ -237,6 +252,41 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         long now = level().getGameTime();
         entityData.set(DATA_SPAWN_TIME, withIntro ? now + INTRO_EMERGE : now);
         entityData.set(DATA_INTRO, withIntro);
+        // With an intro it rises in its own look and copies the summoner on camera. Without one it arrives copied.
+        if (withIntro) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                if (slot.getType() == EquipmentSlot.Type.ANIMAL_ARMOR) continue;
+                mirrorGear.put(slot, getItemBySlot(slot).copy());
+                setItemSlot(slot, DoppelgangerSummoning.ownItem(slot));
+            }
+        }
+        entityData.set(DATA_MIRRORED, !withIntro);
+    }
+
+    public boolean isMirrored() {
+        return entityData.get(DATA_MIRRORED);
+    }
+
+    public Optional<UUID> getSkinOwner() {
+        return entityData.get(DATA_SKIN_OWNER);
+    }
+
+    /** Clones and echoes look like the boss that made them. */
+    private void copyLookFrom(DarkDoppelgangerEntity other) {
+        entityData.set(DATA_MIRRORED, other.isMirrored());
+        entityData.set(DATA_SKIN_OWNER, other.getSkinOwner());
+    }
+
+    /** Takes on the summoner's gear and skin. On camera it comes with a burst of particles and the mirror sound. */
+    private void mirrorSummoner(boolean onCamera) {
+        if (isMirrored()) return;
+        mirrorGear.forEach(this::setItemSlot);
+        mirrorGear.clear();
+        entityData.set(DATA_MIRRORED, true);
+        if (!onCamera || !(level() instanceof ServerLevel serverLevel)) return;
+        serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 1.0, getZ(), 70, 0.35, 0.9, 0.35, 0.1);
+        serverLevel.sendParticles(ParticleTypes.WITCH, getX(), getY() + 1.2, getZ(), 30, 0.3, 0.6, 0.3, 0.05);
+        level().playSound(null, getX(), getY(), getZ(), SoundEvents.ILLUSIONER_MIRROR_MOVE, SoundSource.HOSTILE, 2.0F, 0.8F);
     }
 
     public boolean isInIntro() {
@@ -297,6 +347,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     public void setSummonerPlayer(Player summoner) {
         this.summonerUUID = summoner == null ? null : summoner.getUUID();
+        entityData.set(DATA_SKIN_OWNER, Optional.ofNullable(summonerUUID));
         if (summoner != null) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 if (slot == EquipmentSlot.OFFHAND) {
@@ -645,6 +696,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return;
         }
         if (elapsed == INTRO_EMERGE) introEmerge();
+        if (elapsed == INTRO_MIRROR) mirrorSummoner(true);
         if (elapsed == INTRO_LINE) speak(SoundRegistry.VOICE_INTRO.get());
         if (--introTicks <= 0) endIntro();
     }
@@ -658,6 +710,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     private void endIntro() {
+        mirrorSummoner(false);
         introTicks = 0;
         entityData.set(DATA_INTRO, false);
         bossEvent.setVisible(true);
@@ -1543,6 +1596,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
             clone.isClone = true;
             clone.cloneOwnerUUID = getUUID();
+            clone.copyLookFrom(this);
             clone.cloneLifetime = lifetime + random.nextInt(40);
             clone.summonerUUID = this.summonerUUID;
             if (copiedPlayer != null) clone.setSummonerPlayer(copiedPlayer);
@@ -1589,6 +1643,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (echo == null) return;
         echo.isClone = true;
         echo.cloneOwnerUUID = getUUID();
+        echo.copyLookFrom(this);
         echo.isEchoClone = true;
         echo.thirdPhaseTriggered = this.thirdPhaseTriggered;
         echo.cloneLifetime = history.size() * 3 + 20;
@@ -1711,7 +1766,14 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         if (summonerUUID != null) tag.putUUID(NBT_SUMMONER_UUID, summonerUUID);
-
+        tag.putBoolean(NBT_MIRRORED, isMirrored());
+        if (!mirrorGear.isEmpty()) {
+            CompoundTag gear = new CompoundTag();
+            mirrorGear.forEach((slot, stack) -> {
+                if (!stack.isEmpty()) gear.put(slot.getName(), stack.save(registryAccess()));
+            });
+            tag.put(NBT_MIRROR_GEAR, gear);
+        }
         tag.putBoolean(NBT_SECOND_PHASE, secondPhaseTriggered);
         tag.putBoolean(NBT_THIRD_PHASE, thirdPhaseTriggered);
         tag.putBoolean(NBT_IS_CLONE, isClone);
@@ -1742,7 +1804,19 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         super.readAdditionalSaveData(tag);
         loadedFromSave = true;
         if (tag.hasUUID(NBT_SUMMONER_UUID)) summonerUUID = tag.getUUID(NBT_SUMMONER_UUID);
-
+        entityData.set(DATA_SKIN_OWNER, Optional.ofNullable(summonerUUID));
+        // Bosses saved before mirroring existed already wear the summoner's gear.
+        entityData.set(DATA_MIRRORED, !tag.contains(NBT_MIRRORED) || tag.getBoolean(NBT_MIRRORED));
+        mirrorGear.clear();
+        if (tag.contains(NBT_MIRROR_GEAR)) {
+            CompoundTag gear = tag.getCompound(NBT_MIRROR_GEAR);
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                if (slot.getType() == EquipmentSlot.Type.ANIMAL_ARMOR) continue;
+                mirrorGear.put(slot, gear.contains(slot.getName())
+                        ? ItemStack.parseOptional(registryAccess(), gear.getCompound(slot.getName()))
+                        : ItemStack.EMPTY);
+            }
+        }
         secondPhaseTriggered = tag.getBoolean(NBT_SECOND_PHASE);
         thirdPhaseTriggered = tag.getBoolean(NBT_THIRD_PHASE);
         isClone = tag.getBoolean(NBT_IS_CLONE);

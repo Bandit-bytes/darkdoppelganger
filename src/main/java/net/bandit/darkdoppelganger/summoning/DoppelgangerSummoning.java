@@ -138,6 +138,15 @@ public final class DoppelgangerSummoning {
         }
     }
 
+    /** The boss's own gear for a slot, from the config: what it wears before it copies the summoner. */
+    public static ItemStack ownItem(EquipmentSlot slot) {
+        return switch (slot) {
+            case MAINHAND -> getConfiguredItem(Config.DOPPELGANGER_DEFAULT_MAINHAND.get());
+            case HEAD, CHEST, LEGS, FEET -> getConfiguredArmorForSlot(slot);
+            default -> ItemStack.EMPTY;
+        };
+    }
+
     private static ItemStack getConfiguredArmorForSlot(EquipmentSlot slot) {
         return switch (slot) {
             case HEAD -> getConfiguredItem(Config.DOPPELGANGER_DEFAULT_HELMET.get());

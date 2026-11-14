@@ -102,6 +102,8 @@ public final class CutsceneClient {
     private static final double WIDE_LOOK_UP = 1.5;
 
     private static final int ASH_PER_TICK = 14;
+    private static final int MIRROR_FLASH_TICKS = 6;
+    private static final double MIRROR_FLASH_ALPHA = 0.45;
     /** High enough to reach the top of the wide shot's frame behind the two. */
     private static final double ASH_HEIGHT = 13.0;
     private static final double ASH_CLEARANCE = 3.0;
@@ -135,6 +137,8 @@ public final class CutsceneClient {
         final double wideFov;
         final double wideDistance;
         int tick = 0;
+        /** When this client first drew the boss mirrored, in cutscene time, or -1. The flash starts there. */
+        double mirroredAt = -1;
         /** The shot the camera was last placed for. A new shot snaps the camera instead of gliding to it. */
         int shot = -1;
         @Nullable
@@ -518,9 +522,17 @@ public final class CutsceneClient {
     }
 
     /**
-     * The letterbox and the caption, over the finished frame: with hideGui set, the HUD
+     * The letterbox, the flash and the caption, over the finished frame: with hideGui set, the HUD
      * events never fire. Not drawn over an open screen.
      */
+    /** Notes the first frame the boss is mirrored, before the world draws it, so the flash covers that frame. */
+    @SubscribeEvent
+    public static void onRenderFramePre(RenderFrameEvent.Pre event) {
+        Active c = active;
+        if (c == null || c.mirroredAt >= 0 || c.boss == null || !c.boss.isMirrored()) return;
+        c.mirroredAt = c.tick + event.getPartialTick().getGameTimeDeltaPartialTick(false);
+    }
+
     @SubscribeEvent
     public static void onRenderFrame(RenderFrameEvent.Post event) {
         Active c = active;
@@ -543,6 +555,13 @@ public final class CutsceneClient {
         double time = c.tick + partialTick;
         double slide = smooth(Math.min(time, c.duration - time) / LETTERBOX_TICKS);
         int bar = Math.round(height * 0.11F * (float) slide);
+        // A short pale flash as the boss takes on the player's look. It starts on the frame the swap
+        // first shows here, not at a set tick, so it still hides the swap when this client lags the server.
+        double sinceMirror = c.mirroredAt < 0 ? -1 : time - c.mirroredAt;
+        if (sinceMirror >= 0 && sinceMirror < MIRROR_FLASH_TICKS) {
+            int alpha = (int) Math.round(MIRROR_FLASH_ALPHA * 255 * (1.0 - sinceMirror / MIRROR_FLASH_TICKS));
+            graphics.fill(0, 0, width, height, (alpha << 24) | 0xE4D8FF);
+        }
         graphics.fill(0, 0, width, bar, 0xFF000000);
         graphics.fill(0, height - bar, width, height, 0xFF000000);
         VoiceCaptions.render(graphics, partialTick, true);

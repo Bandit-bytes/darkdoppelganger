@@ -352,7 +352,7 @@ public class DoppelgangerGameTests {
                 .orElseThrow(() -> new net.minecraft.gametest.framework.GameTestAssertException("No boss was summoned"));
     }
 
-    @GameTest(template = ARENA, batch = "doppel_cutscene_intro", timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "doppel_cutscene_intro", timeoutTicks = 500)
     public static void introFreezesTheBossUntilItEnds(GameTestHelper helper) {
         CutsceneTracker.setIncludeFakePlayersForTests(true);
         ServerPlayer player = mockPlayerAt(helper, new BlockPos(6, 2, 12));
