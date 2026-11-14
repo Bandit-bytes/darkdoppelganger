@@ -30,6 +30,16 @@ public class SoundRegistry {
     public static final DeferredHolder<SoundEvent, SoundEvent> VOICE_EMBARRASSING_US = voice("embarrassing_us");
     public static final DeferredHolder<SoundEvent, SoundEvent> VOICE_SHADOW = voice("shadow");
 
+    // Intro ambience, made from vanilla sounds referenced in sounds.json.
+    public static final DeferredHolder<SoundEvent, SoundEvent> CUTSCENE_WIND = event("cutscene.wind");
+    public static final DeferredHolder<SoundEvent, SoundEvent> CUTSCENE_WIND_BED = event("cutscene.wind_bed");
+    public static final DeferredHolder<SoundEvent, SoundEvent> CUTSCENE_DRONE = event("cutscene.drone");
+
+    private static DeferredHolder<SoundEvent, SoundEvent> event(String id) {
+        return SOUND_EVENTS.register(id,
+                () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, id)));
+    }
+
     private static DeferredHolder<SoundEvent, SoundEvent> voice(String line) {
         String id = "voice." + line;
         return SOUND_EVENTS.register(id,

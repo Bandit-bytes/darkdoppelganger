@@ -58,8 +58,9 @@ import java.util.Comparator;
  * </ol>
  * No shot zooms. Each drifts a little at a steady pace, so it is already moving when it cuts in.
  * Every shot is taken from the player's right of the line between the two, so they face each other
- * across the cuts. Ash drifts through the air while it plays. Control returns with a cut back to the
- * player's eyes. The server decides when it starts and what the boss does. While it plays there are letterbox bars, no HUD (as with
+ * across the cuts. Ash drifts through the air, and wind and a low drone play under it (see
+ * {@link CutsceneSounds}). Control returns with a cut back to the player's eyes. The server decides
+ * when it starts and what the boss does. While it plays there are letterbox bars, no HUD (as with
  * F1) and no input, and the player is held in place.
  */
 @EventBusSubscriber(modid = DarkDoppelgangerMod.MOD_ID, value = Dist.CLIENT)
@@ -241,6 +242,7 @@ public final class CutsceneClient {
         cutscene.boss = findBoss(mc, cutscene.feet);
         // The player's own close-up shows them looking at the boss.
         faceTarget(mc.player, cutscene.bossFace());
+        CutsceneSounds.start();
         mc.options.setCameraType(CameraType.FIRST_PERSON);
         // As F1 does. Other mods' overlays (Jade's tooltip, for one) check this, not the HUD layers.
         mc.options.hideGui = true;
@@ -254,6 +256,7 @@ public final class CutsceneClient {
         Active cutscene = active;
         if (cutscene == null) return;
         active = null;
+        CutsceneSounds.end(cutscene.tick);
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
             mc.setCameraEntity(mc.player);
@@ -357,7 +360,8 @@ public final class CutsceneClient {
         // The server and the boss stop while singleplayer is paused, so the cutscene does too.
         if (mc.isPaused()) return;
         if (c.boss == null || !c.boss.isAlive()) c.boss = findBoss(mc, c.feet);
-        if (++c.tick >= c.duration) {
+        CutsceneSounds.tick(++c.tick);
+        if (c.tick >= c.duration) {
             faceTarget(mc.player, c.bossFace());
             stop();
             // Raise the held items into view, as after switching items, rather than popping them in.

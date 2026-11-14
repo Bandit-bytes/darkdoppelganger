@@ -87,5 +87,41 @@
         "name": "darkdoppelganger:voice/shadow"
       }
     ]
+  },
+  "cutscene.wind": {
+    "sounds": [
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind1",
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind2",
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind3",
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind4",
+        "pitch": 0.9
+      }
+    ]
+  },
+  "cutscene.wind_bed": {
+    "sounds": [
+      {
+        "name": "minecraft:item/elytra/elytra_loop",
+        "pitch": 0.6
+      }
+    ]
+  },
+  "cutscene.drone": {
+    "sounds": [
+      {
+        "name": "minecraft:block/beacon/ambient",
+        "pitch": 0.5
+      }
+    ]
   }
 }
