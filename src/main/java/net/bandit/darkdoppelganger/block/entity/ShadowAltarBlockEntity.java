@@ -72,6 +72,7 @@ public class ShadowAltarBlockEntity extends BlockEntity {
                 true
         );
 
+        level.playSound(null, worldPosition, SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.HOSTILE, 1.0F, 1.0F);
         setChangedAndSync();
     }
 
