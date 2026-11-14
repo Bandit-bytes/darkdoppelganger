@@ -16,7 +16,6 @@
     ]
   },
   "voice.intro": {
-    "subtitle": "subtitles.darkdoppelganger.voice.intro",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/intro"
@@ -24,7 +23,6 @@
     ]
   },
   "voice.predictable": {
-    "subtitle": "subtitles.darkdoppelganger.voice.predictable",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/predictable"
@@ -32,7 +30,6 @@
     ]
   },
   "voice.know_that_move": {
-    "subtitle": "subtitles.darkdoppelganger.voice.know_that_move",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/know_that_move_1"
@@ -43,7 +40,6 @@
     ]
   },
   "voice.still_making_that_mistake": {
-    "subtitle": "subtitles.darkdoppelganger.voice.still_making_that_mistake",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/still_making_that_mistake"
@@ -51,7 +47,6 @@
     ]
   },
   "voice.too_slow": {
-    "subtitle": "subtitles.darkdoppelganger.voice.too_slow",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/too_slow"
@@ -59,7 +54,6 @@
     ]
   },
   "voice.your_best": {
-    "subtitle": "subtitles.darkdoppelganger.voice.your_best",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/your_best"
@@ -67,7 +61,6 @@
     ]
   },
   "voice.already_won": {
-    "subtitle": "subtitles.darkdoppelganger.voice.already_won",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/already_won"
@@ -75,7 +68,6 @@
     ]
   },
   "voice.how_this_ends": {
-    "subtitle": "subtitles.darkdoppelganger.voice.how_this_ends",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/how_this_ends"
@@ -83,7 +75,6 @@
     ]
   },
   "voice.embarrassing_us": {
-    "subtitle": "subtitles.darkdoppelganger.voice.embarrassing_us",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/embarrassing_us"
@@ -91,7 +82,6 @@
     ]
   },
   "voice.shadow": {
-    "subtitle": "subtitles.darkdoppelganger.voice.shadow",
     "sounds": [
       {
         "name": "darkdoppelganger:voice/shadow"

@@ -168,6 +168,10 @@ public final class CutsceneClient {
         }
     }
 
+    public static boolean isActive() {
+        return active != null;
+    }
+
     public static void start(CutscenePayloads.Start payload) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
