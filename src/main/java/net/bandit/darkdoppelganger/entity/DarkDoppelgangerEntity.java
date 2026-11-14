@@ -105,12 +105,16 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     private static final String NBT_INTRO = "InIntro";
 
     /** Length of the intro cutscene. */
-    public static final int INTRO_TICKS = 190;
-    // Intro beats, in ticks from the summon. The boss is hidden until it emerges and takes 45 ticks to rise.
-    // The intro line opens with a short swell, so its first word lands as the boss finishes rising (tick 65).
-    // The words end as the camera's pull back ends.
+    public static final int INTRO_TICKS = 352;
+    // Intro beats, in ticks from the summon. The boss is hidden until it emerges and takes 45 ticks to rise,
+    // then stands silent. The camera cuts to the boss, which speaks its whole line in that shot, then
+    // after a beat of silence to the player, then to a wide shot of both.
     public static final int INTRO_EMERGE = 20;
-    private static final int INTRO_LINE = 56;
+    public static final int INTRO_BOSS_SHOT = 100;
+    public static final int INTRO_PLAYER_SHOT = 210;
+    public static final int INTRO_BOTH_SHOT = 262;
+    /** The line opens with a 9-tick swell, so its first word lands 15 ticks into the boss's shot and its last at tick 195. */
+    public static final int INTRO_LINE = INTRO_BOSS_SHOT + 6;
 
     /** Who watches the intro, set by the summon code. Empty when there is no intro. */
     private List<ServerPlayer> introViewers = List.of();

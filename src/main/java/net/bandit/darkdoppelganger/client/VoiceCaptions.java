@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -88,14 +87,17 @@ public final class VoiceCaptions {
         return caption != null && age <= wordsEnd + 4;
     }
 
-    /** Drawn after the cutscene's letterbox, so the caption sits on top of it. */
-    @SubscribeEvent(priority = EventPriority.LOW)
+    /** During a cutscene the HUD is hidden and the cutscene draws the caption itself, in its letterbox. */
+    @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Post event) {
+        if (CutsceneClient.isActive()) return;
+        render(event.getGuiGraphics(), event.getPartialTick().getGameTimeDeltaPartialTick(false), false);
+    }
+
+    static void render(GuiGraphics graphics, float partialTick, boolean inLetterbox) {
         Component line = caption;
         if (line == null) return;
-        GuiGraphics graphics = event.getGuiGraphics();
-        boolean inLetterbox = CutsceneClient.isActive();
-        float time = age + event.getPartialTick().getGameTimeDeltaPartialTick(false);
+        float time = age + partialTick;
         float alpha = Math.min(fade(time - (WORDS_START - 2)), fade(wordsEnd + LINGER - time));
         if (alpha <= 0.02F) return;
 
