@@ -4,38 +4,44 @@ import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.sounds.Music;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.SelectMusicEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Plays the boss track through the music manager while a Dark Doppelganger is near the player.
- * The music manager plays it at full volume wherever the player stands, loops it, and keeps
- * vanilla tracks (including End music) from playing over it.
+ * Plays the boss track while a Dark Doppelganger is fighting near the player: full volume wherever
+ * the player stands, looped, and lowered while the boss speaks so its lines can be heard.
+ * Vanilla music is held off during the intro and the fight, and for a few minutes afterwards, as the
+ * music manager would after any track.
  */
 @EventBusSubscriber(modid = DarkDoppelgangerMod.MOD_ID, value = Dist.CLIENT)
 public final class BossMusicHandler {
     /** Matches the boss's tracking range, so music plays while the boss bar is shown. */
     private static final double RANGE = 80.0;
     private static final int SCAN_INTERVAL = 10;
+    /** Music volume while the boss speaks: about -10 dB. */
+    private static final float DUCKED = 0.32F;
+    /** Silence after the fight before vanilla music may return, in ticks. */
+    private static final int QUIET_MIN = 3600;
+    private static final int QUIET_MAX = 9600;
 
-    private static Music bossMusic;
+    @Nullable
+    private static BossMusic music;
     private static boolean fightNearby;
     private static boolean introNearby;
+    private static int quietTicks;
+    private static final RandomSource RANDOM = RandomSource.create();
 
     private BossMusicHandler() {
-    }
-
-    private static Music bossMusic() {
-        if (bossMusic == null) {
-            bossMusic = new Music(SoundRegistry.BOSS_FIGHT_MUSIC, 0, 0, true);
-        }
-        return bossMusic;
     }
 
     @SubscribeEvent
@@ -44,12 +50,14 @@ public final class BossMusicHandler {
         if (mc.level == null || mc.player == null) {
             fightNearby = false;
             introNearby = false;
+            quietTicks = 0;
+            stopMusic(mc);
             return;
         }
+        if (quietTicks > 0 && !mc.isPaused()) quietTicks--;
         if (mc.level.getGameTime() % SCAN_INTERVAL != 0) return;
 
         boolean wasNearby = fightNearby;
-        // Silent during the intro. The boss track starts with the fight.
         boolean fight = false;
         boolean intro = false;
         for (DarkDoppelgangerEntity doppel : mc.level.getEntitiesOfClass(DarkDoppelgangerEntity.class,
@@ -60,17 +68,42 @@ public final class BossMusicHandler {
         fightNearby = fight;
         introNearby = intro;
         if (wasNearby && !fightNearby) {
-            // Stop the sound directly so the music manager waits its normal delay before vanilla music returns.
-            mc.getSoundManager().stop(SoundRegistry.BOSS_FIGHT_MUSIC.get().getLocation(), SoundSource.MUSIC);
+            stopMusic(mc);
+            quietTicks = Mth.nextInt(RANDOM, QUIET_MIN, QUIET_MAX);
+        }
+        // Silent during the intro. The boss track starts with the fight.
+        if (fightNearby && (music == null || !mc.getSoundManager().isActive(music))) {
+            music = new BossMusic();
+            mc.getSoundManager().play(music);
         }
     }
 
+    private static void stopMusic(Minecraft mc) {
+        if (music != null) {
+            mc.getSoundManager().stop(music);
+            music = null;
+        }
+    }
+
+    /** No vanilla music while the boss is near, or for a while after the fight. */
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onSelectMusic(SelectMusicEvent event) {
-        if (fightNearby) {
-            event.overrideMusic(bossMusic());
-        } else if (introNearby) {
-            event.overrideMusic(null);
+        if (fightNearby || introNearby || quietTicks > 0) event.overrideMusic(null);
+    }
+
+    private static final class BossMusic extends AbstractTickableSoundInstance {
+        BossMusic() {
+            super(SoundRegistry.BOSS_FIGHT_MUSIC.get(), SoundSource.MUSIC, SoundInstance.createUnseededRandom());
+            looping = true;
+            relative = true;
+            attenuation = Attenuation.NONE;
+        }
+
+        /** Dips quickly when the boss starts a line and comes back slowly after it. */
+        @Override
+        public void tick() {
+            float target = VoiceCaptions.speaking() ? DUCKED : 1.0F;
+            volume += (target - volume) * (target < volume ? 0.4F : 0.08F);
         }
     }
 }
