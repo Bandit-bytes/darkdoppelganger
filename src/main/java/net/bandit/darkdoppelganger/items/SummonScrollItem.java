@@ -76,7 +76,7 @@ public class SummonScrollItem extends Item {
                 player.getInventory().placeItemBackInInventory(new ItemStack(this));
             }
         } else if (!boss.isInIntro()) {
-            DoppelgangerSummoning.laughAtSummoner(serverWorld, player);
+            DoppelgangerSummoning.greetSummoner(serverWorld, player);
         }
     }
 

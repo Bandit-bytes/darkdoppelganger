@@ -96,13 +96,13 @@ public final class DoppelgangerSummoning {
     }
 
     /**
-     * Slows the summoner and laughs at them. The Summon Scroll and the summon command use it when
-     * there is no intro. The intro has its own laugh and holds the player still.
+     * Slows the summoner and plays the intro line at them. The Summon Scroll and the summon command use
+     * it when there is no intro. The intro plays its own line and holds the player still.
      */
-    public static void laughAtSummoner(ServerLevel level, Player player) {
+    public static void greetSummoner(ServerLevel level, Player player) {
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
+                SoundRegistry.VOICE_INTRO.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
     }
 
     private static void applyConfiguredEquipment(DarkDoppelgangerEntity boss, Player player) {

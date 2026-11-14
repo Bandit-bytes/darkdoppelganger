@@ -36,6 +36,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
@@ -70,6 +71,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -105,9 +107,10 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     /** Length of the intro cutscene. */
     public static final int INTRO_TICKS = 190;
     // Intro beats, in ticks from the summon. The boss is hidden until it emerges and takes 45 ticks to rise.
-    // The laugh lands as it finishes rising and runs about 4 seconds, through the camera's pull back.
+    // The intro line opens with a short swell, so its first word lands as the boss finishes rising (tick 65).
+    // The words end as the camera's pull back ends.
     public static final int INTRO_EMERGE = 20;
-    private static final int INTRO_LAUGH = 60;
+    private static final int INTRO_LINE = 56;
 
     /** Who watches the intro, set by the summon code. Empty when there is no intro. */
     private List<ServerPlayer> introViewers = List.of();
@@ -134,10 +137,19 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     /** Ticks of warning before a life drain pulse. */
     private static final int LIFE_DRAIN_WINDUP = 20;
     private static final double LIFE_DRAIN_RADIUS = 8.0;
-    private int roarSoundCooldown = 800;
     private static final int MAX_MINIONS = 5;
-    private int laughCooldown = 0;
-    private static final int LAUGH_COOLDOWN_TICKS = 240;
+    private static final float VOICE_VOLUME = 4.0F;
+    private int tauntCooldown = 0;
+    private static final int TAUNT_COOLDOWN_TICKS = 240;
+    /** The last line spoken, so a taunt does not repeat it. */
+    @Nullable
+    private SoundEvent lastLine;
+    /** Said when the boss learns the player's damage type. */
+    private static final List<DeferredHolder<SoundEvent, SoundEvent>> ADAPT_LINES = List.of(
+            SoundRegistry.VOICE_PREDICTABLE, SoundRegistry.VOICE_KNOW_THAT_MOVE, SoundRegistry.VOICE_STILL_MAKING_THAT_MISTAKE);
+    /** Said after a life drain hits or a blessing is stolen. */
+    private static final List<DeferredHolder<SoundEvent, SoundEvent>> ATTACK_LINES = List.of(
+            SoundRegistry.VOICE_TOO_SLOW, SoundRegistry.VOICE_ALREADY_WON, SoundRegistry.VOICE_EMBARRASSING_US);
     /** Where the boss last stood on solid ground. Used when it falls out of the world with no player to return to. */
     @Nullable
     private Vec3 lastGroundPos;
@@ -629,9 +641,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return;
         }
         if (elapsed == INTRO_EMERGE) introEmerge();
-        if (elapsed == INTRO_LAUGH) {
-            level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_LAUGH.get(), SoundSource.HOSTILE, 2.0F, 0.9F);
-        }
+        if (elapsed == INTRO_LINE) speak(SoundRegistry.VOICE_INTRO.get());
         if (--introTicks <= 0) endIntro();
     }
 
@@ -701,8 +711,8 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
 
-        if (laughCooldown > 0) {
-            laughCooldown--;
+        if (tauntCooldown > 0) {
+            tauntCooldown--;
         }
         if (rescueTeleportCooldown > 0) rescueTeleportCooldown--;
         // Refreshed once a second rather than every tick, which re-applied the effects' attribute modifiers each tick.
@@ -734,7 +744,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             }
         }
 
-        if (roarSoundCooldown > 0) roarSoundCooldown--;
     }
     /** Health the fight actually represents, including damage scaling past the max health cap. */
     public float getEffectiveMaxHealth() {
@@ -762,7 +771,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
         spawnMirrorClones(3, 260);
 
-        playRoar(1.0F);
+        speak(SoundRegistry.VOICE_YOUR_BEST.get());
         playPhaseShatter(
                 Component.literal("REFLECTION BROKEN").withStyle(ChatFormatting.DARK_PURPLE),
                 Component.literal("The mirror shatters... and multiplies").withStyle(ChatFormatting.GRAY));
@@ -826,11 +835,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
-    /** Volume above 1 widens the range the sound is sent to (16 blocks per point of volume). */
-    private void playRoar(float pitch) {
-        level().playSound(null, getX(), getY(), getZ(), SoundRegistry.BOSS_ROAR.get(), SoundSource.HOSTILE, 4.0F, pitch);
-    }
-
     private void triggerThirdPhase() {
         thirdPhaseTriggered = true;
         beginPhaseTransition();
@@ -839,7 +843,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         shadowstepCooldown = 40;
         echoCooldown = 80;
 
-        playRoar(1.0F);
+        speak(SoundRegistry.VOICE_HOW_THIS_ENDS.get());
         playPhaseShatter(
                 Component.literal("SHADOWFALL").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
                 Component.literal("Final Form - prepare yourself").withStyle(ChatFormatting.RED));
@@ -982,17 +986,16 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
 
     private void lifeDrainAttack() {
         // Damage only: the boss no longer heals from this pulse. Same radius as the warning ring.
-        level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(LIFE_DRAIN_RADIUS),
-                        player -> player.distanceToSqr(this) <= LIFE_DRAIN_RADIUS * LIFE_DRAIN_RADIUS)
-                .forEach(player -> player.hurt(level().damageSources().magic(), 4.0F));
+        List<Player> caught = level().getEntitiesOfClass(Player.class, getBoundingBox().inflate(LIFE_DRAIN_RADIUS),
+                player -> player.distanceToSqr(this) <= LIFE_DRAIN_RADIUS * LIFE_DRAIN_RADIUS);
+        caught.forEach(player -> player.hurt(level().damageSources().magic(), 4.0F));
 
         if (level() instanceof ServerLevel serverLevel) {
             spawnParticleRing(serverLevel, ParticleTypes.SCULK_SOUL, LIFE_DRAIN_RADIUS, 0.08);
         }
         level().playSound(null, getX(), getY(), getZ(), SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundSource.HOSTILE, 2.0F, 0.7F);
 
-        // Life drain is a major attack, so it may laugh -- but still obeys the global cooldown.
-        tryBossLaugh(0.65F, 1.15F, 1.0F);
+        if (!caught.isEmpty()) tryTaunt(0.65F, ATTACK_LINES);
     }
 
     private void spawnParticleRing(ServerLevel serverLevel, net.minecraft.core.particles.ParticleOptions particle,
@@ -1068,7 +1071,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             // Everything the boss made breaks with it, so nothing keeps fighting during the victory.
             shatterOwnedClones(serverLevel);
             playShatterBurst(serverLevel);
-            playRoar(0.7F);
+            speak(SoundRegistry.VOICE_SHADOW.get());
         }
 
         this.bossEvent.removeAllPlayers();
@@ -1501,7 +1504,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
                 serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL, getX(), getY() + 1.0, getZ(), 24, 0.4, 0.7, 0.4, 0.08);
             }
             target.displayClientMessage(Component.literal("Your reflection steals one of your blessings.").withStyle(ChatFormatting.DARK_PURPLE), true);
-            tryBossLaugh(0.50F, 1.0F, 1.05F);
+            tryTaunt(0.50F, ATTACK_LINES);
             return true;
         }
         return false;
@@ -1658,28 +1661,34 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         if (level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.ENCHANT, getX(), getY() + 1.1, getZ(), 30, 0.5, 0.8, 0.5, 0.08);
         }
-        tryBossLaugh(0.35F, 0.9F, 0.85F);
+        tryTaunt(0.35F, ADAPT_LINES);
     }
 
     /**
-     * Central laugh gate. All routine boss laughs should go through this so
-     * several mechanics cannot spam the sound back-to-back.
+     * Says a random line from the pool, other than the last one. Does nothing while the cooldown from
+     * the last line runs, so several mechanics cannot talk over each other.
      *
-     * @param chance chance from 0.0-1.0 that an eligible event actually laughs
+     * @param chance chance from 0 to 1 that the boss speaks
      */
-    private void tryBossLaugh(float chance, float volume, float pitch) {
-        if (isClone || level().isClientSide || laughCooldown > 0) return;
+    private void tryTaunt(float chance, List<DeferredHolder<SoundEvent, SoundEvent>> lines) {
+        if (isClone || level().isClientSide || tauntCooldown > 0) return;
         if (random.nextFloat() > chance) return;
+        int i = random.nextInt(lines.size());
+        if (lines.size() > 1 && lines.get(i).get() == lastLine) {
+            i = (i + 1 + random.nextInt(lines.size() - 1)) % lines.size();
+        }
+        speak(lines.get(i).get());
+    }
 
-        level().playSound(
-                null,
-                getX(), getY(), getZ(),
-                SoundRegistry.BOSS_LAUGH.get(),
-                SoundSource.HOSTILE,
-                volume,
-                pitch
-        );
-        laughCooldown = LAUGH_COOLDOWN_TICKS;
+    /**
+     * Plays a voice line and starts the taunt cooldown. Volume above 1 only widens the range (16 blocks
+     * per point) and the sound fades linearly across it, so a wide range keeps the voice loud nearby.
+     */
+    private void speak(SoundEvent line) {
+        if (isClone || level().isClientSide) return;
+        level().playSound(null, getX(), getY(), getZ(), line, SoundSource.HOSTILE, VOICE_VOLUME, 1.0F);
+        lastLine = line;
+        tauntCooldown = TAUNT_COOLDOWN_TICKS;
     }
 
     private void discardOwnedMinions() {
@@ -1698,6 +1707,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         if (summonerUUID != null) tag.putUUID(NBT_SUMMONER_UUID, summonerUUID);
+
         tag.putBoolean(NBT_SECOND_PHASE, secondPhaseTriggered);
         tag.putBoolean(NBT_THIRD_PHASE, thirdPhaseTriggered);
         tag.putBoolean(NBT_IS_CLONE, isClone);
@@ -1728,6 +1738,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         super.readAdditionalSaveData(tag);
         loadedFromSave = true;
         if (tag.hasUUID(NBT_SUMMONER_UUID)) summonerUUID = tag.getUUID(NBT_SUMMONER_UUID);
+
         secondPhaseTriggered = tag.getBoolean(NBT_SECOND_PHASE);
         thirdPhaseTriggered = tag.getBoolean(NBT_THIRD_PHASE);
         isClone = tag.getBoolean(NBT_IS_CLONE);

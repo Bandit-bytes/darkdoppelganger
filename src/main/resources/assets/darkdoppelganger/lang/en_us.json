@@ -28,5 +28,15 @@
   "message.darkdoppelganger.shadow_altar.occupied": "The Shadow Altar already holds an orb.",
   "message.darkdoppelganger.shadow_altar.end_only": "The Shadow Altar can only awaken in The End.",
   "message.darkdoppelganger.shadow_altar.started": "The Shadow Altar begins to awaken...",
-  "message.darkdoppelganger.shadow_altar.failed": "The ritual failed. The Shadow Orb was returned."
+  "message.darkdoppelganger.shadow_altar.failed": "The ritual failed. The Shadow Orb was returned.",
+  "subtitles.darkdoppelganger.voice.intro": "Let's see which one of us deserves to exist.",
+  "subtitles.darkdoppelganger.voice.predictable": "Predictable.",
+  "subtitles.darkdoppelganger.voice.know_that_move": "I know that move.",
+  "subtitles.darkdoppelganger.voice.still_making_that_mistake": "Still making that mistake?",
+  "subtitles.darkdoppelganger.voice.too_slow": "Too slow. Even for you.",
+  "subtitles.darkdoppelganger.voice.your_best": "Was that the best?",
+  "subtitles.darkdoppelganger.voice.already_won": "I've already won this fight.",
+  "subtitles.darkdoppelganger.voice.how_this_ends": "We both know how this ends.",
+  "subtitles.darkdoppelganger.voice.embarrassing_us": "Stop embarrassing us.",
+  "subtitles.darkdoppelganger.voice.shadow": "I am the shadow your victories have cast."
 }

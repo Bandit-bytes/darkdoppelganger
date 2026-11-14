@@ -48,7 +48,7 @@ public class SummonDoppelganger {
             if (boss == null) {
                 source.sendFailure(Component.literal("No safe place was found for the Dark Doppelganger."));
             } else if (!boss.isInIntro()) {
-                DoppelgangerSummoning.laughAtSummoner(serverWorld, nearestPlayer);
+                DoppelgangerSummoning.greetSummoner(serverWorld, nearestPlayer);
             }
         });
 
