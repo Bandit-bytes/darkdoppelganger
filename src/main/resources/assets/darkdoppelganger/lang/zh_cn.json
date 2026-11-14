@@ -28,5 +28,15 @@
   "message.darkdoppelganger.shadow_altar.occupied": "暗影祭坛上已经放置了一颗暗影宝珠。",
   "message.darkdoppelganger.shadow_altar.end_only": "暗影祭坛只能在末地中唤醒。",
   "message.darkdoppelganger.shadow_altar.started": "暗影祭坛开始苏醒……",
-  "message.darkdoppelganger.shadow_altar.failed": "仪式失败。暗影宝珠已被返还。"
+  "message.darkdoppelganger.shadow_altar.failed": "仪式失败。暗影宝珠已被返还。",
+  "subtitles.darkdoppelganger.voice.intro": "让我们看看，我们之中谁才配存在。",
+  "subtitles.darkdoppelganger.voice.predictable": "意料之中。",
+  "subtitles.darkdoppelganger.voice.know_that_move": "这招我见过。",
+  "subtitles.darkdoppelganger.voice.still_making_that_mistake": "还在犯同样的错？",
+  "subtitles.darkdoppelganger.voice.too_slow": "太慢了。就算是你，也太慢了。",
+  "subtitles.darkdoppelganger.voice.your_best": "这就是全力了？",
+  "subtitles.darkdoppelganger.voice.already_won": "这场战斗，我已经赢了。",
+  "subtitles.darkdoppelganger.voice.how_this_ends": "你我都清楚结局如何。",
+  "subtitles.darkdoppelganger.voice.embarrassing_us": "别再丢我们的脸了。",
+  "subtitles.darkdoppelganger.voice.shadow": "我是你的胜利投下的阴影。"
 }

@@ -7,27 +7,120 @@
       }
     ]
   },
-  "boss_laugh": {
-    "sounds": [
-      {
-        "name": "darkdoppelganger:music/boss_laugh",
-        "stream": false
-      }
-    ]
-  },
-  "boss_roar": {
-    "sounds": [
-      {
-        "name": "darkdoppelganger:music/boss_roar",
-        "stream": false
-      }
-    ]
-  },
   "boss_stun": {
     "sounds": [
       {
         "name": "darkdoppelganger:music/boss_stun",
         "stream": false
+      }
+    ]
+  },
+  "voice.intro": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/intro"
+      }
+    ]
+  },
+  "voice.predictable": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/predictable"
+      }
+    ]
+  },
+  "voice.know_that_move": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/know_that_move_1"
+      },
+      {
+        "name": "darkdoppelganger:voice/know_that_move_2"
+      }
+    ]
+  },
+  "voice.still_making_that_mistake": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/still_making_that_mistake"
+      }
+    ]
+  },
+  "voice.too_slow": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/too_slow"
+      }
+    ]
+  },
+  "voice.your_best": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/your_best"
+      }
+    ]
+  },
+  "voice.already_won": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/already_won"
+      }
+    ]
+  },
+  "voice.how_this_ends": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/how_this_ends"
+      }
+    ]
+  },
+  "voice.embarrassing_us": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/embarrassing_us"
+      }
+    ]
+  },
+  "voice.shadow": {
+    "sounds": [
+      {
+        "name": "darkdoppelganger:voice/shadow"
+      }
+    ]
+  },
+  "cutscene.wind": {
+    "sounds": [
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind1",
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind2",
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind3",
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:ambient/nether/soulsand_valley/wind4",
+        "pitch": 0.9
+      }
+    ]
+  },
+  "cutscene.wind_bed": {
+    "sounds": [
+      {
+        "name": "minecraft:item/elytra/elytra_loop",
+        "pitch": 0.6
+      }
+    ]
+  },
+  "cutscene.drone": {
+    "sounds": [
+      {
+        "name": "minecraft:block/beacon/ambient",
+        "pitch": 0.5
       }
     ]
   }

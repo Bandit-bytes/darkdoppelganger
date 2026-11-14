@@ -96,13 +96,13 @@ public final class DoppelgangerSummoning {
     }
 
     /**
-     * Slows the summoner and laughs at them. The Summon Scroll and the summon command use it when
-     * there is no intro. The intro has its own laugh and holds the player still.
+     * Slows the summoner and plays the intro line at them. The Summon Scroll and the summon command use
+     * it when there is no intro. The intro plays its own line and holds the player still.
      */
-    public static void laughAtSummoner(ServerLevel level, Player player) {
+    public static void greetSummoner(ServerLevel level, Player player) {
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundRegistry.BOSS_LAUGH.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
+                SoundRegistry.VOICE_INTRO.get(), SoundSource.PLAYERS, 1.5F, 1.0F);
     }
 
     private static void applyConfiguredEquipment(DarkDoppelgangerEntity boss, Player player) {
@@ -136,6 +136,15 @@ public final class DoppelgangerSummoning {
             }
             boss.setItemSlot(slot, equipment);
         }
+    }
+
+    /** The boss's own gear for a slot, from the config: what it wears before it copies the summoner. */
+    public static ItemStack ownItem(EquipmentSlot slot) {
+        return switch (slot) {
+            case MAINHAND -> getConfiguredItem(Config.DOPPELGANGER_DEFAULT_MAINHAND.get());
+            case HEAD, CHEST, LEGS, FEET -> getConfiguredArmorForSlot(slot);
+            default -> ItemStack.EMPTY;
+        };
     }
 
     private static ItemStack getConfiguredArmorForSlot(EquipmentSlot slot) {

@@ -352,7 +352,7 @@ public class DoppelgangerGameTests {
                 .orElseThrow(() -> new net.minecraft.gametest.framework.GameTestAssertException("No boss was summoned"));
     }
 
-    @GameTest(template = ARENA, batch = "doppel_cutscene_intro", timeoutTicks = 400)
+    @GameTest(template = ARENA, batch = "doppel_cutscene_intro", timeoutTicks = 500)
     public static void introFreezesTheBossUntilItEnds(GameTestHelper helper) {
         CutsceneTracker.setIncludeFakePlayersForTests(true);
         ServerPlayer player = mockPlayerAt(helper, new BlockPos(6, 2, 12));
@@ -367,6 +367,11 @@ public class DoppelgangerGameTests {
         boss.invulnerableTime = 0;
         check(helper, !boss.hurt(helper.getLevel().damageSources().playerAttack(player), 50.0F), "Boss took damage during the intro");
 
+        check(helper, !boss.isMirrored(), "Boss copied the player before the intro showed it");
+        helper.runAfterDelay(DarkDoppelgangerEntity.INTRO_MIRROR - 2, () ->
+                check(helper, !boss.isMirrored(), "Boss copied the player before its close-up"));
+        helper.runAfterDelay(DarkDoppelgangerEntity.INTRO_MIRROR + 2, () ->
+                check(helper, boss.isMirrored(), "Boss did not copy the player in its close-up"));
         helper.runAfterDelay(DarkDoppelgangerEntity.INTRO_TICKS - 5, () -> {
             check(helper, boss.isInIntro(), "Intro ended early");
             check(helper, !boss.isHiddenBeforeEmerging(), "Boss still hidden late in the intro");

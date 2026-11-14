@@ -2,7 +2,6 @@ package net.bandit.darkdoppelganger.block.entity;
 
 import net.bandit.darkdoppelganger.entity.DarkDoppelgangerEntity;
 import net.bandit.darkdoppelganger.registry.ModBlockEntities;
-import net.bandit.darkdoppelganger.registry.SoundRegistry;
 import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -73,14 +72,7 @@ public class ShadowAltarBlockEntity extends BlockEntity {
                 true
         );
 
-        level.playSound(
-                null,
-                worldPosition,
-                SoundRegistry.BOSS_LAUGH.get(),
-                SoundSource.HOSTILE,
-                1.5F,
-                0.8F
-        );
+        level.playSound(null, worldPosition, SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.HOSTILE, 1.0F, 1.0F);
         setChangedAndSync();
     }
 
