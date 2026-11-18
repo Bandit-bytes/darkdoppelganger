@@ -32,6 +32,8 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<List<? extends String>> DOPPELGANGER_BANNED_ARMOR;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_ARMOR;
     public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_MAINHAND;
+    public static final ModConfigSpec.BooleanValue DOPPELGANGER_COPY_PLAYER_OFFHAND;
+    public static final ModConfigSpec.DoubleValue DOPPELGANGER_COPIED_ARMOR_EFFECTIVENESS;
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_BOW_DAMAGE_MULTIPLIER;
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_HEALTH_PER_EXTRA_PLAYER;
     public static final ModConfigSpec.DoubleValue DOPPELGANGER_MAX_COPIED_SPELL_POWER;
@@ -95,9 +97,19 @@ public class Config {
                 .comment("If true, the boss will copy the player's armor unless the armor is banned or missing. If false, the boss will always use the configured default armor set.")
                 .define("copy_player_armor", true);
 
+        DOPPELGANGER_COPIED_ARMOR_EFFECTIVENESS = BUILDER
+                .comment("How much of the copied armor's protection the boss gets: armor, toughness and Protection enchantments.",
+                        "The boss's own base armor always counts in full. 1.0 = the copies protect it exactly as they protect you,",
+                        "which with Protection IV netherite means it takes as little as a seventh of the damage. 0 = the copies are only for looks.")
+                .defineInRange("copied_armor_effectiveness", 0.5, 0.0, 1.0);
+
         DOPPELGANGER_COPY_PLAYER_MAINHAND = BUILDER
                 .comment("If true, the boss will copy the player's main hand item. If false, it will always use the configured default main hand item.")
                 .define("copy_player_mainhand", true);
+
+        DOPPELGANGER_COPY_PLAYER_OFFHAND = BUILDER
+                .comment("If true, the boss will copy the player's offhand item, such as a shield, totem or tipped arrows. If false, its offhand stays empty.")
+                .define("copy_player_offhand", true);
 
         DOPPELGANGER_BOW_DAMAGE_MULTIPLIER = BUILDER
                 .comment("Damage multiplier for arrows the boss fires when it holds a bow or crossbow. A fully drawn shot at 1.0 deals about as much as a player's fully drawn bow.")
@@ -108,10 +120,10 @@ public class Config {
                 .defineInRange("health_per_extra_player", 0.5, 0.0, 10.0);
 
         DOPPELGANGER_MAX_COPIED_SPELL_POWER = BUILDER
-                .comment("Cap on each spell power attribute the boss copies from the summoner (before doppelgangerSpellPowerMultiplier).",
+                .comment("Optional cap on each spell power attribute the boss copies from the summoner (before doppelgangerSpellPowerMultiplier).",
                         "Global and school spell power multiply together, so 1.3 allows up to about 1.7x spell damage.",
-                        "Stops high spell power mage builds from facing a boss that one-shots them. 0 disables the cap.")
-                .defineInRange("max_copied_spell_power", 1.3, 0.0, 100.0);
+                        "0 = no cap: the boss casts with your full spell power. Set a cap if high spell power builds find it too punishing.")
+                .defineInRange("max_copied_spell_power", 0.0, 0.0, 100.0);
 
         // Spell lists per phase: a = attack, b = defense (favoured while projectiles fly at the boss,
         // so avoid dodge/shield spells that make archers miss), c = movement, d = support/buffs.
@@ -277,9 +289,7 @@ public class Config {
                         "irons_spellbooks:*")
                 .defineListAllowEmpty(
                         "banned_armor",
-                        List.of(
-                                "minecraft:netherite_helmet" // example default
-                        ),
+                        List.of(),
                         o -> o instanceof String
                 );
         INTRO_CUTSCENE = BUILDER
@@ -287,8 +297,9 @@ public class Config {
                 .define("introCutscene", true);
 
         DOPPELGANGER_SPELL_POWER_MULTIPLIER = BUILDER
-                .comment("Scales all Iron's Spellbooks spell power attributes copied from the summoner. 1.0 = no change.")
-                .defineInRange("doppelgangerSpellPowerMultiplier", 1.0D, 0.0D, 100.0D);
+                .comment("Scales all Iron's Spellbooks spell power attributes copied from the summoner. 1.0 = exactly your spell power,",
+                        "1.25 = a quarter stronger than you.")
+                .defineInRange("doppelgangerSpellPowerMultiplier", 1.25D, 0.0D, 100.0D);
 
 
         BUILDER.pop();
