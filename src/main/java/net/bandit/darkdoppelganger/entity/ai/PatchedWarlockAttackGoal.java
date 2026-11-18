@@ -96,10 +96,8 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
             super.handleAttackLogic(distanceSquared);
             return;
         }
-        //Handling Animation hit frames
         mob.getLookControl().setLookAt(target);
         if (meleeAnimTimer > 0 && currentAttack != null) {
-            //We are currently attacking and are in a melee animation
             forceFaceTarget();
             meleeAnimTimer--;
             if (currentAttack.isHitFrame(meleeAnimTimer)) {
@@ -118,12 +116,10 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
             queueCombo = null;
             doMeleeAction();
         } else if (meleeAnimTimer == 0) {
-            //Reset animations/attack
             nextAttack = getNextAttack((float) distanceSquared);
             resetMeleeAttackInterval(distanceSquared);
             meleeAnimTimer = -1;
         } else {
-            //Handling attack delay
             if (distanceSquared < procRangeSqr) {
                 if (hasLineOfSight && --this.meleeAttackDelay == 0) {
                     doMeleeAction();
@@ -183,7 +179,6 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
         doLunge(lunge, meleeRange);
 
         var forward = mob.getForward();
-        // if this is an area attack, collect all nearby like-entities, and evaluate a dot product to determine if our area cone can hit them
         var targets = currentAttack.areaAttackThreshold.isEmpty() ?
                 List.of(target) :
                 mob.level().getEntitiesOfClass(target.getClass(), mob.getBoundingBox().inflate(spellcastingRange),
@@ -209,14 +204,12 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
                 target.setDeltaMovement(target.getDeltaMovement().add(attackData.extraKnockback().yRot(f)));
             }
             if (currentAttack.isSingleHit() && ((mob.getRandom().nextFloat() < (comboChance * (target.isBlocking() ? 2 : 1))))) {
-                //Attack again! combos!
                 queueCombo = getNextAttack(0);
             }
         }
     }
 
     protected AttackAnimationData getNextAttack(float distanceSquared) {
-        //TODO: IAttackAnimationProvider?
         if (this.moveList.isEmpty()) {
             return null;
         } else {
@@ -242,7 +235,6 @@ public class PatchedWarlockAttackGoal<T extends PathfinderMob & IAnimatedAttacke
 
     @Override
     protected void doMeleeAction() {
-        //anim duration
         currentAttack = nextAttack;
         if (currentAttack != null) {
             this.mob.swing(InteractionHand.MAIN_HAND);

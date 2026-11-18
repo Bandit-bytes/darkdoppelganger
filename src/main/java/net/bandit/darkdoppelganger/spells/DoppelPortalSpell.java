@@ -173,7 +173,6 @@ public class DoppelPortalSpell extends AbstractSpell {
             level.addFreshEntity(portal);
 
         } finally {
-            // Always clear our cast-state so next cast can spawn leave portal again
             entity.getPersistentData().remove(NBT_ROOT);
             super.onServerCastComplete(level, spellLevel, entity, magicData, cancelled);
         }
@@ -194,13 +193,11 @@ public class DoppelPortalSpell extends AbstractSpell {
         var hit = Utils.getTargetBlock(level, entity, ClipContext.Fluid.NONE, maxDistance);
         BlockPos base = hit.getBlockPos();
 
-        // Scan around the hit for a standable spot
         int radius = 2;
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 BlockPos candidate = base.offset(dx, 0, dz);
 
-                // up first (ledges), then down
                 for (int dy = 3; dy >= -3; dy--) {
                     BlockPos feet = candidate.offset(0, dy, 0);
                     if (isStandable(level, feet)) {
@@ -210,7 +207,6 @@ public class DoppelPortalSpell extends AbstractSpell {
             }
         }
 
-        // Fallback: ray-based landing
         return findTeleportLocationFallback(level, entity, maxDistance);
     }
 

@@ -1125,7 +1125,6 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             return;
         }
 
-        // Main boss death logic
         if (!thirdPhaseTriggered) {
             this.setHealth(1.0F);
             return;

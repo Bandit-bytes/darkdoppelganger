@@ -9,7 +9,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
@@ -46,22 +45,6 @@ public class DoppelgangerRingItem extends Item implements ICurioItem {
     @Override
     public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
         return true;
-    }
-
-    @Override
-    public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-        Level level = slotContext.entity().level();
-        if (!level.isClientSide) {
-//            System.out.println("Doppelganger Ring equipped!");
-        }
-    }
-
-    @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        Level level = slotContext.entity().level();
-        if (!level.isClientSide) {
-//            System.out.println("Doppelganger Ring unequipped!");
-        }
     }
 
     @NotNull
