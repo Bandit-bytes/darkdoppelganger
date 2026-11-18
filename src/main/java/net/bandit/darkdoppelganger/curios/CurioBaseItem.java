@@ -24,7 +24,7 @@ import java.util.function.Function;
 public class CurioBaseItem extends Item implements ICurioItem {
 
     private String attributeSlot = Curios.RING_SLOT;
-    private Function<Integer, Multimap<Holder<Attribute>, AttributeModifier>> attributes = index -> ImmutableMultimap.of(); // Default empty attributes
+    private Function<Integer, Multimap<Holder<Attribute>, AttributeModifier>> attributes = index -> ImmutableMultimap.of();
 
     public CurioBaseItem(Item.Properties properties) {
         super(properties);

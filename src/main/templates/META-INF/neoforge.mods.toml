@@ -1,34 +1,24 @@
-modLoader = "javafml" #mandatory
-loaderVersion = "${loader_version_range}" #mandatory
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
 license = "${mod_license}"
-issueTrackerURL="https://github.com/Bandit-bytes/darkdoppelganger/issues" #optional
+issueTrackerURL="https://github.com/Bandit-bytes/darkdoppelganger/issues"
 [[mods]]
 modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
 displayURL="https://pixeldreamstudios.net/"
-#logoFile="DarkDoppelgangerMod.png" #optional
-#credits="" #optional
 authors = "${mod_authors}"
 description = '''${mod_description}'''
 
-# The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
-#[[mixins]]
-#config="${mod_id}.mixins.json"
 [[dependencies."${mod_id}"]]
 modId = "neoforge"
 type = "required"
-# Optional field describing why the dependency is required or why it is incompatible
-# reason="..."
-# The version range of the dependency
 versionRange = "${neo_version_range}"
 ordering = "NONE"
 side = "BOTH"
-# Here's another dependency
 [[dependencies."${mod_id}"]]
 modId = "minecraft"
 type = "required"
-# This version range declares a minimum of the current minecraft version up to but not including the next major version
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
@@ -53,12 +43,6 @@ type = "required"
 versionRange = "[2.0.1+1.21.1,)"
 ordering = "NONE"
 side = "BOTH"
-
-# Features are specific properties of the game environment, that you may want to declare you require. This example declares
-# that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
-# stop your mod loading on the server for example.
-#[features."${mod_id}"]
-#openGLVersion="[3.2,)"
 
 # AzureLib is optional; its 3.1 API is used only by the client armor bridge.
 [[dependencies."${mod_id}"]]

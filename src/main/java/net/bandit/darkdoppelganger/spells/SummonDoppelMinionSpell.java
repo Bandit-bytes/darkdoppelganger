@@ -148,11 +148,9 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
 
         serverLevel.addFreshEntity(minion);
 
-        // Track with SummonManager + attach to cast data
         SummonedEntitiesCastData castData = new SummonedEntitiesCastData();
         SummonManager.initSummon(entity, minion, SUMMON_TIME_TICKS, castData);
 
-        // Start recast timer (so second cast unsummons)
         RecastInstance recastInstance = new RecastInstance(
                 this.getSpellId(),
                 spellLevel,
@@ -163,8 +161,6 @@ public class SummonDoppelMinionSpell extends AbstractSpell {
         );
         recasts.addRecast(recastInstance, magicData);
     }
-
-    // --- Spawn helper (same idea as your old version) ---
 
     static Vec3 findSafeSpawnLocation(ServerLevel level, LivingEntity caster, float maxDistance) {
         var hit = Utils.getTargetBlock(level, caster, ClipContext.Fluid.NONE, maxDistance);

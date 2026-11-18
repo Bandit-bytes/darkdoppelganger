@@ -47,7 +47,6 @@ public class EntityRegistry {
                     .build(ResourceLocation.fromNamespaceAndPath(DarkDoppelgangerMod.MOD_ID, "portal_leave_entity").toString()));
 
 
-    // Method to register sound events
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }

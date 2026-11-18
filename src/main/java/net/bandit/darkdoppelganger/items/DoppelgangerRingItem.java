@@ -61,8 +61,8 @@ public class DoppelgangerRingItem extends CurioBaseItem implements IPresetSpellC
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
         if (entity instanceof Player player) {
-            if (player.getHealth() < player.getMaxHealth() && player.tickCount % 20 == 0) { // Heal once per second
-                player.heal(0.5F); // Heal 0.5 health (quarter heart)
+            if (player.getHealth() < player.getMaxHealth() && player.tickCount % 20 == 0) {
+                player.heal(0.5F);
             }
         }
     }

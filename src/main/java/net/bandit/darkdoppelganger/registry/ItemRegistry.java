@@ -38,7 +38,6 @@ public class ItemRegistry {
     public static final  DeferredHolder<Item, Item> SUMMONS_NECKLACE = ITEMS.register("summons_necklace",
             () -> new SummonsNecklace(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
 
-    // Method to register sound events
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
