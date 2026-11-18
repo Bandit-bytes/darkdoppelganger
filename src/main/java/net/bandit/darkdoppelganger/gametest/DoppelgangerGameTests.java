@@ -2,6 +2,7 @@ package net.bandit.darkdoppelganger.gametest;
 
 import io.redspace.ironsspellbooks.api.registry.AttributeRegistry;
 import io.redspace.ironsspellbooks.api.registry.SpellRegistry;
+import net.bandit.darkdoppelganger.Config;
 import net.bandit.darkdoppelganger.DarkDoppelgangerMod;
 import net.bandit.darkdoppelganger.cutscene.CutsceneTracker;
 import net.bandit.darkdoppelganger.summoning.DoppelgangerSummoning;
@@ -14,6 +15,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -166,7 +168,7 @@ public class DoppelgangerGameTests {
     }
 
     @GameTest(template = ARENA, batch = "doppel_armor", timeoutTicks = 200)
-    public static void copiedArmorDoesNotProtect(GameTestHelper helper) {
+    public static void copiedArmorProtectsAtConfiguredShare(GameTestHelper helper) {
         IronGolem attacker = spawnDummy(helper, new BlockPos(2, 2, 2));
         DarkDoppelgangerEntity bare = spawnBoss(helper, new BlockPos(8, 2, 12));
         DarkDoppelgangerEntity geared = spawnBoss(helper, new BlockPos(16, 2, 12));
@@ -185,8 +187,15 @@ public class DoppelgangerGameTests {
             float gearedLoss = damage(geared, mobHit(helper, attacker), 40.0F);
             float expected = expectedLoss(bare, 40.0F);
             check(helper, Math.abs(bareLoss - expected) < 0.05F, "Bare boss took " + bareLoss + ", expected " + expected);
-            check(helper, Math.abs(gearedLoss - bareLoss) < 0.05F,
-                    "Prot IV netherite changed damage taken: geared " + gearedLoss + " vs bare " + bareLoss);
+            // Netherite adds 20 armor, 12 toughness and 16 Protection, each counted at the configured share.
+            float share = Config.DOPPELGANGER_COPIED_ARMOR_EFFECTIVENESS.get().floatValue();
+            float scaled = 40.0F * scale(geared);
+            float afterArmor = CombatRules.getDamageAfterAbsorb(scaled, 10.0F + 20.0F * share, 12.0F * share);
+            float expectedGeared = CombatRules.getDamageAfterMagicAbsorb(afterArmor, 16.0F * share);
+            check(helper, Math.abs(gearedLoss - expectedGeared) < 0.05F,
+                    "Prot IV netherite boss took " + gearedLoss + ", expected " + expectedGeared + " at share " + share);
+            check(helper, share <= 0.0F || gearedLoss < bareLoss,
+                    "Copied armor did not protect: geared " + gearedLoss + " vs bare " + bareLoss);
             cleanupAndSucceed(helper);
         });
     }
@@ -230,17 +239,35 @@ public class DoppelgangerGameTests {
         });
     }
 
-    @GameTest(template = ARENA, batch = "doppel_spellpower", timeoutTicks = 100)
-    public static void copiedSpellPowerIsCapped(GameTestHelper helper) {
+    @GameTest(template = ARENA, batch = "doppel_copy", timeoutTicks = 100)
+    public static void copiesSummonerOffhandAndSpellPower(GameTestHelper helper) {
+        ServerPlayer player = mockPlayerAt(helper, new BlockPos(2, 2, 2));
+        player.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
+        player.getAttribute(AttributeRegistry.SPELL_POWER.get()).setBaseValue(2.0);
+        player.getAttribute(AttributeRegistry.FIRE_SPELL_POWER.get()).setBaseValue(1.5);
         DarkDoppelgangerEntity boss = spawnBoss(helper, CENTER);
-        boss.getAttribute(AttributeRegistry.SPELL_POWER.get()).setBaseValue(3.0);
-        boss.getAttribute(AttributeRegistry.FIRE_SPELL_POWER.get()).setBaseValue(2.5);
+        boss.setSummonerPlayer(player);
+
         double global = boss.getAttributeValue(AttributeRegistry.SPELL_POWER.get());
         double fire = boss.getAttributeValue(AttributeRegistry.FIRE_SPELL_POWER.get());
-        check(helper, Math.abs(global - 1.3) < 1e-6, "Global spell power not capped: " + global);
-        check(helper, Math.abs(fire - 1.3) < 1e-6, "Fire spell power not capped: " + fire);
-        check(helper, boss.getAttributeValue(Attributes.MOVEMENT_SPEED) > 0.0, "Cap broke a non-spell attribute");
-        cleanupAndSucceed(helper);
+        double expectedGlobal = expectedCopiedSpellPower(2.0);
+        double expectedFire = expectedCopiedSpellPower(1.5);
+        check(helper, Math.abs(global - expectedGlobal) < 1e-6, "Global spell power " + global + ", expected " + expectedGlobal);
+        check(helper, Math.abs(fire - expectedFire) < 1e-6, "Fire spell power " + fire + ", expected " + expectedFire);
+        check(helper, boss.getAttributeValue(Attributes.MOVEMENT_SPEED) > 0.0, "Spell power scaling broke a non-spell attribute");
+        if (Config.DOPPELGANGER_COPY_PLAYER_OFFHAND.get()) {
+            check(helper, boss.getOffhandItem().is(Items.SHIELD), "Offhand not copied: " + boss.getOffhandItem());
+        }
+        cleanupAndSucceed(helper, player);
+    }
+
+    /** What the boss should end up with after copying {@code value}, given the spell power config. */
+    private static double expectedCopiedSpellPower(double value) {
+        double multiplier = Config.DOPPELGANGER_SPELL_POWER_MULTIPLIER.get();
+        double scaled = multiplier > 0.0 ? value * multiplier : value;
+        double cap = Config.DOPPELGANGER_MAX_COPIED_SPELL_POWER.get();
+        if (cap <= 0.0) return scaled;
+        return Math.min(scaled, multiplier > 0.0 ? cap * multiplier : cap);
     }
 
     @GameTest(template = ARENA, batch = "doppel_multiplayer", timeoutTicks = 100)

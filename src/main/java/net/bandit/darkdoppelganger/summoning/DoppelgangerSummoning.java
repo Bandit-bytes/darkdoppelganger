@@ -116,6 +116,9 @@ public final class DoppelgangerSummoning {
             mainHand = getConfiguredItem(Config.DOPPELGANGER_DEFAULT_MAINHAND.get());
         }
         boss.setItemSlot(EquipmentSlot.MAINHAND, mainHand);
+        boss.setItemSlot(EquipmentSlot.OFFHAND, Config.DOPPELGANGER_COPY_PLAYER_OFFHAND.get()
+                ? player.getOffhandItem().copy()
+                : ItemStack.EMPTY);
 
         List<? extends String> banned = Config.DOPPELGANGER_BANNED_ARMOR.get();
         boolean copyPlayerArmor = Config.DOPPELGANGER_COPY_PLAYER_ARMOR.get();

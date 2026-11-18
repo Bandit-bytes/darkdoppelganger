@@ -66,6 +66,7 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -353,7 +354,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         entityData.set(DATA_SKIN_OWNER, Optional.ofNullable(summonerUUID));
         if (summoner != null) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
-                if (slot == EquipmentSlot.OFFHAND) {
+                if (slot == EquipmentSlot.OFFHAND && !Config.DOPPELGANGER_COPY_PLAYER_OFFHAND.get()) {
                     continue;
                 }
                 ItemStack itemStack = summoner.getItemBySlot(slot);
@@ -364,16 +365,16 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             this.setPersistenceRequired();
         }
 
-        copyAttribute(AttributeRegistry.HOLY_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.BLOOD_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.NATURE_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.ELDRITCH_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.FIRE_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.ICE_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.LIGHTNING_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.EVOCATION_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.ENDER_SPELL_POWER.get());
-        copyAttribute(AttributeRegistry.SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.HOLY_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.BLOOD_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.NATURE_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.ELDRITCH_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.FIRE_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.ICE_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.LIGHTNING_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.EVOCATION_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.ENDER_SPELL_POWER.get());
+        copyAttribute(summoner, AttributeRegistry.SPELL_POWER.get());
         boostSpellPowerFromConfig();
 
 
@@ -593,8 +594,7 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
         }
     }
 
-    private void copyAttribute(Attribute attribute) {
-        Player summoner = getSummonerPlayer();
+    private void copyAttribute(Player summoner, Attribute attribute) {
         if (summoner == null) return;
         AttributeInstance sourceAttribute = summoner.getAttribute(attribute);
         AttributeInstance targetAttribute = this.getAttribute(attribute);
@@ -1078,21 +1078,28 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     /**
-     * Mirrored armor is for looks and mind games, not defense. Copying a fully geared player's
-     * armor (plus Protection) made the boss take under a tenth of their damage, so it uses its
-     * own base armor and toughness instead and does not wear down the copies.
+     * Copied armor protects the boss at copied_armor_effectiveness. At full strength a fully geared
+     * player's armor plus Protection made the boss take as little as a seventh of their damage, so by
+     * default it counts for half. Its own base armor always counts in full, and it does not wear down the copies.
      */
     @Override
     protected float getDamageAfterArmorAbsorb(DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_ARMOR)) return amount;
-        AttributeInstance armor = getAttribute(Attributes.ARMOR);
-        AttributeInstance toughness = getAttribute(Attributes.ARMOR_TOUGHNESS);
+        float effectiveness = Config.DOPPELGANGER_COPIED_ARMOR_EFFECTIVENESS.get().floatValue();
         return CombatRules.getDamageAfterAbsorb(amount,
-                armor == null ? 0.0F : (float) armor.getBaseValue(),
-                toughness == null ? 0.0F : (float) toughness.getBaseValue());
+                withCopiedShare(Attributes.ARMOR, effectiveness),
+                withCopiedShare(Attributes.ARMOR_TOUGHNESS, effectiveness));
     }
 
-    /** Resistance still applies; Protection enchantments on the copied armor do not. */
+    /** The attribute's base value plus the given share of what the copied gear adds on top. */
+    private float withCopiedShare(Attribute attribute, float effectiveness) {
+        AttributeInstance instance = getAttribute(attribute);
+        if (instance == null) return 0.0F;
+        double base = instance.getBaseValue();
+        return (float) (base + (instance.getValue() - base) * effectiveness);
+    }
+
+    /** Resistance applies in full; Protection enchantments on the copied armor at copied_armor_effectiveness. */
     @Override
     protected float getDamageAfterMagicAbsorb(DamageSource source, float amount) {
         if (source.is(DamageTypeTags.BYPASSES_EFFECTS)) return amount;
@@ -1101,7 +1108,11 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
             int reduction = Math.min(25, (resistance.getAmplifier() + 1) * 5);
             amount = Math.max(amount * (25 - reduction) / 25.0F, 0.0F);
         }
-        return amount;
+        if (amount <= 0.0F || source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS)) return amount;
+        float effectiveness = Config.DOPPELGANGER_COPIED_ARMOR_EFFECTIVENESS.get().floatValue();
+        if (effectiveness <= 0.0F) return amount;
+        float protection = EnchantmentHelper.getDamageProtection(getArmorSlots(), source) * effectiveness;
+        return protection > 0.0F ? CombatRules.getDamageAfterMagicAbsorb(amount, protection) : amount;
     }
 
     @Override
@@ -1372,11 +1383,15 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     private void mirrorTargetWeapon(Player player) {
-        if (!Config.DOPPELGANGER_COPY_PLAYER_MAINHAND.get()) return;
-        ItemStack held = player.getMainHandItem();
+        if (Config.DOPPELGANGER_COPY_PLAYER_MAINHAND.get()) mirrorHeldItem(player, EquipmentSlot.MAINHAND);
+        if (Config.DOPPELGANGER_COPY_PLAYER_OFFHAND.get()) mirrorHeldItem(player, EquipmentSlot.OFFHAND);
+    }
+
+    private void mirrorHeldItem(Player player, EquipmentSlot slot) {
+        ItemStack held = player.getItemBySlot(slot);
         if (!held.isEmpty()) {
-            setItemSlot(EquipmentSlot.MAINHAND, held.copy());
-            setDropChance(EquipmentSlot.MAINHAND, 0.0F);
+            setItemSlot(slot, held.copy());
+            setDropChance(slot, 0.0F);
         }
     }
 
@@ -1505,8 +1520,9 @@ public class DarkDoppelgangerEntity extends AbstractSpellCastingMob implements E
     }
 
     /**
-     * Caps copied spell power so a high spell power mage is not punished for their build.
-     * Iron's Spellbooks reads spell power through this method, so equipment bonuses are capped too.
+     * Optionally caps copied spell power (max_copied_spell_power, off by default) for servers where
+     * high spell power builds find the boss too punishing. Iron's Spellbooks reads spell power
+     * through this method, so equipment bonuses are capped too.
      */
     @Override
     public double getAttributeValue(Attribute attribute) {
